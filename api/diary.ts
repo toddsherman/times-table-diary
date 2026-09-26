@@ -1,4 +1,4 @@
-import { createHash, createHmac } from 'node:crypto'
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
 import { neon } from '@neondatabase/serverless'
 
 /**
@@ -14,6 +14,9 @@ import { neon } from '@neondatabase/serverless'
  * A diary's ID is an HMAC of her name and the family PIN with a server secret, so IDs can't be
  * guessed or reversed, and two kids with the same name get separate diaries unless they also
  * pick the same PIN.
+ *
+ * The app calls it as www.todd.sh/timesTableDiary/App/api/diary; a todd.sh route handler
+ * forwards those requests here.
  */
 
 export interface DiaryRecord {
@@ -92,11 +95,26 @@ async function readJson(request: Request): Promise<Json | null> {
   }
 }
 
-function clientIp(request: Request): string {
+function sameSecret(given: string | null, expected: string): boolean {
+  const digest = (value: string) => createHash('sha256').update(value).digest()
+  return given !== null && timingSafeEqual(digest(given), digest(expected))
+}
+
+/**
+ * Who's asking, for the login rate limits. Requests from www.todd.sh arrive from todd.sh's route
+ * handler, so it passes the visitor's address along, and it's believed only with the proxy key.
+ */
+function clientIp(request: Request, proxyKey: string | undefined): string {
+  const visitor = request.headers.get('x-diary-client-ip')
+  if (visitor && proxyKey && sameSecret(request.headers.get('x-diary-proxy-key'), proxyKey)) return visitor
   return request.headers.get('x-real-ip') ?? request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
 }
 
-export function createHandler(getStore: () => Store, getSecret: () => string | undefined) {
+export function createHandler(
+  getStore: () => Store,
+  getSecret: () => string | undefined,
+  getProxyKey: () => string | undefined = () => undefined,
+) {
   async function login(request: Request): Promise<Response> {
     const body = await readJson(request)
     if (!body || (body.action !== 'create' && body.action !== 'open')) return fail(400, 'bad_request')
@@ -116,7 +134,7 @@ export function createHandler(getStore: () => Store, getSecret: () => string | u
     // Slow down PIN guessing, both per device and per name.
     const nameKey = createHash('sha256').update(name).digest('hex').slice(0, 24)
     const allowed =
-      (await store.hit(`limit:ip:${clientIp(request)}`, 20, 15 * 60)) && (await store.hit(`limit:name:${nameKey}`, 40, 60 * 60))
+      (await store.hit(`limit:ip:${clientIp(request, getProxyKey())}`, 20, 15 * 60)) && (await store.hit(`limit:name:${nameKey}`, 40, 60 * 60))
     if (!allowed) return fail(429, 'too_many')
 
     const id = diaryId(secret, name, pin)
@@ -261,5 +279,6 @@ export default {
   fetch: createHandler(
     () => (store ??= postgresStore()),
     () => process.env.DIARY_SECRET,
+    () => process.env.DIARY_PROXY_KEY,
   ),
 }

@@ -4,5 +4,26 @@
   "installCommand": "npm install",
   "buildCommand": "npm run build",
   "devCommand": "vite --port $PORT",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "redirects": [
+    {
+      "source": "/((?!timesTableDiary/App|api/|sw\\.js).*)",
+      "destination": "https://www.todd.sh/timesTableDiary/App",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    { "source": "/timesTableDiary/App", "destination": "/timesTableDiary/App/index.html" },
+    { "source": "/timesTableDiary/App/api/:path*", "destination": "/api/:path*" }
+  ],
+  "headers": [
+    {
+      "source": "/timesTableDiary/App/sw.js",
+      "headers": [{ "key": "Service-Worker-Allowed", "value": "/timesTableDiary/App" }]
+    },
+    {
+      "source": "/timesTableDiary/App/assets/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    }
+  ]
 }

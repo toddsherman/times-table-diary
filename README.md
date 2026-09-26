@@ -4,14 +4,14 @@ A times tables practice game (1 × 1 to 12 × 12) styled like a doodled-in diary
 
 Each session is a short "diary entry" of about 20 questions. At the end she gets an auto-written diary page and a sticker. Her "doodle page" (the 12 × 12 grid) fills in as facts go from blank → pencil → inked → colored in → sparkly → gold star.
 
-**Live:** https://times-table-diary.vercel.app · **How it works and why:** https://www.todd.sh/timesTableDiary
+**Live:** https://www.todd.sh/timesTableDiary/App · **How it works and why:** https://www.todd.sh/timesTableDiary
 
 ## Running it
 
 ```bash
 npm install
 vercel env pull    # once: fetches DATABASE_URL and DIARY_SECRET into .env.local
-vercel dev         # app + API at http://localhost:3000
+vercel dev         # app + API at http://localhost:3000/timesTableDiary/App
 npm test           # engine, sync, and API unit tests
 npm run build      # production build in dist/
 vercel deploy --prod
@@ -69,6 +69,18 @@ Press and hold "Grown-ups: hold" on the home screen for about a second. It has:
 - **Environment variables:**
   - `DATABASE_URL`: set by the Neon integration.
   - `DIARY_SECRET`: a random 32-byte hex string; secret in production and preview.
+  - `DIARY_PROXY_KEY`: another random 32-byte hex string, set on both this project and todd.sh (production and preview). See the next section.
+
+## Served from todd.sh
+
+The app's address is www.todd.sh/timesTableDiary/App, one level below its write-up. todd.sh ([toddsherman/todd.sh](https://github.com/toddsherman/todd.sh)) is a separate Next.js site that fronts this Vercel project:
+
+- **The app** comes through a rewrite in todd.sh's `next.config.ts` that keeps the path unchanged. Vite builds with `/timesTableDiary/App/` as its base into `dist/timesTableDiary/App/`, so this deployment serves the app from that same path.
+- **The API** goes through a todd.sh route handler instead (`app/timesTableDiary/App/api/diary/route.ts`). Behind a plain rewrite, every request would seem to come from todd.sh, but the PIN rate limits need each visitor's IP address. The handler sends it in `x-diary-client-ip`, which the API believes only alongside `DIARY_PROXY_KEY`.
+- **No trailing slash.** todd.sh removes trailing slashes, so the page is `/timesTableDiary/App`. A service worker at `/timesTableDiary/App/sw.js` wouldn't cover that page by default, so it registers with scope `/timesTableDiary/App`. The `Service-Worker-Allowed` header in `vercel.json` permits that.
+- **The old address.** Everything else on times-table-diary.vercel.app redirects to the new one, except `/sw.js`. That file is `old-address/sw.js`, which replaces the service worker that used to cache the app there; without it, returning visitors would keep opening the cached old app and never reach the redirect.
+
+Storage belongs to each site, so a device that used the old address starts fresh at the new one: open the diary there with the same name and family PIN. A Home Screen icon added from the old address should be deleted and added again from the new one.
 
 ## How the learning engine works
 

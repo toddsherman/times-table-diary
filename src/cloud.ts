@@ -36,18 +36,20 @@ async function call(path: string, init: RequestInit = {}): Promise<Record<string
   return body
 }
 
-const diaryUrl = (link: CloudLink, op = '') => `/api/diary?id=${link.id}${op ? `&op=${op}` : ''}`
+// Under the app's own path, like everything else: www.todd.sh hands these on to the API.
+const API = `${import.meta.env.BASE_URL}api/diary`
+const diaryUrl = (link: CloudLink, op = '') => `${API}?id=${link.id}${op ? `&op=${op}` : ''}`
 const linkFrom = (id: unknown, version: unknown): CloudLink => ({ id: String(id), version: Number(version), syncedAt: Date.now() })
 
 /** Starts a new online diary. Fails with "taken" if that name and PIN are already in use. */
 export async function createDiary(name: string, pin: string, progress: Progress): Promise<CloudLink> {
-  const body = await call('/api/diary', { method: 'POST', body: JSON.stringify({ action: 'create', name, pin, progress }) })
+  const body = await call(API, { method: 'POST', body: JSON.stringify({ action: 'create', name, pin, progress }) })
   return linkFrom(body.id, body.version)
 }
 
 /** Opens an existing diary on this device. */
 export async function openDiary(name: string, pin: string): Promise<{ progress: Progress; link: CloudLink }> {
-  const body = await call('/api/diary', { method: 'POST', body: JSON.stringify({ action: 'open', name, pin }) })
+  const body = await call(API, { method: 'POST', body: JSON.stringify({ action: 'open', name, pin }) })
   return { progress: parseProgress(JSON.stringify(body.progress)), link: linkFrom(body.id, body.version) }
 }
 

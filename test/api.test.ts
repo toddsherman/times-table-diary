@@ -40,15 +40,15 @@ function memoryStore(): Store {
   }
 }
 
-function server(secret = 'test-secret') {
+function server(secret = 'test-secret', proxyKey?: string) {
   const store = memoryStore()
-  const fetchApi = createHandler(() => store, () => secret)
-  return async (method: string, path: string, body?: unknown, ip = '10.0.0.1') => {
+  const fetchApi = createHandler(() => store, () => secret, () => proxyKey)
+  return async (method: string, path: string, body?: unknown, ip = '10.0.0.1', headers: Record<string, string> = {}) => {
     const res = await fetchApi(
       new Request(`https://diary.test${path}`, {
         method,
         body: body === undefined ? undefined : JSON.stringify(body),
-        headers: { 'x-real-ip': ip },
+        headers: { 'x-real-ip': ip, ...headers },
       }),
     )
     return { status: res.status, body: (await res.json()) as Record<string, unknown> }
@@ -108,6 +108,29 @@ describe('diary API', () => {
     for (let pin = 5000; pin < 5021; pin++) statuses.push((await api('POST', '/api/diary', { action: 'open', name: 'Ava', pin: String(pin) })).status)
     expect(statuses.slice(0, 20).every((s) => s === 404)).toBe(true)
     expect(statuses[20]).toBe(429)
+  })
+
+  it('rate-limits each visitor separately behind the todd.sh proxy', async () => {
+    const api = server('test-secret', 'proxy-key')
+    const open = (visitor: string) =>
+      api('POST', '/api/diary', { action: 'open', name: 'Ava', pin: '8305' }, '10.9.9.9', {
+        'x-diary-client-ip': visitor,
+        'x-diary-proxy-key': 'proxy-key',
+      })
+    for (let i = 0; i < 20; i++) expect((await open('203.0.113.1')).status).toBe(404)
+    expect((await open('203.0.113.1')).status).toBe(429)
+    expect((await open('203.0.113.2')).status).toBe(404)
+  })
+
+  it('ignores forwarded visitor addresses without the proxy key', async () => {
+    for (const api of [server('test-secret', 'proxy-key'), server()]) {
+      const statuses = []
+      for (let i = 0; i < 21; i++) {
+        const headers = { 'x-diary-client-ip': `203.0.113.${i}`, 'x-diary-proxy-key': 'guessed-key' }
+        statuses.push((await api('POST', '/api/diary', { action: 'open', name: 'Ava', pin: '8305' }, '10.9.9.9', headers)).status)
+      }
+      expect(statuses[20]).toBe(429)
+    }
   })
 
   it('saves with version checks so one device never silently overwrites another', async () => {
