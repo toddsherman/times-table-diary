@@ -1,5 +1,6 @@
 import { useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
 import { dateFromDay } from '../engine/dates'
+import type { CalendarDay } from '../engine/report'
 import { longDay, shortDay } from '../format'
 
 // One series, one hue; validated for contrast on the white card (dataviz validate_palette).
@@ -131,13 +132,19 @@ export function TableMeters({ tables, missing }: { tables: Array<{ table: number
   )
 }
 
-/** The last four weeks of diary entries, laid out by weekday. */
-export function PracticeCalendar({ days }: { days: Array<{ day: number; entries: number }> }) {
+/** The last four weeks of practice, laid out by weekday. */
+export function PracticeCalendar({ days }: { days: CalendarDay[] }) {
   const [active, setActive] = useState<number | null>(null)
   const offset = dateFromDay(days[0].day).getDay()
   const today = days[days.length - 1].day
   const a = days.find((d) => d.day === active)
-  const describe = (n: number) => (n === 0 ? 'no diary entry' : `${n} diary ${n === 1 ? 'entry' : 'entries'}`)
+  const describe = (d: CalendarDay) => {
+    const time = d.minutes > 0 ? ` · ${d.minutes} min` : ''
+    if (d.status === 'none') return 'no practice'
+    if (d.status === 'partial') return `${d.done} of ${d.parts} parts of the page${time}`
+    return `${d.parts > 0 ? 'page finished' : d.entries === 1 ? '1 diary entry' : `${d.entries} diary entries`}${time}`
+  }
+  const level = { none: 'c0', partial: 'c1', page: 'c2' } as const
   return (
     <>
       <div className="calendar">
@@ -153,8 +160,8 @@ export function PracticeCalendar({ days }: { days: Array<{ day: number; entries:
           <button
             key={d.day}
             type="button"
-            className={`cal-cell c${Math.min(d.entries, 2)} ${d.day === today ? 'today' : ''} ${d.day === active ? 'on' : ''}`}
-            aria-label={`${longDay(d.day)}: ${describe(d.entries)}`}
+            className={`cal-cell ${level[d.status]} ${d.day === today ? 'today' : ''} ${d.day === active ? 'on' : ''}`}
+            aria-label={`${longDay(d.day)}: ${describe(d)}`}
             onPointerEnter={() => setActive(d.day)}
             onFocus={() => setActive(d.day)}
             onClick={() => setActive(d.day)}
@@ -163,17 +170,17 @@ export function PracticeCalendar({ days }: { days: Array<{ day: number; entries:
       </div>
       <div className="cal-legend" aria-hidden="true">
         <span>
-          <i className="cal-cell c0" /> No entry
+          <i className="cal-cell c0" /> No practice
         </span>
         <span>
-          <i className="cal-cell c1" /> 1 entry
+          <i className="cal-cell c1" /> Part of a page
         </span>
         <span>
-          <i className="cal-cell c2" /> 2 or more
+          <i className="cal-cell c2" /> Page finished
         </span>
       </div>
       <p className="chart-detail" aria-live="polite">
-        {a ? `${longDay(a.day)}: ${describe(a.entries)}` : 'Tap a day for details.'}
+        {a ? `${longDay(a.day)}: ${describe(a)}` : 'Tap a day for details.'}
       </p>
     </>
   )

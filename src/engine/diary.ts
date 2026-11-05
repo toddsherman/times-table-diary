@@ -1,6 +1,18 @@
 import { showFact } from './facts'
 import type { Rng, SessionState } from './session'
-import type { DiaryEntry } from './types'
+import type { DiaryEntry, PartKind, PartPlan } from './types'
+
+/** How each part of the daily page is named in her diary. */
+const PART_NAMES: Record<PartKind, string> = {
+  warmup: 'a warm-up',
+  new: 'new facts',
+  mixed: 'practice',
+  puzzles: 'puzzles',
+  lightning: 'a lightning lap',
+  bonus: 'a bonus round',
+}
+
+const PUZZLE_LINES = ['Division is just times tables backwards. Who knew?!', 'Missing numbers cannot hide from me.']
 
 const pick = <T>(xs: readonly T[], rng: Rng): T => xs[Math.floor(rng() * xs.length)]
 
@@ -44,14 +56,41 @@ export interface EntryContext {
   now: number
   /** Facts at sparkly or better after the session. */
   mastered: number
+  /** Practice time; worked out from the session's start when it isn't given. */
+  minutes?: number
+  /** The daily page's parts, and her lightning-lap record before today. */
+  page?: { parts: PartPlan[]; bestBefore: number }
+}
+
+function listParts(kinds: PartKind[]): string {
+  const names = kinds.map((k) => PART_NAMES[k])
+  return names.length < 2 ? (names[0] ?? '') : `${names.slice(0, -1).join(', ')} AND ${names.at(-1)}`
+}
+
+function pageLines({ parts, bestBefore }: NonNullable<EntryContext['page']>, rng: Rng): string[] {
+  const lines = [`I finished my WHOLE page: ${listParts(parts.map((part) => part.kind))}!`]
+  const puzzles = parts.find((part) => part.kind === 'puzzles' && part.firstTry > 0)
+  if (puzzles) {
+    const solved = puzzles.right === puzzles.firstTry ? `ALL ${puzzles.firstTry}` : `${puzzles.right} of ${puzzles.firstTry}`
+    lines.push(`I solved ${solved} puzzles. ${pick(PUZZLE_LINES, rng)}`)
+  }
+  const lap = parts.find((part) => part.kind === 'lightning' && part.firstTry > 0)
+  if (lap) {
+    if (bestBefore === 0) lines.push(`My first lightning lap: ${lap.fast} SUPER fast!`)
+    else if (lap.fast > bestBefore) lines.push(`Lightning lap: ${lap.fast} SUPER fast. NEW RECORD!!!`)
+    else if (lap.fast === bestBefore) lines.push(`Lightning lap: ${lap.fast} SUPER fast. I tied my record!`)
+    else lines.push(`Lightning lap: ${lap.fast} SUPER fast. My record is ${bestBefore}. I'm coming for it!`)
+  }
+  return lines
 }
 
 /** Writes the end-of-session diary entry in a dramatic, first-person diary voice. */
-export function writeEntry(s: SessionState, { streakDays, sticker, now, mastered }: EntryContext, rng: Rng = Math.random): DiaryEntry {
-  const minutes = Math.max(1, Math.round((now - s.startedAt) / 60_000))
+export function writeEntry(s: SessionState, { streakDays, sticker, now, mastered, minutes: given, page }: EntryContext, rng: Rng = Math.random): DiaryEntry {
+  const minutes = given ?? Math.max(1, Math.round((now - s.startedAt) / 60_000))
   const time = minutes === 1 ? 'about a minute' : `${minutes} minutes`
   const speedy = s.fast > 0 && s.fast >= s.firstTry / 2 ? `, and ${s.fast} were SUPER fast` : ''
   const lines = [pick(OPENERS, rng), `I did ${s.asked} times table facts in ${time}${speedy}.`]
+  if (page) lines.push(...pageLines(page, rng))
 
   const checkup = s.checkup
   if (checkup.planned > 0 && checkup.asked === checkup.planned) {
@@ -84,6 +123,6 @@ export function writeEntry(s: SessionState, { streakDays, sticker, now, mastered
     at: now,
     lines,
     sticker,
-    stats: { total: s.asked, firstTry: s.firstTry, right: s.right, fast: s.fast, minutes, mastered },
+    stats: { total: s.asked, firstTry: s.firstTry, right: s.right, fast: s.fast, minutes, mastered, ...(page ? { parts: page.parts.length } : {}) },
   }
 }

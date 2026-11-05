@@ -94,3 +94,14 @@ export function strategyHint(a: number, b: number): string {
       return FINAL_SIX[familyOf(factId(a, b))]
   }
 }
+
+/**
+ * A kid-sized way into a puzzle (a missing factor or a division) by way of its
+ * times table fact. Always ends with the answer.
+ */
+export function puzzleHint(a: number, b: number, form: 'missing-a' | 'missing-b' | 'divide'): string {
+  const p = a * b
+  if (form === 'divide') return `${p} ÷ ${a} asks: how many ${a}s make ${p}? ${a} × ${b} = ${p}, so it's ${b}`
+  if (form === 'missing-b') return `${a} times what makes ${p}? ${a} × ${b} = ${p}, so it's ${b}`
+  return `What times ${b} makes ${p}? ${a} × ${b} = ${p}, so it's ${a}`
+}

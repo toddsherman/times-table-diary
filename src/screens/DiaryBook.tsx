@@ -9,7 +9,7 @@ export function DiaryBook({ progress, onBack }: { progress: Progress; onBack: ()
       <TopBar title="My diary" onBack={onBack} />
       {entries.length === 0 ? (
         <div className="card empty tape">
-          <p>No diary pages yet. Write today's entry and it'll show up here!</p>
+          <p>No diary pages yet. Finish today's page and it'll show up here!</p>
         </div>
       ) : (
         entries.map((entry) => <DiaryPage key={entry.at} entry={entry} name={progress.name} withSticker />)

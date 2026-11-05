@@ -16,7 +16,7 @@ export const LEVELS: ReadonlyArray<{ name: string; note: string }> = [
 /** Days until the next review, by level (a Leitner box schedule). */
 const INTERVAL_DAYS: Record<Level, number> = { 0: 0, 1: 0, 2: 1, 3: 3, 4: 7, 5: 21 }
 
-export const DEFAULT_SETTINGS: Settings = { sessionLength: 20, sound: true }
+export const DEFAULT_SETTINGS: Settings = { sessionLength: 20, dailyMinutes: 20, sound: true }
 
 /**
  * A fresh diary. ×1 and ×10 facts start inked (assumed known, checked over the
@@ -50,6 +50,9 @@ export function createProgress(name: string, today: number): Progress {
     settings: { ...DEFAULT_SETTINGS },
     settingsAt: 0,
     updatedAt: 0,
+    days: [],
+    pace: {},
+    bestLightning: 0,
   }
 }
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { writeEntry } from './diary'
-import { ALL_FACT_IDS, familyOf, INTRO_ORDER, parseFact, stageOf, strategyHint } from './facts'
+import { ALL_FACT_IDS, familyOf, INTRO_ORDER, parseFact, puzzleHint, stageOf, strategyHint } from './facts'
 import { createProgress, fastThreshold, levelCounts, masteredCount, scoreFirstTry, streak } from './progress'
 import { createSession, finishCheckup, MAX_LEARNING, nextQuestion, planCheckup, recordAnswer, type Rng } from './session'
 import type { FactStat, Level, Progress, Question } from './types'
@@ -56,6 +56,16 @@ describe('facts', () => {
     const stages = INTRO_ORDER.map((id) => stageOf(parseFact(id).a, parseFact(id).b))
     expect(stages).toEqual([...stages].sort((x, y) => x - y))
     expect(INTRO_ORDER[INTRO_ORDER.indexOf('2x7') + 1]).toBe('7x2')
+  })
+
+  it('gives every puzzle a hint that ends with the missing number', () => {
+    for (const id of ALL_FACT_IDS) {
+      const { a, b } = parseFact(id)
+      for (const [form, answer] of [['divide', b], ['missing-b', b], ['missing-a', a]] as const) {
+        const numbers = puzzleHint(a, b, form).match(/\d+/g) ?? []
+        expect(Number(numbers.at(-1)), `${id} ${form}`).toBe(answer)
+      }
+    }
   })
 
   it('gives every fact a hint that ends with the right answer', () => {

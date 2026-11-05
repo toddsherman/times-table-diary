@@ -47,7 +47,7 @@ describe('merging two copies of a diary', () => {
     ipad.settingsAt = 5000
     phone.settings.sound = false
     phone.settingsAt = 4000
-    expect(mergeProgress(phone, ipad).settings).toEqual({ sessionLength: 30, sound: true })
+    expect(mergeProgress(phone, ipad).settings).toEqual({ sessionLength: 30, dailyMinutes: 20, sound: true })
   })
 
   it('gives the same result either way round, and nothing new when merging a copy with itself', () => {
@@ -101,6 +101,6 @@ describe('progress report', () => {
       { day: TODAY, mastered: 4 },
     ])
     expect(report.calendar).toHaveLength(28)
-    expect(report.calendar.at(-2)).toEqual({ day: TODAY - 1, entries: 2 })
+    expect(report.calendar.at(-2)).toMatchObject({ day: TODAY - 1, entries: 2, minutes: 8, status: 'page' })
   })
 })

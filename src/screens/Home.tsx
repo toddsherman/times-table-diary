@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { GearIcon } from '../components/Icons'
+import { PagePlan } from '../components/PagePlan'
 import { Sticker } from '../components/Sticker'
 import { dayNumber } from '../engine/dates'
+import { PARTS, previewDay } from '../engine/day'
 import { ALL_FACT_IDS } from '../engine/facts'
 import { levelCounts, streak } from '../engine/progress'
 import type { Progress } from '../engine/types'
@@ -18,7 +20,16 @@ interface Props {
 export function Home({ progress, onStart, onDoodles, onDiary, onSettings }: Props) {
   const today = dayNumber()
   const days = streak(progress.entries, today)
-  const wroteToday = progress.entries.some((e) => e.day === today)
+  const plan = previewDay(progress, today)
+  const next = plan.parts[plan.current]
+  const started = progress.today?.day === today && (plan.current > 0 || plan.running)
+  const start = !next
+    ? 'Bonus round'
+    : plan.finished
+      ? 'Keep going: bonus round'
+      : started
+        ? `Keep going: ${PARTS[next.kind].title.toLowerCase()}`
+        : "Start today's page"
   const counts = levelCounts(progress)
   // Colored in or better. Strict mastery takes several days, and "0 mastered" on day one is no fun.
   const coloredIn = counts[3] + counts[4] + counts[5]
@@ -51,8 +62,16 @@ export function Home({ progress, onStart, onDoodles, onDiary, onSettings }: Prop
         <span style={{ flexGrow: counts[0] }} />
       </div>
 
-      <button type="button" className="btn pink big" onClick={onStart}>
-        {wroteToday ? 'Write a bonus entry' : "Write today's entry"}
+      <section className="card today-card tape" aria-labelledby="today-title">
+        <h2 id="today-title" className="today-title">
+          {plan.finished ? "Today's page is done!" : "Today's page"}
+        </h2>
+        <PagePlan plan={plan} />
+        {!plan.finished && next && <p className="next-intro">{PARTS[next.kind].intro}</p>}
+      </section>
+
+      <button type="button" className={`btn big ${plan.finished ? '' : 'pink'}`} onClick={onStart}>
+        {start}
       </button>
 
       <div className="home-links">

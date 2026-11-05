@@ -2,7 +2,7 @@
 
 A times tables practice game (1 × 1 to 12 × 12) styled like a doodled-in diary, built as an installable web app for iPad.
 
-Each session is a short "diary entry" of about 20 questions. At the end she gets an auto-written diary page and a sticker. Her "doodle page" (the 12 × 12 grid) fills in as facts go from blank → pencil → inked → colored in → sparkly → gold star.
+Practice is one "daily page" a day, sized to take about 20 minutes (10 or 15 can be chosen instead). There's no clock on screen: the page is a set amount of work, worked out from how long her questions usually take. When the page is done she gets an auto-written diary page and a sticker. Her "doodle page" (the 12 × 12 grid) fills in as facts go from blank → pencil → inked → colored in → sparkly → gold star.
 
 **Live:** https://www.todd.sh/timesTableDiary/App · **How it works and why:** https://www.todd.sh/timesTableDiary
 
@@ -49,7 +49,7 @@ Press and hold "Grown-ups: hold" on the home screen for about a second. It has:
 
 - the progress report
 - online sync status and a "Save now" button
-- questions per session and sound
+- the daily page's length (10, 15, or 20 minutes) and sound
 - backup files
 - "Use a different diary" (forget it on this device) and "Delete this diary everywhere"
 
@@ -60,7 +60,9 @@ Press and hold "Grown-ups: hold" on the home screen for about a second. It has:
 - the trickiest facts
 - retention:
   - **Remembered on re-tests:** of the mastered facts that came back for review a week or more later (or in a check-up), how many she still got right, over the last 30 days. Built from the answer log: every answer is uploaded.
-  - **Check-ups:** every two weeks, a diary entry starts with up to 10 mastered facts she hasn't practiced for a week or more. Each score is kept.
+  - **Check-ups:** every two weeks, the daily page's warm-up starts with up to 10 mastered facts she hasn't practiced for a week or more. Each score is kept.
+- practice this week (minutes, and pages finished)
+- recent pages: parts done, practice time, puzzles, and lightning laps. Practice time counts each question for at most 40 seconds, so breaks don't count.
 
 ## Server
 
@@ -82,6 +84,25 @@ The app's address is www.todd.sh/timesTableDiary/App, one level below its write-
 
 Storage belongs to each site, so a device that used the old address starts fresh at the new one: open the diary there with the same name and family PIN. A Home Screen icon added from the old address should be deleted and added again from the new one.
 
+## The daily page
+
+All of it lives in `src/engine/day.ts` and is covered by `src/engine/day.test.ts`.
+
+| Part | What she does |
+|---|---|
+| 1. Warm-up | Reviews due today, plus the check-up when one is due. Nothing new. |
+| 2. New facts | New and still-learning facts (marked NEW!), at least every third question. Skipped once there's nothing left to learn. |
+| 3. Practice | The usual mix: mostly known facts, with learning ones slotted in. |
+| 4. Puzzles | Known facts turned around: `7 × ? = 56`, `? × 8 = 56`, `56 ÷ 7`. Practice only: puzzles never change the doodle page. |
+| 5. Lightning lap | 20 facts she knows, as fast as she can. The diary keeps her record of super-fast answers. |
+
+- **Sizing.** The page's minutes are shared between the parts (the lightning lap is always 20 questions, so laps compare fairly). Each part's question count is that time divided by how long one question takes her in that part, including the cheer or fix-up. Those times start as guesses (6–10 seconds) and are then learned from each part she finishes.
+- **Early days run short.** While she knows only a few facts, the practice part is trimmed to the facts she hasn't tried yet that day, and the new-facts part ends once nothing more is ready. That's better than repeating ×1 facts for 20 minutes.
+- **One day, many parts.** A fact is scored on its first try of the day, whichever part it comes up in. At most 4 new facts a day can land in pencil (missed or slow); the rest wait for tomorrow.
+- **Breaks.** Between parts she can keep going or take a break. Everything (including the question on screen) is saved, so she can come back any time that day. The diary page is written when the last part is done.
+- **Bonus rounds.** After the page is done, "Bonus round" adds 20 more practice questions with no extra diary page.
+- **Sync.** If two devices both worked on today's page, the one that got further keeps it; facts merge as before.
+
 ## How the learning engine works
 
 All of it lives in `src/engine/` and is covered by `src/engine/*.test.ts`.
@@ -92,10 +113,10 @@ All of it lives in `src/engine/` and is covered by `src/engine/*.test.ts`.
   - A fact moves up one level when she answers it correctly *and fast* on a day it's due.
   - Wrong answers drop it back. Right but slow keeps it where it is.
 - **"Fast" adapts to her.** The speed goal is based on how quickly she answers ×1 and ×10 facts (between 2.5 and 5 seconds), so typing speed isn't mistaken for not knowing. No timer is ever shown.
-- **Sessions** (`session.ts`).
-  - Most questions are facts she knows. A new or still-learning fact is slotted in every 1–4 questions, depending on how she's doing.
-  - At most 8 facts are in "learning" at once.
-  - Misses come back 2 and 6 questions later.
+- **Choosing questions** (`session.ts`).
+  - Most questions are facts she knows. A new or still-learning fact is slotted in every 1–4 questions, depending on how she's doing (every 1–3 in the new-facts part).
+  - At most 8 facts are in "learning" at once, and at most 4 new facts a day can land there.
+  - Misses come back 2 and 6 questions later (puzzles: 3 later). The lightning lap doesn't repeat misses.
   - If she answers the first 4 facts of a table fast, the rest of that table is inked straight away and checked in reviews over the next few days.
 - **Fix-ups.** After a miss she sees the answer, a strategy hint, and a dot array, then types the answer from memory. The answer gets covered as soon as she starts typing.
 

@@ -1,5 +1,6 @@
 import { useRef, useState, type ChangeEvent } from 'react'
 import { TopBar } from '../components/TopBar'
+import { dayNumber } from '../engine/dates'
 import { ALL_FACT_IDS } from '../engine/facts'
 import { fastThreshold, levelCounts, masteredCount, withSettings } from '../engine/progress'
 import { mergeProgress } from '../engine/sync'
@@ -24,6 +25,15 @@ interface Props {
   onDeleteEverywhere: () => Promise<void>
   onReport: () => void
   onBack: () => void
+}
+
+/** "Today: 3 of 5 parts done · 12 minutes so far", or that the page hasn't been started. */
+function todayLine(p: Progress): string {
+  const log = p.days.find((d) => d.day === dayNumber())
+  if (!log || log.questions === 0) return "Today's page hasn't been started yet."
+  const minutes = Math.round(log.activeMs / 60_000)
+  const time = minutes < 1 ? 'under a minute' : `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
+  return log.done === log.parts ? `Today's page is done: ${time} of practice.` : `Today: ${log.done} of ${log.parts} parts done · ${time} so far.`
 }
 
 export function Settings({ progress, link, sync, onChange, onSyncNow, onConnect, onForget, onDeleteEverywhere, onReport, onBack }: Props) {
@@ -104,6 +114,7 @@ export function Settings({ progress, link, sync, onChange, onSyncNow, onConnect,
         <p>
           {masteredCount(progress)} of {ALL_FACT_IDS.length} facts mastered · {counts[1]} being learned · {counts[0]} not started
         </p>
+        <p>{todayLine(progress)}</p>
         <p className="note">
           "Fast" currently means within {(fastThreshold(progress.motor, 56) / 1000).toFixed(1)} seconds. It adjusts to how quickly {owner}{' '}
           answers ×1 and ×10 facts, so slow typing isn't mistaken for not knowing.
@@ -157,15 +168,19 @@ export function Settings({ progress, link, sync, onChange, onSyncNow, onConnect,
       </section>
 
       <section className="card panel">
-        <h2>Questions per diary entry</h2>
+        <h2>Daily page</h2>
         <div className="segmented">
-          {[10, 20, 30].map((n) => (
-            <button key={n} type="button" className={settings.sessionLength === n ? 'on' : ''} onClick={() => changeSettings({ sessionLength: n })}>
-              {n}
+          {[10, 15, 20].map((n) => (
+            <button key={n} type="button" className={settings.dailyMinutes === n ? 'on' : ''} onClick={() => changeSettings({ dailyMinutes: n })}>
+              {n} minutes
             </button>
           ))}
         </div>
-        <p className="note">20 questions takes about 3 to 5 minutes.</p>
+        <p className="note">
+          Each day's page is a warm-up, new facts, practice, puzzles, and a lightning lap. The number of questions in each part is
+          set from how long {owner}'s questions usually take, so the page lasts about this long. There's no clock on screen. While{' '}
+          {owner} knows only a few facts, pages run shorter rather than repeating them. A page already started keeps its size.
+        </p>
       </section>
 
       <section className="card panel">

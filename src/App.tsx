@@ -129,11 +129,11 @@ export default function App() {
       return (
         <Practice
           progress={progress}
-          onQuit={(p) => {
+          onBreak={(p) => {
             commit(p)
             goHome()
           }}
-          onFinish={(p, e) => {
+          onPageDone={(p, e) => {
             commit(p)
             setEntry(e)
             setScreen('done')

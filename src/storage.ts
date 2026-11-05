@@ -1,5 +1,5 @@
 import { createProgress, DEFAULT_SETTINGS } from './engine/progress'
-import type { AnswerRecord, Progress } from './engine/types'
+import type { AnswerRecord, DayPlan, Progress } from './engine/types'
 
 const KEY = 'times-table-diary'
 const LINK_KEY = 'times-table-diary-cloud'
@@ -62,9 +62,11 @@ export function parseProgress(raw: string): Progress {
   }
   const blank = createProgress(String(data.name ?? ''), Number(data.createdDay ?? 0))
   const list = <T>(value: T[] | undefined): T[] => (Array.isArray(value) ? value : [])
+  const { today, ...rest } = data
   return {
     ...blank,
-    ...data,
+    ...rest,
+    ...(isDayPlan(today) ? { today } : {}),
     facts: { ...blank.facts, ...data.facts },
     settings: { ...DEFAULT_SETTINGS, ...data.settings },
     motor: list(data.motor),
@@ -74,7 +76,25 @@ export function parseProgress(raw: string): Progress {
     lastCheckupDay: Number(data.lastCheckupDay ?? -1),
     settingsAt: Number(data.settingsAt ?? 0),
     updatedAt: Number(data.updatedAt ?? 0),
+    days: list(data.days),
+    pace: typeof data.pace === 'object' && data.pace !== null ? data.pace : {},
+    bestLightning: Number(data.bestLightning ?? 0),
   }
+}
+
+/** Enough of a daily page to pick it back up; anything else is dropped and the day is planned afresh. */
+function isDayPlan(value: unknown): value is DayPlan {
+  const plan = value as Partial<DayPlan> | undefined
+  return (
+    typeof plan === 'object' &&
+    plan !== null &&
+    typeof plan.day === 'number' &&
+    Array.isArray(plan.parts) &&
+    typeof plan.current === 'number' &&
+    typeof plan.session === 'object' &&
+    plan.session !== null &&
+    typeof plan.session.part === 'object'
+  )
 }
 
 /** The server copy this device syncs with. */

@@ -45,3 +45,11 @@ export function Sparkle({ size = 18 }: { size?: number }) {
     </svg>
   )
 }
+
+export function CheckIcon({ size = 22 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
+      <path d="M4.5 12.5 9.5 17.5 19.5 6.5" {...stroke} strokeWidth={3.5} />
+    </svg>
+  )
+}

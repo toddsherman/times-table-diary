@@ -3,6 +3,7 @@ import { MasteryChart, PracticeCalendar, TableMeters } from '../components/Chart
 import { TopBar } from '../components/TopBar'
 import { fetchAnswers } from '../cloud'
 import { dayNumber } from '../engine/dates'
+import { LIGHTNING_LAP } from '../engine/day'
 import { factId, FACTORS, showFact } from '../engine/facts'
 import { LEVELS, MASTERED, trickiestFacts } from '../engine/progress'
 import { buildReport } from '../engine/report'
@@ -72,6 +73,16 @@ export function Report({ progress, link, onBack }: { progress: Progress; link: C
           </span>
         </div>
         <div className="tile">
+          <span className="tile-label">Practice this week</span>
+          <span className="tile-value">
+            {r.week.minutes}
+            <small> min</small>
+          </span>
+          <span className="tile-note">
+            {r.week.pages} of 7 daily pages finished · {progress.settings.dailyMinutes}-minute page
+          </span>
+        </div>
+        <div className="tile">
           <span className="tile-label">Diary days in a row</span>
           <span className="tile-value">{r.streak}</span>
           <span className="tile-note">
@@ -118,7 +129,7 @@ export function Report({ progress, link, onBack }: { progress: Progress; link: C
       <section className="card report-card">
         <h2>Check-ups</h2>
         <p className="note">
-          Every two weeks, a diary entry starts with up to 10 facts she mastered but hasn't practiced for a week or more.
+          Every two weeks, the warm-up on her daily page starts with up to 10 facts she mastered but hasn't practiced for a week or more.
         </p>
         {r.checkups.length > 0 ? (
           <table className="data-table">
@@ -149,6 +160,43 @@ export function Report({ progress, link, onBack }: { progress: Progress; link: C
       <section className="card report-card">
         <h2>Practice calendar</h2>
         <PracticeCalendar days={r.calendar} />
+      </section>
+
+      <section className="card report-card">
+        <h2>Recent pages</h2>
+        {r.recent.length > 0 ? (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>Parts done</th>
+                <th>Practice</th>
+                <th>Puzzles right</th>
+                <th>Lightning lap</th>
+              </tr>
+            </thead>
+            <tbody>
+              {r.recent.map((d) => (
+                <tr key={d.day}>
+                  <td>{longDay(d.day)}</td>
+                  <td>
+                    {d.done} of {d.parts}
+                  </td>
+                  <td>{Math.round(d.activeMs / 60_000)} min</td>
+                  <td>{d.puzzles.asked > 0 ? `${d.puzzles.right} of ${d.puzzles.asked}` : '–'}</td>
+                  <td>{d.lightning ? `${d.lightning.fast} of ${d.lightning.asked} super fast` : '–'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="note">Each day on the daily page shows up here.</p>
+        )}
+        <p className="note">
+          Practice time counts each question for at most 40 seconds, so breaks aren't included. Puzzles are missing-number and
+          division questions; they don't change the doodle page. The lightning lap is {LIGHTNING_LAP} facts she knows, as fast as
+          she can{progress.bestLightning > 0 ? `; her record is ${progress.bestLightning} super fast` : ''}.
+        </p>
       </section>
 
       <section className="card report-card">
