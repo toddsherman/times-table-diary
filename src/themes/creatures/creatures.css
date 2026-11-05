@@ -1,8 +1,666 @@
-/* Creatures theme. Everything is scoped to :root[data-theme='creatures'], except its tile in the theme pickers. */
+/*
+ * Creatures theme: an outdoor explorer's look. Sky and meadow, leaf green, sky blue and sunshine
+ * yellow, field-guide panels and a kraft-paper journal. Titan One for titles, Nunito for text.
+ * Every rule is scoped to :root[data-theme='creatures'], except its tile in the theme pickers.
+ */
 :root[data-theme='creatures'] {
-  --pink: #3fae49;
+  --ink: #2a3140;
+  --ink-soft: #55606e;
+  --paper: #eaf7ff;
+  --rule: transparent;
+  --margin: transparent;
+  --pink: #2fa84f;
+  --pink-soft: #d8f5cf;
+  --purple: #1d6fd0;
+  --purple-soft: #dceeff;
+  --teal: #ffc531;
+  --teal-soft: #fff1c2;
+  --yellow: #ffd54a;
+  --sticky: #fff4c2;
+  --pencil: #93a1ad;
+  --lvl3: #9de38c;
+  --lvl4: #84cdff;
+  --lvl5: #ffd23f;
+  --hand: 'Nunito', system-ui, sans-serif;
+  --bubble: 'Titan One', 'Nunito', system-ui, sans-serif;
+  --wobble: 20px;
+  --wobble-2: 20px;
+  --kraft: #f1ddb3;
+  --bark: #7a5230;
+}
+
+:root[data-theme='creatures'] body {
+  font-weight: 700;
+}
+
+/* Sky with a few clouds, fading into a meadow further down. */
+:root[data-theme='creatures'] .screen {
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(ellipse 70px 22px at 7% 150px, rgba(255, 255, 255, 0.85) 70%, transparent 72%),
+    radial-gradient(ellipse 46px 26px at 10% 136px, rgba(255, 255, 255, 0.85) 70%, transparent 72%),
+    radial-gradient(ellipse 80px 24px at 92% 210px, rgba(255, 255, 255, 0.85) 70%, transparent 72%),
+    radial-gradient(ellipse 50px 28px at 89% 194px, rgba(255, 255, 255, 0.85) 70%, transparent 72%),
+    linear-gradient(180deg, #bfe6ff 0, #e4f5ff 380px, #effae6 820px, #e2f5d1 100%);
+}
+
+:root[data-theme='creatures'] .bubble-title {
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+:root[data-theme='creatures'] .tagline,
+:root[data-theme='creatures'] .owner {
+  color: var(--purple);
+}
+
+/* Field-guide panels with a green tab instead of washi tape. */
+:root[data-theme='creatures'] .card {
+  background: #fffef8;
+  border: 3px solid var(--ink);
+  border-radius: 22px;
+  box-shadow: 0 6px 0 var(--ink);
+}
+
+:root[data-theme='creatures'] .tape::before {
+  top: -14px;
+  width: 96px;
+  height: 22px;
+  transform: translateX(-50%);
+  background: repeating-linear-gradient(90deg, #8fd35f 0 12px, #7cc54f 12px 24px);
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+}
+
+:root[data-theme='creatures'] .btn {
+  border-radius: 999px;
+  box-shadow: 0 5px 0 var(--ink);
+}
+
+:root[data-theme='creatures'] .btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+:root[data-theme='creatures'] .btn.small {
+  box-shadow: 0 4px 0 var(--ink);
+}
+
+/* Titan One runs wide, so big buttons and the cover title are a size smaller than the diary's. */
+:root[data-theme='creatures'] .btn.big {
+  font-size: clamp(1.7rem, 3.6vw, 2.3rem);
+}
+
+:root[data-theme='creatures'] .cover .bubble-title {
+  font-size: clamp(2.3rem, 5.4vw, 3.5rem);
+}
+
+:root[data-theme='creatures'] .icon-btn,
+:root[data-theme='creatures'] .back-btn {
+  box-shadow: 0 3px 0 var(--ink);
+}
+
+/* Field tags instead of sticky notes. */
+:root[data-theme='creatures'] .sticky {
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  box-shadow: 0 4px 0 var(--ink);
+}
+
+:root[data-theme='creatures'] .sticky.pink {
+  background: #d8f5cf;
+}
+
+:root[data-theme='creatures'] .sticky.teal {
+  background: #dceeff;
+}
+
+:root[data-theme='creatures'] .sticker {
+  filter: drop-shadow(2px 3px 0 rgba(42, 49, 64, 0.22));
+}
+
+:root[data-theme='creatures'] .level-bar {
+  border-radius: 999px;
+}
+
+:root[data-theme='creatures'] .level-bar .b1 {
+  background: #e1e8ee;
+}
+
+:root[data-theme='creatures'] .level-bar .b2 {
+  background: repeating-linear-gradient(45deg, #fff 0 5px, #e1e8ee 5px 7px);
+}
+
+/* Welcome */
+:root[data-theme='creatures'] .cover {
+  background: linear-gradient(180deg, #dff2ff 0, #f4fbea 100%);
+}
+
+:root[data-theme='creatures'] .stamp {
+  color: #2f7d32;
+  border-color: #2f7d32;
+  border-radius: 999px;
+}
+
+:root[data-theme='creatures'] .cover-doodles {
+  align-items: flex-end;
+}
+
+:root[data-theme='creatures'] .cover-egg {
+  animation: creatures-wobble 2.8s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+
+:root[data-theme='creatures'] .cover-egg:nth-child(2) {
+  animation-delay: -0.9s;
+}
+
+:root[data-theme='creatures'] .cover-egg:nth-child(3) {
+  animation-delay: -1.8s;
+}
+
+:root[data-theme='creatures'] .name-input {
+  font-family: var(--bubble);
+}
+
+/* Home: the team of creatures, then the place stamps. */
+:root[data-theme='creatures'] .creature-team {
+  display: grid;
+  justify-items: center;
+  gap: 0.9rem;
+  width: min(100%, 640px);
+}
+
+:root[data-theme='creatures'] .team-row {
+  display: grid;
+  grid-template-columns: repeat(6, 72px);
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.8rem 1rem;
+  list-style: none;
+  background: rgba(255, 255, 255, 0.7);
+  border: 3px solid var(--ink);
+  border-radius: 24px;
+  box-shadow: 0 5px 0 var(--ink);
+}
+
+:root[data-theme='creatures'] .team-row li {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  background: var(--c-light);
+  border: 2px solid rgba(42, 49, 64, 0.25);
+  border-radius: 50%;
+}
+
+:root[data-theme='creatures'] .team-row .is-egg {
+  animation: creatures-wobble 3s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+
+:root[data-theme='creatures'] .team-row li:nth-child(odd) .is-egg {
+  animation-delay: -1.4s;
+}
+
+:root[data-theme='creatures'] .stamp-row {
+  gap: 0.4rem;
+  max-width: 400px;
+}
+
+/* Practice */
+:root[data-theme='creatures'] .pencil-bar {
+  border-radius: 999px;
+}
+
+:root[data-theme='creatures'] .pencil-fill {
+  background: repeating-linear-gradient(90deg, #7ccf5a 0 16px, #5cbf45 16px 20px);
+}
+
+:root[data-theme='creatures'] .part-dot.done {
+  background: var(--pink);
+}
+
+:root[data-theme='creatures'] .part-dot.now {
+  background: var(--yellow);
+}
+
+:root[data-theme='creatures'] .q-card {
+  background: #fffef8;
+  border-radius: 30px;
+  box-shadow: 0 7px 0 var(--ink);
+}
+
+/* Titan One is wider than the diary's font: the widest question (144 ÷ 12 = …) is about 7.6em. */
+:root[data-theme='creatures'] .problem {
+  font-size: clamp(2.1rem, min(10vmin, 12.8cqi), 6.6rem);
+  color: var(--ink);
+}
+
+:root[data-theme='creatures'] .problem.small {
+  font-size: clamp(1.6rem, min(6.5vmin, 11.5cqi), 4rem);
+}
+
+:root[data-theme='creatures'] .stamp-tag {
+  padding: 0.12em 0.7em;
+  color: #fff;
+  background: var(--purple);
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  text-shadow: var(--outline-sm);
+  transform: rotate(-6deg);
+}
+
+:root[data-theme='creatures'] .stamp-tag.new {
+  color: #fff;
+  background: var(--pink);
+  border-color: var(--ink);
+}
+
+:root[data-theme='creatures'] .show-me {
+  background: var(--sticky);
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 0 3px 0 var(--ink);
+  transform: none;
+}
+
+:root[data-theme='creatures'] .hint.covered {
+  border-radius: 12px;
+}
+
+:root[data-theme='creatures'] .key {
+  box-shadow: 0 4px 0 var(--ink);
+}
+
+:root[data-theme='creatures'] .key:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+:root[data-theme='creatures'] .fast-count {
+  gap: 4px;
+}
+
+/* The cheer pops out of a cloud puff. */
+:root[data-theme='creatures'] .burst-shape.puff {
+  fill: #fff4a8;
+  stroke: none;
+}
+
+:root[data-theme='creatures'] .burst-shape.puff .puff-edge {
+  fill: var(--ink);
+  stroke: var(--ink);
+  stroke-width: 8;
+}
+
+:root[data-theme='creatures'] .burst:not(.big) .burst-shape.puff {
+  fill: #d8f5cf;
+}
+
+:root[data-theme='creatures'] .burst:not(.big) .burst-text {
+  color: var(--purple);
+}
+
+/* Between parts and the checklist */
+:root[data-theme='creatures'] .plan-step.next {
+  border-radius: 999px;
+}
+
+:root[data-theme='creatures'] .plan-step.done .plan-mark {
+  background: var(--pink);
+}
+
+:root[data-theme='creatures'] .plan-blurb {
+  font-size: 0.95rem;
+}
+
+/* The trick's dots, in meadow colors. */
+:root[data-theme='creatures'] .dot-array circle[fill='#ff4fa3'] {
+  fill: #34b04f;
+}
+
+:root[data-theme='creatures'] .dot-array circle[fill='#19c2b0'] {
+  fill: #1d8fe0;
+}
+
+:root[data-theme='creatures'] .dot-array circle[fill='#8b5cf6'] {
+  fill: #ff8d3c;
+}
+
+/* Grid page: creature cards, then the grid. Each row's number wears its creature's color. */
+:root[data-theme='creatures'] .creature-cards {
+  width: min(100%, 980px);
+}
+
+:root[data-theme='creatures'] .creature-cards ol {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(146px, 1fr));
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+:root[data-theme='creatures'] .creature-card {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 0.2rem;
+  padding: 0.6rem 0.6rem 0.75rem;
+  text-align: center;
+  background: linear-gradient(180deg, var(--c-light) 0 96px, #fffef8 96px);
+  border: 3px solid var(--ink);
+  border-radius: 18px;
+  box-shadow: 0 4px 0 var(--ink);
+}
+
+:root[data-theme='creatures'] .creature-card.stage-4 {
+  background: linear-gradient(180deg, #fff3a8 0 96px, #fffef8 96px);
+}
+
+:root[data-theme='creatures'] .creature-card.stage-0 .creature {
+  animation: creatures-wobble 3s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+
+:root[data-theme='creatures'] .creature-num {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  padding: 0 0.45em;
+  font-family: var(--hand);
+  font-weight: 800;
+  font-size: 1rem;
+  color: #fff;
+  background: var(--c-dark);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  text-shadow: var(--outline-sm);
+}
+
+:root[data-theme='creatures'] .creature-name {
+  max-width: 100%;
+  font-family: var(--bubble);
+  font-size: 1.05rem;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+:root[data-theme='creatures'] .creature-stage {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  text-transform: capitalize;
+}
+
+:root[data-theme='creatures'] .creature-meter {
+  width: 100%;
+  height: 12px;
+  overflow: hidden;
+  background: #e7edf2;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+}
+
+:root[data-theme='creatures'] .creature-meter span {
+  display: block;
+  height: 100%;
+  background: var(--c);
+}
+
+:root[data-theme='creatures'] .creature-next {
+  font-size: 0.82rem;
+  line-height: 1.2;
+  color: var(--ink-soft);
+}
+
+:root[data-theme='creatures'] .dcell.head {
+  color: var(--purple);
+}
+
+:root[data-theme='creatures'] .dgrid > .dcell.head:nth-child(13n + 14) {
+  width: 84%;
+  justify-self: center;
+  color: var(--ink);
+  background: #fff;
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+}
+
+:root[data-theme='creatures'] .dgrid > .dcell.head:nth-child(14) {
+  background: #c4ab90;
+}
+
+:root[data-theme='creatures'] .dgrid > .dcell.head:nth-child(27) {
+  background: #8fd862;
+}
+
+:root[data-theme='creatures'] .dgrid > .dcell.head:nth-child(40) {
+  background: #5cbcff;
+}
+
+:root[data-theme='creatures'] .dgrid > .dcell.head:nth-child(53) {
+  background: #ff8d45;
+}
+
+:root[data-theme='creatures'] .dgrid > .dcell.head:nth-child(66) {
+  color: #fff;
+  background: #8c6eff;
+}
+
+:root[data-theme='creatures'] .dgrid > .dcell.head:nth-child(79) {
+  background: #c6eeff;
+}
+
+:root[data-theme='creatures'] .dgrid > .dcell.head:nth-child(92) {
+  background: #ece9ff;
+}
+
+:root[data-theme='creatures'] .dgrid > .dcell.head:nth-child(105) {
+  background: #ffa0cd;
+}
+
+:root[data-theme='creatures'] .dgrid > .dcell.head:nth-child(118) {
+  background: #43cfc0;
+}
+
+:root[data-theme='creatures'] .dgrid > .dcell.head:nth-child(131) {
+  background: #ffd94f;
+}
+
+:root[data-theme='creatures'] .dgrid > .dcell.head:nth-child(144) {
+  color: #fff;
+  background: #5b4cb2;
+}
+
+:root[data-theme='creatures'] .dgrid > .dcell.head:nth-child(157) {
+  color: #fff;
+  background: #3a68c9;
+}
+
+:root[data-theme='creatures'] .l0 {
+  background: rgba(255, 255, 255, 0.75);
+  border: 2px dotted #b4c3cf;
+}
+
+:root[data-theme='creatures'] .dcell {
+  border-radius: 10px;
+}
+
+:root[data-theme='creatures'] .sparkle {
+  color: var(--purple);
+}
+
+:root[data-theme='creatures'] .swatch {
+  color: var(--purple);
+}
+
+:root[data-theme='creatures'] .detail-fact {
+  color: var(--purple);
+}
+
+/* The field journal: kraft paper with a stitched spine. */
+:root[data-theme='creatures'] .page.journal {
+  gap: 0.4rem;
+  padding: 1.4rem 1.75rem 1.6rem 2.4rem;
+  color: #33281c;
+  background-color: var(--kraft);
+  background-image: repeating-linear-gradient(180deg, transparent 0 38px, rgba(122, 82, 48, 0.16) 38px 40px);
+  border: 3px solid var(--ink);
+  border-left: 12px solid var(--bark);
+  border-radius: 10px 22px 22px 10px;
+  box-shadow: 0 6px 0 var(--ink);
+}
+
+:root[data-theme='creatures'] .page.journal.with-sticker {
+  padding-right: 7rem;
+}
+
+:root[data-theme='creatures'] .journal-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem 1rem;
+}
+
+:root[data-theme='creatures'] .journal-title {
+  font-family: var(--bubble);
+  font-size: 2rem;
+  line-height: 1.1;
+  color: #2f7d32;
+}
+
+:root[data-theme='creatures'] .journal-day {
+  padding: 0.1em 0.75em;
+  font-family: var(--bubble);
+  font-size: 1.15rem;
+  color: #fff;
+  background: #c0662b;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  text-shadow: var(--outline-sm);
+  transform: rotate(3deg);
+}
+
+:root[data-theme='creatures'] .page.journal .page-date {
+  color: var(--bark);
+  text-align: left;
+}
+
+:root[data-theme='creatures'] .page.journal .signature {
+  color: #2f7d32;
+}
+
+:root[data-theme='creatures'] .page.journal .page-sticker {
+  top: 1.2rem;
+  right: 1rem;
+  transform: rotate(8deg);
+}
+
+:root[data-theme='creatures'] .new-sticker {
+  color: var(--purple);
+}
+
+/* Dialogs, and the big moment when an egg hatches or a creature evolves. */
+:root[data-theme='creatures'] .overlay {
+  background: rgba(24, 52, 44, 0.5);
+}
+
+:root[data-theme='creatures'] .milestone {
+  background: radial-gradient(circle at 50% 30%, #fff6b8 0, #fffef8 62%);
+}
+
+:root[data-theme='creatures'] .milestone h2 {
+  color: var(--pink);
+}
+
+:root[data-theme='creatures'] .milestone-art svg {
+  animation: creatures-hatch 750ms cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+
+:root[data-theme='creatures'] .empty {
+  background: var(--kraft);
+}
+
+/* Grown-ups: the same panels, kept quiet. */
+:root[data-theme='creatures'] .panel.danger {
+  box-shadow: none;
+}
+
+:root[data-theme='creatures'] .segmented button {
+  border-radius: 999px;
+  box-shadow: 0 3px 0 var(--ink);
+}
+
+/* Nunito is wider than the diary's hand font; keep "74 of 144" on one line. */
+:root[data-theme='creatures'] .tile-value {
+  font-size: 2.1rem;
+}
+
+:root[data-theme='creatures'] .tile-value.hero {
+  font-size: clamp(2.5rem, 5vw, 3rem);
+  white-space: nowrap;
+}
+
+:root[data-theme='creatures'] .tile-value small {
+  font-size: 1.1rem;
 }
 
 .theme-tile[data-pick-theme='creatures'] {
-  --tile: #3fae49;
+  --tile: #2fa84f;
+  --tile-ink: #2a3140;
+  --tile-bg: #eaf7ff;
+  --tile-font: 'Titan One', 'Nunito', system-ui, sans-serif;
+  --tile-body: 'Nunito', system-ui, sans-serif;
+  font-weight: 700;
+}
+
+.theme-tile[data-pick-theme='creatures'] .theme-tile-name {
+  font-size: 1.05rem;
+}
+
+.theme-tile[data-pick-theme='creatures'] .theme-tile-blurb {
+  font-size: 0.88rem;
+}
+
+@keyframes creatures-wobble {
+  0%,
+  70%,
+  100% {
+    transform: rotate(0);
+  }
+  76% {
+    transform: rotate(-7deg);
+  }
+  82% {
+    transform: rotate(6deg);
+  }
+  88% {
+    transform: rotate(-4deg);
+  }
+  94% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes creatures-hatch {
+  from {
+    transform: scale(0.2) rotate(-12deg);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme='creatures'] .cover-egg,
+  :root[data-theme='creatures'] .team-row .is-egg,
+  :root[data-theme='creatures'] .creature-card.stage-0 .creature,
+  :root[data-theme='creatures'] .milestone-art svg {
+    animation: none;
+  }
 }
