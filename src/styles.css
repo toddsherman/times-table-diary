@@ -1661,3 +1661,35 @@ figure {
   width: min(220px, 50vw);
   height: auto;
 }
+
+.milestone.many {
+  width: min(100%, 640px);
+  max-height: calc(100dvh - 3rem);
+  overflow-y: auto;
+}
+
+.milestone-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.8rem 1rem;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.milestone-list li {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 0.3rem;
+  font-size: 1.05rem;
+}
+
+.milestone-list .milestone-art {
+  min-height: 0;
+}
+
+.milestone-list .milestone-art svg {
+  width: min(120px, 30vw);
+}

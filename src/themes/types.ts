@@ -76,6 +76,9 @@ export interface Words {
   letsGo: string
   partDone: (title: string) => ReactNode
 
+  /** The heading when several milestones show up together, e.g. "3 eggs hatched!". */
+  manyMilestones?: (count: number) => string
+
   /** "she" and "her" in grown-up notes; when absent the player's name is used instead. */
   pronouns?: { she: string; her: string }
 }

@@ -106,6 +106,7 @@ export const NINJA_WORDS: Words = {
   quitTitle: 'Rest, young ninja?',
   quitText: 'Everything is saved. Come back any time today to finish your training.',
   letsGo: "Let's go!",
+  manyMilestones: (count) => `${count} new belts!`,
   partDone: (title) => <>{title} done!</>,
 }
 

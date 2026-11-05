@@ -149,6 +149,7 @@ export const bricks: Theme = {
     quitTitle: 'Take a break?',
     quitText: 'Your bricks stay right where they are. Come back any time today to finish your build.',
     letsGo: "Let's build!",
+    manyMilestones: (count) => `${count} big builds!`,
     partDone: (title) => `${title} done!`,
   },
   levels: [

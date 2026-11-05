@@ -16,6 +16,8 @@ import { useTheme } from '../themes'
 import type { Milestone } from '../themes/types'
 
 const pick = (xs: readonly string[]) => xs[Math.floor(Math.random() * xs.length)]
+/** Fewest answers between two milestone pop-ups. Milestones in between wait and show up together. */
+const MILESTONE_GAP = 8
 
 interface Props {
   progress: Progress
@@ -35,7 +37,7 @@ interface View {
   quitting: boolean
   /** The part just finished, while the between-parts screen is up. */
   finished: PartPlan | null
-  /** Milestones being celebrated (a creature evolving, say), first one on screen. */
+  /** Milestones on screen together (a creature evolving, say). */
   milestones: Milestone[]
 }
 
@@ -130,12 +132,31 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
     return fresh
   }
 
+  // Milestones reached but not shown yet, the answer count when the last pop-up showed, and what
+  // closing the pop-up does next. Spacing them out keeps a new player's first page (when eggs
+  // hatch one after another) from turning into a stream of pop-ups.
+  const held = useRef<Milestone[]>([])
+  const lastShown = useRef(-Infinity)
+  const afterMilestones = useRef<() => void>(() => {})
+
+  /** Shows the held milestones in one pop-up, then carries on with `then`. */
+  const showMilestones = (then: () => void) => {
+    sfx.fanfare()
+    lastShown.current = s.asked
+    afterMilestones.current = then
+    const shown = held.current
+    held.current = []
+    update({ cheer: null, milestones: shown })
+  }
+
   const save = () => {
     logDay(p, plan)
     saveProgress(p)
   }
 
   function finishPart(): void {
+    // Anything still held is shown before the part wraps up.
+    if (held.current.length > 0) return showMilestones(finishPart)
     const now = Date.now()
     const part = endPart(p, plan, now)
     if (part.kind !== 'bonus' && pageDone(plan) && !plan.finished) {
@@ -203,28 +224,24 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
     update({ q: next, typed: '', mode: 'ask', gaveUp: false, cheer: null })
   }
 
-  const celebrate = (text: string, big: boolean, delay: number, milestones: Milestone[] = []) => {
+  const celebrate = (text: string, big: boolean, delay: number) => {
     update({ cheer: { text, big } })
     timer.current = window.setTimeout(() => {
-      if (milestones.length === 0) return advance()
-      sfx.fanfare()
-      update({ cheer: null, milestones })
+      if (held.current.length > 0 && s.asked - lastShown.current >= MILESTONE_GAP) return showMilestones(advance)
+      advance()
     }, delay)
   }
 
-  /** Closes the milestone on screen, then shows the next one or moves on. */
-  const nextMilestone = () => {
-    const [, ...rest] = live.current.milestones
-    if (rest.length > 0) return update({ milestones: rest })
+  const closeMilestones = () => {
     update({ milestones: [] })
-    advance()
+    afterMilestones.current()
   }
 
   const submit = (q: Question, value: string) => {
     const ms = Math.min(performance.now() - shownAt.current, 30_000)
     const before = p.facts[q.id].level
     const outcome = recordAnswer(p, s, q, Number(value) === q.answer, ms)
-    const milestones = outcome === 'wrong' ? [] : newMilestones()
+    if (outcome !== 'wrong') held.current.push(...newMilestones())
     save()
     log(q, Number(value), ms, outcome, before)
     if (outcome === 'wrong') {
@@ -234,7 +251,7 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
     }
     if (outcome === 'fast') sfx.fast()
     else sfx.correct()
-    celebrate(pick(outcome === 'fast' ? words.fastCheers : words.okCheers), outcome === 'fast', outcome === 'fast' ? 650 : 750, milestones)
+    celebrate(pick(outcome === 'fast' ? words.fastCheers : words.okCheers), outcome === 'fast', outcome === 'fast' ? 650 : 750)
   }
 
   // After a miss she copies the answer from memory (it gets covered as soon as she starts typing).
@@ -389,12 +406,28 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
 
       {milestones.length > 0 && (
         <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="milestone-title">
-          <div key={milestones[0].key} className="dialog card milestone tape">
-            <div className="milestone-art">{milestones[0].art}</div>
-            <h2 id="milestone-title">{milestones[0].title}</h2>
-            <p>{milestones[0].text}</p>
+          <div key={milestones[0].key} className={`dialog card milestone tape ${milestones.length > 1 ? 'many' : ''}`}>
+            {milestones.length === 1 ? (
+              <>
+                <div className="milestone-art">{milestones[0].art}</div>
+                <h2 id="milestone-title">{milestones[0].title}</h2>
+                <p>{milestones[0].text}</p>
+              </>
+            ) : (
+              <>
+                <h2 id="milestone-title">{words.manyMilestones?.(milestones.length) ?? `${milestones.length} big moments!`}</h2>
+                <ul className="milestone-list">
+                  {milestones.map((m) => (
+                    <li key={m.key}>
+                      <div className="milestone-art">{m.art}</div>
+                      <p>{m.text}</p>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
             <div className="dialog-buttons">
-              <button type="button" className="btn pink big" onClick={nextMilestone}>
+              <button type="button" className="btn pink big" onClick={closeMilestones}>
                 {words.letsGo}
               </button>
             </div>

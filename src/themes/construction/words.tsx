@@ -65,6 +65,7 @@ export const words: Words = {
   quitTitle: 'Break time?',
   quitText: 'Everything is saved. Come back any time today to finish your shift.',
   letsGo: "Let's build!",
+  manyMilestones: (count) => `Big day on site: ${count} floors!`,
   partDone: (title) => <>{title} done!</>,
 }
 

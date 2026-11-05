@@ -65,6 +65,7 @@ export const WORDS: Words = {
   quitTitle: 'Rest at camp?',
   quitText: 'Everything is saved. Come back any time today to finish your expedition.',
   letsGo: "Let's go!",
+  manyMilestones: (count) => `Whoa! ${count} creatures are growing!`,
   partDone: (title) => `${title} done!`,
 }
 
