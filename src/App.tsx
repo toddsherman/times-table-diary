@@ -41,10 +41,12 @@ export default function App() {
     setSoundOn(soundOn)
   }, [soundOn])
 
+  // Leaving the welcome screen for home is a new screen too, though `screen` stays 'home'.
+  const signedIn = progress !== null
   useEffect(() => {
     // Block body on purpose: scrollTo returns a Promise in newer browsers, which React would treat as a cleanup.
     window.scrollTo(0, 0)
-  }, [screen])
+  }, [screen, signedIn])
 
   /** Uploads new answers, then merges this device's diary with the server's copy. */
   const syncNow = useCallback(async () => {
