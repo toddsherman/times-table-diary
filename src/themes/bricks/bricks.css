@@ -1,8 +1,806 @@
-/* Bricks theme. Everything is scoped to :root[data-theme='bricks'], except its tile in the theme pickers. */
+/* Bricks theme. Everything is scoped to :root[data-theme='bricks'], except its tile in the theme pickers.
+   Primary brick colors on a light baseplate; cards are plates and booklet panels, buttons and keys are
+   chunky bricks with studs on top. */
 :root[data-theme='bricks'] {
-  --pink: #e3000b;
+  --ink: #1d2433;
+  --ink-soft: #46516a;
+  --paper: #eef2f7;
+  --rule: transparent;
+  --margin: transparent;
+  /* The diary's color names, reused: pink is brick red, purple is brick blue, teal is brick green. */
+  --pink: #d9262c;
+  --pink-soft: #ffd6d7;
+  --purple: #1e6fd9;
+  --purple-soft: #dcebfd;
+  --teal: #2e9e48;
+  --teal-soft: #d4f1da;
+  --yellow: #f7c82b;
+  --sticky: #ffe680;
+  --pencil: #8f9aab;
+  --lvl3: #1e6fd9;
+  --lvl4: #d9262c;
+  --lvl5: #f5c518;
+  --booklet: #e4f0fd;
+  --plate: #3f9a52;
+  --hand: 'Fredoka', 'Avenir Next Rounded', system-ui, sans-serif;
+  --bubble: 'Lilita One', 'Fredoka', system-ui, sans-serif;
+  --wobble: 10px;
+  --wobble-2: 10px;
+  --brick-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.38), inset 0 -6px 0 rgba(0, 0, 0, 0.16), 0 5px 0 var(--ink);
+  --brick-pressed: inset 0 4px 0 rgba(255, 255, 255, 0.38), inset 0 -6px 0 rgba(0, 0, 0, 0.16), 0 1px 0 var(--ink);
+  font-synthesis: none;
+}
+
+:root[data-theme='bricks'] body {
+  font-weight: 500;
+  background: var(--paper);
+}
+
+/* A light baseplate: rows of studs seen from above. */
+:root[data-theme='bricks'] .screen {
+  background-color: var(--paper);
+  background-image: radial-gradient(circle, #e8edf4 0 5px, #d6dde8 5.5px 7px, transparent 7.5px);
+  background-size: 30px 30px;
+  background-position: 15px 15px;
+}
+
+:root[data-theme='bricks'] .bubble-title {
+  color: var(--pink);
+  letter-spacing: 0.01em;
+}
+
+:root[data-theme='bricks'] .tagline {
+  font-weight: 600;
+  color: var(--purple);
+  transform: none;
+}
+
+:root[data-theme='bricks'] .owner {
+  color: var(--purple);
+  transform: none;
+}
+
+:root[data-theme='bricks'] .note {
+  color: var(--ink-soft);
+}
+
+/* Cards: white plates with a solid edge underneath. */
+:root[data-theme='bricks'] .card {
+  border-radius: 12px;
+  box-shadow: 0 6px 0 var(--ink);
+}
+
+/* Instead of washi tape, a little yellow plate snapped onto the card's top edge. */
+:root[data-theme='bricks'] .tape::before {
+  top: -14px;
+  width: 104px;
+  height: 14px;
+  transform: translateX(-50%);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='14'%3E%3Crect x='3' y='1.5' width='20' height='16' rx='3.5' fill='%23f7c82b' stroke='%231d2433' stroke-width='2.5'/%3E%3Crect x='6.5' y='4' width='6' height='3' rx='1.5' fill='%23fff' opacity='.55'/%3E%3C/svg%3E")
+    repeat-x;
+}
+
+/* Buttons are bricks: a stud on each side of the top. */
+:root[data-theme='bricks'] .btn,
+:root[data-theme='bricks'] .key,
+:root[data-theme='bricks'] .sticky {
+  --brick: var(--yellow);
+  position: relative;
+  background: var(--brick);
+  border: 3px solid var(--ink);
+  border-radius: 8px;
+  box-shadow: var(--brick-shadow);
+}
+
+:root[data-theme='bricks'] .btn::before,
+:root[data-theme='bricks'] .btn::after,
+:root[data-theme='bricks'] .key::before,
+:root[data-theme='bricks'] .key::after,
+:root[data-theme='bricks'] .sticky::before,
+:root[data-theme='bricks'] .sticky::after {
+  content: '';
+  position: absolute;
+  top: -13px;
+  width: 28px;
+  height: 13px;
+  background:
+    linear-gradient(90deg, transparent 18%, rgba(255, 255, 255, 0.5) 18% 38%, transparent 38%),
+    var(--brick);
+  border: 3px solid var(--ink);
+  border-bottom: none;
+  border-radius: 7px 7px 0 0;
+  pointer-events: none;
+}
+
+:root[data-theme='bricks'] .btn::before,
+:root[data-theme='bricks'] .key::before,
+:root[data-theme='bricks'] .sticky::before {
+  left: 17%;
+}
+
+:root[data-theme='bricks'] .btn::after,
+:root[data-theme='bricks'] .key::after,
+:root[data-theme='bricks'] .sticky::after {
+  right: 17%;
+}
+
+:root[data-theme='bricks'] .btn {
+  margin-top: 10px;
+  font-family: var(--bubble);
+}
+
+:root[data-theme='bricks'] .btn:active,
+:root[data-theme='bricks'] .key:active {
+  transform: translateY(4px);
+  box-shadow: var(--brick-pressed);
+}
+
+:root[data-theme='bricks'] .btn.pink {
+  --brick: var(--pink);
+}
+
+:root[data-theme='bricks'] .btn.purple {
+  --brick: var(--purple);
+}
+
+:root[data-theme='bricks'] .btn.teal {
+  --brick: var(--teal);
+  color: #fff;
+  text-shadow: var(--outline-sm);
+}
+
+:root[data-theme='bricks'] .btn.small {
+  box-shadow: var(--brick-shadow);
+}
+
+:root[data-theme='bricks'] .btn.small::before,
+:root[data-theme='bricks'] .btn.small::after {
+  top: -11px;
+  width: 22px;
+  height: 11px;
+}
+
+:root[data-theme='bricks'] .icon-btn,
+:root[data-theme='bricks'] .back-btn {
+  border-radius: 10px;
+  box-shadow: 0 3px 0 var(--ink);
+}
+
+:root[data-theme='bricks'] .back-btn {
+  font-weight: 600;
+}
+
+:root[data-theme='bricks'] .link-btn {
+  font-weight: 600;
+  color: var(--purple);
+}
+
+/* Home: the three counters are bricks too. */
+:root[data-theme='bricks'] .stickies {
+  gap: 1.1rem;
+  padding-top: 10px;
+}
+
+:root[data-theme='bricks'] .sticky,
+:root[data-theme='bricks'] .sticky:nth-child(2),
+:root[data-theme='bricks'] .sticky:nth-child(3) {
+  font-weight: 600;
+  transform: none;
+}
+
+:root[data-theme='bricks'] .sticky.pink {
+  --brick: var(--pink);
+  color: #fff;
+}
+
+:root[data-theme='bricks'] .sticky.teal {
+  --brick: var(--purple);
+  color: #fff;
+}
+
+:root[data-theme='bricks'] .sticky.pink b,
+:root[data-theme='bricks'] .sticky.teal b {
+  text-shadow: var(--outline-sm);
+}
+
+:root[data-theme='bricks'] .level-bar {
+  height: 26px;
+  border-radius: 6px;
+  box-shadow: 0 4px 0 var(--ink);
+}
+
+:root[data-theme='bricks'] .level-bar .b1 {
+  background: repeating-linear-gradient(45deg, #fff 0 5px, #d5dce6 5px 7px);
+}
+
+:root[data-theme='bricks'] .level-bar .b2 {
+  background: #bcd5f5;
+}
+
+:root[data-theme='bricks'] .grownups {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+:root[data-theme='bricks'] .sticker {
+  filter: drop-shadow(0 3px 0 rgba(29, 36, 51, 0.22));
+}
+
+/* Today's build: a panel from an instruction booklet, steps in numbered boxes. */
+:root[data-theme='bricks'] .today-card {
+  background: var(--booklet);
+}
+
+:root[data-theme='bricks'] .today-title {
+  color: var(--pink);
+}
+
+:root[data-theme='bricks'] .plan-step {
+  border-radius: 8px;
+}
+
+:root[data-theme='bricks'] .plan-step.next {
+  background: #fff;
+  transform: none;
+  box-shadow: inset 0 0 0 3px var(--yellow);
+}
+
+:root[data-theme='bricks'] .plan-mark {
+  border-radius: 6px;
+}
+
+:root[data-theme='bricks'] .plan-step.next .plan-mark {
+  background: var(--yellow);
+}
+
+:root[data-theme='bricks'] .plan-step.done .plan-mark {
+  background: var(--teal);
+}
+
+:root[data-theme='bricks'] .plan-step.done .plan-title {
+  text-decoration-color: var(--pink);
+}
+
+:root[data-theme='bricks'] .plan-blurb {
+  font-weight: 500;
+}
+
+:root[data-theme='bricks'] .next-intro {
+  font-weight: 600;
+  color: var(--purple);
+}
+
+/* Welcome: a box cover. */
+:root[data-theme='bricks'] .cover {
+  background: var(--booklet);
+}
+
+:root[data-theme='bricks'] .cover-doodles {
+  gap: 0.5rem;
+}
+
+:root[data-theme='bricks'] .stamp {
+  color: #fff;
+  background: var(--pink);
+  border-color: var(--ink);
+  border-radius: 6px;
+  box-shadow: 0 3px 0 var(--ink);
+  transform: rotate(-4deg);
+}
+
+:root[data-theme='bricks'] .name-form label {
+  font-weight: 600;
+}
+
+:root[data-theme='bricks'] .name-input {
+  color: var(--purple);
+  border-bottom: 4px dashed var(--purple);
+}
+
+:root[data-theme='bricks'] .pin-input,
+:root[data-theme='bricks'] .text-input {
+  border-radius: 8px;
+}
+
+/* Practice */
+/* Lilita One runs wider than the diary's font, so the question takes a smaller share of the card's
+   width; the widest puzzle (144 ÷ 12 = 12) still fits beside the keypad. */
+:root[data-theme='bricks'] .problem {
+  font-size: clamp(2.2rem, min(10.5vmin, 13cqi), 7rem);
+}
+
+:root[data-theme='bricks'] .problem.small {
+  font-size: clamp(1.7rem, min(6.5vmin, 11cqi), 4.2rem);
+}
+
+:root[data-theme='bricks'] .q-card {
+  border-radius: 14px;
+  box-shadow: 0 7px 0 var(--ink);
+}
+
+:root[data-theme='bricks'] .answer-box {
+  color: var(--purple);
+  background: var(--booklet);
+  border: 4px dashed var(--purple);
+  border-radius: 12px;
+}
+
+:root[data-theme='bricks'] .copy-row .answer-box {
+  border-width: 3px;
+}
+
+:root[data-theme='bricks'] .caret {
+  background: var(--pink);
+}
+
+:root[data-theme='bricks'] .pencil-bar {
+  height: 26px;
+  border-radius: 6px;
+  box-shadow: 0 3px 0 var(--ink);
+}
+
+/* Progress fills with a row of bricks in all four colors. */
+:root[data-theme='bricks'] .pencil-fill {
+  background: repeating-linear-gradient(
+    90deg,
+    #d9262c 0 30px,
+    var(--ink) 30px 32px,
+    #f7c82b 32px 62px,
+    var(--ink) 62px 64px,
+    #1e6fd9 64px 94px,
+    var(--ink) 94px 96px,
+    #2e9e48 96px 126px,
+    var(--ink) 126px 128px
+  );
+}
+
+:root[data-theme='bricks'] .part-name {
+  color: var(--purple);
+}
+
+:root[data-theme='bricks'] .part-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+}
+
+:root[data-theme='bricks'] .part-dot.done {
+  background: var(--teal);
+}
+
+:root[data-theme='bricks'] .count {
+  font-weight: 600;
+}
+
+:root[data-theme='bricks'] .fast-count {
+  color: var(--ink);
+}
+
+:root[data-theme='bricks'] .stamp-tag {
+  color: #fff;
+  background: var(--purple);
+  border: 3px solid var(--ink);
+  border-radius: 6px;
+  box-shadow: 0 3px 0 var(--ink);
+  transform: rotate(-6deg);
+}
+
+:root[data-theme='bricks'] .stamp-tag.new {
+  color: #fff;
+  background: var(--pink);
+  border-color: var(--ink);
+}
+
+:root[data-theme='bricks'] .show-me {
+  font-weight: 600;
+  background: var(--yellow);
+  border: 3px solid var(--ink);
+  border-radius: 8px;
+  box-shadow: 0 3px 0 var(--ink);
+  transform: none;
+}
+
+:root[data-theme='bricks'] .fix-title {
+  color: var(--pink);
+}
+
+:root[data-theme='bricks'] .hint {
+  font-weight: 500;
+}
+
+:root[data-theme='bricks'] .hint.covered {
+  border-radius: 8px;
+  transform: none;
+}
+
+:root[data-theme='bricks'] .copy-row {
+  font-weight: 600;
+}
+
+/* The trick's dot picture, as studs in brick colors (groups of five rows: red, blue, green). */
+:root[data-theme='bricks'] .dot-array circle {
+  stroke: var(--ink);
+  stroke-width: 1.2;
+}
+
+:root[data-theme='bricks'] .dot-array circle[fill='#ff4fa3'] {
+  fill: #d9262c;
+}
+
+:root[data-theme='bricks'] .dot-array circle[fill='#19c2b0'] {
+  fill: #1e6fd9;
+}
+
+:root[data-theme='bricks'] .dot-array circle[fill='#8b5cf6'] {
+  fill: #2e9e48;
+}
+
+/* Keypad keys are white bricks; the backspace is yellow and Go is red. */
+:root[data-theme='bricks'] .key {
+  --brick: #fff;
+  box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.5), inset 0 -6px 0 rgba(29, 36, 51, 0.09), 0 5px 0 var(--ink);
+}
+
+:root[data-theme='bricks'] .key:nth-child(even) {
+  border-radius: 8px;
+}
+
+:root[data-theme='bricks'] .key:active {
+  --brick: var(--pink-soft);
+  background: var(--brick);
+}
+
+:root[data-theme='bricks'] .key::before,
+:root[data-theme='bricks'] .key::after {
+  width: 26px;
+}
+
+:root[data-theme='bricks'] .key-back {
+  --brick: var(--yellow);
+}
+
+:root[data-theme='bricks'] .key-go {
+  --brick: var(--pink);
+}
+
+/* The cheer pops up on a big brick: yellow when super fast, sky blue otherwise. */
+:root[data-theme='bricks'] .burst-shape {
+  fill: var(--yellow);
+  stroke: var(--ink);
+  stroke-width: 4;
+}
+
+:root[data-theme='bricks'] .burst:not(.big) .burst-shape {
+  fill: #7cc8f2;
+}
+
+:root[data-theme='bricks'] .burst-text {
+  transform: rotate(-4deg);
+}
+
+:root[data-theme='bricks'] .burst:not(.big) .burst-text {
+  color: #fff;
+}
+
+/* My builds */
+:root[data-theme='bricks'] .lead {
+  font-weight: 600;
+}
+
+:root[data-theme='bricks'] .bricks-builds {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
+  gap: 0.9rem;
+  width: min(100%, 980px);
+}
+
+:root[data-theme='bricks'] .bricks-build {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0.75rem 0.5rem 0.6rem;
+  background: #fff;
+  border: 3px solid var(--ink);
+  border-radius: 10px;
+  box-shadow: 0 4px 0 var(--ink);
+}
+
+:root[data-theme='bricks'] .bricks-build svg {
+  width: 100%;
+  height: 120px;
+}
+
+:root[data-theme='bricks'] .bricks-build.done {
+  background: var(--booklet);
+}
+
+:root[data-theme='bricks'] .bricks-build.gold {
+  background: #fff3bf;
+}
+
+:root[data-theme='bricks'] .bricks-build figcaption {
+  display: grid;
+  justify-items: center;
+  line-height: 1.15;
+  text-align: center;
+}
+
+:root[data-theme='bricks'] .bricks-build-name {
+  font-family: var(--bubble);
+  font-size: 1.08rem;
+  white-space: nowrap;
+}
+
+:root[data-theme='bricks'] .bricks-build-name b {
+  font-weight: 400;
+  color: var(--pink);
+}
+
+:root[data-theme='bricks'] .bricks-build-status {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+:root[data-theme='bricks'] .legend {
+  font-weight: 600;
+}
+
+/* The fact grid: bricks on a green baseplate, seen from above. */
+:root[data-theme='bricks'] .dgrid {
+  gap: 4px;
+  padding: 8px;
+  background-color: var(--plate);
+  border: 3px solid var(--ink);
+  border-radius: 10px;
+  box-shadow: 0 6px 0 var(--ink);
+}
+
+:root[data-theme='bricks'] .dcell {
+  font-family: var(--hand);
+  font-weight: 600;
+  border-radius: 5px;
+}
+
+:root[data-theme='bricks'] .dcell.head {
+  font-family: var(--bubble);
+  color: #fff;
+  text-shadow: var(--outline-sm);
+}
+
+:root[data-theme='bricks'] .dcell.selected {
+  outline: 4px solid var(--yellow);
+  outline-offset: 1px;
+}
+
+/* An empty stud on the plate. */
+:root[data-theme='bricks'] .l0 {
+  background: radial-gradient(circle, #5cb96e 0 27%, #2c7c3d 29% 37%, transparent 39%);
+  border: none;
+}
+
+:root[data-theme='bricks'] .swatch.l0 {
+  background-color: var(--plate);
+  border: 2px solid var(--ink);
+}
+
+:root[data-theme='bricks'] .l1 {
+  color: var(--ink-soft);
+  background: rgba(255, 255, 255, 0.88);
+  border: 2.5px dashed var(--ink);
+}
+
+:root[data-theme='bricks'] .l2 {
+  color: var(--ink);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0 26%, rgba(29, 36, 51, 0.14) 28% 33%, transparent 35%), #bcd5f5;
+  border: 2.5px solid var(--ink);
+  transform: rotate(-5deg);
+}
+
+:root[data-theme='bricks'] .l3,
+:root[data-theme='bricks'] .l4,
+:root[data-theme='bricks'] .l5 {
+  color: #fff;
+  border: 2.5px solid var(--ink);
+  text-shadow:
+    1px 1px 0 var(--ink),
+    -1px -1px 0 var(--ink),
+    1px -1px 0 var(--ink),
+    -1px 1px 0 var(--ink);
+}
+
+:root[data-theme='bricks'] .l3 {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.22) 0 26%, rgba(0, 0, 0, 0.2) 28% 33%, transparent 35%), var(--lvl3);
+}
+
+:root[data-theme='bricks'] .l4 {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0 16%, transparent 30%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.22) 0 26%, rgba(0, 0, 0, 0.2) 28% 33%, transparent 35%),
+    var(--lvl4);
+}
+
+:root[data-theme='bricks'] .l5 {
+  color: var(--ink);
+  text-shadow: none;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0 14%, transparent 28%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.3) 0 26%, rgba(150, 100, 0, 0.18) 28% 33%, transparent 35%),
+    linear-gradient(160deg, #ffe27a 0%, #f5c518 45%, #d99a00 100%);
+}
+
+:root[data-theme='bricks'] .level-bar .b5 {
+  background: linear-gradient(160deg, #ffe27a 0%, #f5c518 45%, #d99a00 100%);
+}
+
+:root[data-theme='bricks'] .fact-detail {
+  font-weight: 500;
+}
+
+:root[data-theme='bricks'] .detail-fact {
+  color: var(--purple);
+}
+
+/* The build log: steps from an instruction booklet. */
+:root[data-theme='bricks'] .bricks-page {
+  gap: 0.5rem;
+  padding: 1.3rem 1.6rem 1.4rem;
+}
+
+:root[data-theme='bricks'] .bricks-page-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.3rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 3px solid #d5dde8;
+}
+
+:root[data-theme='bricks'] .bricks-step {
+  display: grid;
+  flex: none;
+  place-items: center;
+  min-width: 3.5rem;
+  height: 3.5rem;
+  padding: 0 0.45rem;
+  font-family: var(--bubble);
+  font-size: 2.2rem;
+  line-height: 1;
+  background: var(--yellow);
+  border: 3px solid var(--ink);
+  border-radius: 8px;
+  box-shadow: 0 4px 0 var(--ink);
+}
+
+:root[data-theme='bricks'] .bricks-page-title {
+  flex: 1;
+  min-width: 0;
+}
+
+:root[data-theme='bricks'] .bricks-page-kicker {
+  font-family: var(--bubble);
+  font-size: 1.9rem;
+  line-height: 1.05;
+  color: var(--pink);
+  text-shadow: var(--outline-sm);
+}
+
+:root[data-theme='bricks'] .bricks-page .page-date {
+  font-weight: 600;
+  text-align: left;
+}
+
+:root[data-theme='bricks'] .bricks-callout {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.55rem 0.25rem 0.7rem;
+  background: var(--booklet);
+  border: 3px solid var(--ink);
+  border-radius: 10px;
+}
+
+:root[data-theme='bricks'] .bricks-callout-count {
+  font-family: var(--bubble);
+  font-size: 1.4rem;
+}
+
+:root[data-theme='bricks'] .bricks-callout .sticker {
+  filter: none;
+}
+
+:root[data-theme='bricks'] .bricks-page .entry-line {
+  font-size: 1.35rem;
+  line-height: 1.45;
+}
+
+:root[data-theme='bricks'] .bricks-page .signature {
+  margin-top: 0.3rem;
+  transform: none;
+}
+
+:root[data-theme='bricks'] .new-sticker {
+  color: var(--purple);
+}
+
+:root[data-theme='bricks'] .empty {
+  font-weight: 500;
+}
+
+/* Between parts, dialogs and milestones */
+:root[data-theme='bricks'] .between-line {
+  color: var(--purple);
+}
+
+:root[data-theme='bricks'] .next-up h2,
+:root[data-theme='bricks'] .dialog h2 {
+  color: var(--pink);
+}
+
+:root[data-theme='bricks'] .next-label {
+  font-weight: 600;
+}
+
+:root[data-theme='bricks'] .break-idea {
+  font-weight: 600;
+  transform: none;
+}
+
+:root[data-theme='bricks'] .overlay {
+  background: rgba(29, 36, 51, 0.5);
+}
+
+:root[data-theme='bricks'] .milestone {
+  background: var(--booklet);
+}
+
+:root[data-theme='bricks'] .milestone-art svg {
+  width: min(190px, 44vw);
+  max-height: 34vh;
+}
+
+/* Grown-ups: lightly themed, kept plain. */
+:root[data-theme='bricks'] .panel h2,
+:root[data-theme='bricks'] .report-card h2 {
+  color: var(--purple);
+}
+
+:root[data-theme='bricks'] .segmented button {
+  border-radius: 8px;
+  box-shadow: 0 3px 0 var(--ink);
+}
+
+:root[data-theme='bricks'] .segmented button.on {
+  background: var(--yellow);
+}
+
+:root[data-theme='bricks'] .tile {
+  border-radius: 10px;
+}
+
+/* Fredoka runs wider than the diary's hand font: keep "74 of 144" on one line. */
+:root[data-theme='bricks'] .tile-value {
+  font-size: 2.2rem;
+  white-space: nowrap;
+}
+
+:root[data-theme='bricks'] .tile-value.hero {
+  font-size: clamp(2.5rem, 5vw, 3.2rem);
+}
+
+:root[data-theme='bricks'] .tile-value small {
+  font-size: 1.1rem;
+}
+
+:root[data-theme='bricks'] .theme-picker-title {
+  color: var(--purple);
 }
 
 .theme-tile[data-pick-theme='bricks'] {
-  --tile: #e3000b;
+  --tile: #d9262c;
+  --tile-ink: #1d2433;
+  --tile-bg: #fff6cc;
+  --tile-font: 'Lilita One', system-ui, sans-serif;
+  --tile-body: 'Fredoka', system-ui, sans-serif;
 }
