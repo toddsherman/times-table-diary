@@ -1630,8 +1630,11 @@ figure {
 }
 
 .theme-tile-name {
+  max-width: 100%;
   font-family: var(--tile-font);
-  font-size: 1.35rem;
+  /* Wide display fonts (Bungee) set --tile-size smaller so long names stay inside the tile. */
+  font-size: var(--tile-size, 1.35rem);
+  overflow-wrap: anywhere;
   line-height: 1.1;
   color: var(--tile);
 }
