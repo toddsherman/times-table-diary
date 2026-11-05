@@ -4,6 +4,8 @@ A times tables practice game (1 × 1 to 12 × 12) styled like a doodled-in diary
 
 Practice is one "daily page" a day, sized to take about 20 minutes (10 or 15 can be chosen instead). There's no clock on screen: the page is a set amount of work, worked out from how long her questions usually take. When the page is done she gets an auto-written diary page and a sticker. Her "doodle page" (the 12 × 12 grid) fills in as facts go from blank → pencil → inked → colored in → sparkly → gold star.
 
+It comes in five looks: the original diary, plus bricks, creatures, ninja, and construction (see [Themes](#themes)). Each has its own words, art, fonts, and colors; the practice underneath is the same.
+
 **Live:** https://www.todd.sh/timesTableDiary/App · **How it works and why:** https://www.todd.sh/timesTableDiary
 
 ## Running it
@@ -103,6 +105,24 @@ All of it lives in `src/engine/day.ts` and is covered by `src/engine/day.test.ts
 - **Bonus rounds.** After the page is done, "Bonus round" adds 20 more practice questions with no extra diary page.
 - **Sync.** If two devices both worked on today's page, the one that got further keeps it; facts merge as before.
 
+## Themes
+
+A player picks a look when starting, and grown-ups can change it any time in Settings → Look. Progress, rewards, and past pages all carry over. The choice is stored in the diary's settings (`settings.theme`), so it syncs like any other setting; diaries without it are the diary theme.
+
+| Theme | Instead of the diary page | The doodle page becomes | Rewards |
+|---|---|---|---|
+| Diary (default) | Dear Diary | The doodle page | Stickers |
+| Bricks | A build log | A build for each times table, filled in layer by layer | Special pieces |
+| Creatures | A field journal | A creature for each table that hatches and evolves | Place stamps |
+| Ninja | A training scroll | A belt for each table | Dojo treasures |
+| Construction | A site report | A 12-floor tower, one window per fact | Machines |
+
+How it fits together (`src/themes/`):
+- `types.ts` is the contract. A theme supplies every kid-facing word (`Words`), level and part names, a `Voice` for its end-of-page entries (`src/engine/voice.ts`), its 12 reward pictures, and optionally its own entry page, progress view, grid, and home shelf.
+- `milestones()` lets a theme celebrate moments mid-practice, such as a creature evolving or a floor being finished. New milestones pop up after the answer that reached them and get a line in that day's entry (`DayPlan.events`).
+- Each theme's stylesheet is scoped to `:root[data-theme='…']`. The diary is the base stylesheet and sets no attribute, so its pages are exactly what they were before themes.
+- The 12 reward slots (`src/stickers.ts`) are shared. A finished page earns a slot, and each theme draws that slot its own way, so switching looks keeps the collection.
+
 ## How the learning engine works
 
 All of it lives in `src/engine/` and is covered by `src/engine/*.test.ts`.
@@ -122,7 +142,7 @@ All of it lives in `src/engine/` and is covered by `src/engine/*.test.ts`.
 
 ## Making it hers
 
-- Diary voice and exclamations: `src/engine/diary.ts` and `FAST_CHEERS` in `src/screens/Practice.tsx`
+- Diary voice: `DIARY_VOICE` in `src/engine/voice.ts`; exclamations and the other words: `src/themes/diary.tsx`
 - Stickers: `src/components/Sticker.tsx` (plain SVG doodles)
-- Colors and fonts: the variables at the top of `src/styles.css`
+- Colors and fonts: the variables at the top of `src/styles.css`; each other theme has its own folder in `src/themes/`
 - App icon: edit `public/icon.svg`, then run `npx pwa-assets-generator`

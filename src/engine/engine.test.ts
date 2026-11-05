@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { writeEntry } from './diary'
+import { DIARY_VOICE, type Voice } from './voice'
 import { ALL_FACT_IDS, familyOf, INTRO_ORDER, parseFact, puzzleHint, stageOf, strategyHint } from './facts'
 import { createProgress, fastThreshold, levelCounts, masteredCount, scoreFirstTry, streak } from './progress'
 import { createSession, finishCheckup, MAX_LEARNING, nextQuestion, planCheckup, recordAnswer, type Rng } from './session'
@@ -250,6 +251,23 @@ describe('diary', () => {
     expect(entry.stats).toEqual({ total: 20, firstTry: 20, right: 20, fast: 20, minutes: 5, mastered: 7 })
     expect(entry.lines).toContain('I did 20 times table facts in 5 minutes, and 20 were SUPER fast.')
     expect(entry.lines.join(' ')).toContain('3 diary days in a row')
+  })
+
+  it("writes in a theme's voice, with the day's events before the streak and sign-off", () => {
+    const p = createProgress('Test', TODAY)
+    const { s } = runSession(p, whiz)
+    const voice: Voice = {
+      ...DIARY_VOICE,
+      openers: ['Build log!'],
+      did: (count, time) => `Snapped in ${count} bricks in ${time}.`,
+      streak: (days) => `${days} build days in a row.`,
+      closers: ['Lights out at the brick factory.'],
+    }
+    const events = ['The 7s rocket is finished!']
+    const entry = writeEntry(s, { streakDays: 3, sticker: 'heart', now: 5 * 60_000, mastered: 7, events }, seeded(7), voice)
+    expect(entry.lines[0]).toBe('Build log!')
+    expect(entry.lines[1]).toBe('Snapped in 20 bricks in 5 minutes.')
+    expect(entry.lines.slice(-3)).toEqual(['The 7s rocket is finished!', '3 build days in a row.', 'Lights out at the brick factory.'])
   })
 })
 

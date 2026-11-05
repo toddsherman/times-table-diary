@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createProgress } from './progress'
 import { buildReport } from './report'
 import { mergeProgress, sameProgress } from './sync'
+import { parseProgress } from '../storage'
 import type { AnswerRecord, DiaryEntry, Progress } from './types'
 
 const TODAY = 20_000
@@ -48,6 +49,15 @@ describe('merging two copies of a diary', () => {
     phone.settings.sound = false
     phone.settingsAt = 4000
     expect(mergeProgress(phone, ipad).settings).toEqual({ sessionLength: 30, dailyMinutes: 20, sound: true })
+  })
+
+  it('keeps the look (theme) with the settings, including through a backup file', () => {
+    const [ipad, phone] = twoDevices()
+    phone.settings.theme = 'ninja'
+    phone.settingsAt = 5
+    expect(mergeProgress(ipad, phone).settings.theme).toBe('ninja')
+    expect(parseProgress(JSON.stringify(phone)).settings.theme).toBe('ninja')
+    expect(parseProgress(JSON.stringify(ipad)).settings.theme).toBeUndefined()
   })
 
   it('gives the same result either way round, and nothing new when merging a copy with itself', () => {
