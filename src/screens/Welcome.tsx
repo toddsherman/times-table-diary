@@ -1,12 +1,17 @@
 import { useState, type FormEvent } from 'react'
-import { Sticker } from '../components/Sticker'
+import { ThemePicker } from '../components/ThemePicker'
+import { useTheme, type ThemeId } from '../themes'
 
 interface Props {
+  /** The look picked for the new diary; the whole screen shows it. */
+  theme: ThemeId
+  onTheme: (id: ThemeId) => void
   onCreate: (name: string, pin: string) => Promise<void>
   onOpen: (name: string, pin: string) => Promise<void>
 }
 
-export function Welcome({ onCreate, onOpen }: Props) {
+export function Welcome({ theme, onTheme, onCreate, onOpen }: Props) {
+  const { words, Cover } = useTheme()
   const [mode, setMode] = useState<'create' | 'open'>('create')
   const [name, setName] = useState('')
   const [pin, setPin] = useState('')
@@ -36,17 +41,16 @@ export function Welcome({ onCreate, onOpen }: Props) {
 
   return (
     <div className="screen welcome">
+      {creating && <ThemePicker value={theme} onPick={onTheme} label="Pick a look" />}
       <div className="card cover tape">
-        <p className="stamp">Top secret! Keep out!</p>
-        <h1 className="bubble-title">Times Table Diary</h1>
-        <p className="tagline">Tales from a Not-So-Secret Math Genius</p>
+        <p className="stamp">{words.stamp}</p>
+        <h1 className="bubble-title">{words.appTitle}</h1>
+        <p className="tagline">{words.tagline}</p>
         <div className="cover-doodles" aria-hidden="true">
-          <Sticker id="star" size={56} />
-          <Sticker id="heart" size={48} />
-          <Sticker id="bolt" size={52} />
+          <Cover />
         </div>
         <form className="name-form" onSubmit={submit}>
-          <label htmlFor="owner">{creating ? 'This diary belongs to:' : 'Whose diary is it?'}</label>
+          <label htmlFor="owner">{creating ? words.belongsTo : words.whose}</label>
           <input
             id="owner"
             className="name-input"
@@ -79,9 +83,7 @@ export function Welcome({ onCreate, onOpen }: Props) {
             placeholder="4 to 8 digits"
           />
           <p className="pin-hint">
-            {creating
-              ? 'A grown-up picks this. Write it down: you need the name and PIN to open the diary on another device.'
-              : 'Use the same name and family PIN you started the diary with.'}
+            {creating ? words.hintCreate : words.hintOpen}
           </p>
           {error && (
             <p className="error" role="alert">
@@ -89,10 +91,10 @@ export function Welcome({ onCreate, onOpen }: Props) {
             </p>
           )}
           <button type="submit" className="btn pink big" disabled={busy}>
-            {busy ? 'Just a sec…' : creating ? 'Start my diary' : 'Open my diary'}
+            {busy ? 'Just a sec…' : creating ? words.startButton : words.openButton}
           </button>
           <button type="button" className="link-btn" onClick={switchMode}>
-            {creating ? 'Already have a diary? Open it' : 'Start a new diary instead'}
+            {creating ? words.toOpen : words.toCreate}
           </button>
         </form>
       </div>

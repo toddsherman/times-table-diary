@@ -1,9 +1,10 @@
-import { PARTS } from '../engine/day'
 import type { DayPlan } from '../engine/types'
+import { useTheme } from '../themes'
 import { CheckIcon } from './Icons'
 
 /** Today's page as a checklist: done parts ticked off, the next one highlighted. */
 export function PagePlan({ plan }: { plan: DayPlan }) {
+  const { parts: PARTS } = useTheme()
   return (
     <ol className="page-plan">
       {plan.parts.map((part, i) => {

@@ -1,0 +1,8 @@
+/* Ninja theme. Everything is scoped to :root[data-theme='ninja'], except its tile in the theme pickers. */
+:root[data-theme='ninja'] {
+  --pink: #1f2346;
+}
+
+.theme-tile[data-pick-theme='ninja'] {
+  --tile: #1f2346;
+}

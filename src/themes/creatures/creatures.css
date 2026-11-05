@@ -1,0 +1,8 @@
+/* Creatures theme. Everything is scoped to :root[data-theme='creatures'], except its tile in the theme pickers. */
+:root[data-theme='creatures'] {
+  --pink: #3fae49;
+}
+
+.theme-tile[data-pick-theme='creatures'] {
+  --tile: #3fae49;
+}

@@ -1582,3 +1582,79 @@ figure {
     transition: none;
   }
 }
+
+/* Theme pickers (welcome screen and grown-ups). Each theme's CSS colors its own tile. */
+.theme-picker {
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+  width: min(100%, 860px);
+}
+
+.theme-picker-title {
+  font-family: var(--bubble);
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: var(--purple);
+}
+
+.theme-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 0.7rem;
+  width: 100%;
+}
+
+.theme-tile {
+  --tile: #ff4fa3;
+  --tile-ink: #2a2140;
+  --tile-bg: #fff;
+  --tile-font: 'Chewy', system-ui, sans-serif;
+  --tile-body: 'Patrick Hand', system-ui, sans-serif;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 0.2rem;
+  padding: 0.6rem 0.5rem 0.7rem;
+  color: var(--tile-ink);
+  background: var(--tile-bg);
+  border: 3px solid var(--tile-ink);
+  border-radius: 16px;
+  box-shadow: 3px 4px 0 var(--tile-ink);
+  cursor: pointer;
+}
+
+.theme-tile.on {
+  outline: 4px solid var(--tile);
+  outline-offset: 3px;
+}
+
+.theme-tile-name {
+  font-family: var(--tile-font);
+  font-size: 1.35rem;
+  line-height: 1.1;
+  color: var(--tile);
+}
+
+.theme-tile-blurb {
+  font-family: var(--tile-body);
+  font-size: 0.95rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+/* A milestone mid-practice (a creature evolving, a belt earned): the theme supplies the art. */
+.milestone {
+  justify-items: center;
+}
+
+.milestone-art {
+  display: grid;
+  place-items: center;
+  min-height: 140px;
+}
+
+.milestone-art svg {
+  width: min(220px, 50vw);
+  height: auto;
+}

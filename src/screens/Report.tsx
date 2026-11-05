@@ -5,17 +5,21 @@ import { fetchAnswers } from '../cloud'
 import { dayNumber } from '../engine/dates'
 import { LIGHTNING_LAP } from '../engine/day'
 import { factId, FACTORS, showFact } from '../engine/facts'
-import { LEVELS, MASTERED, trickiestFacts } from '../engine/progress'
+import { MASTERED, trickiestFacts } from '../engine/progress'
 import { buildReport } from '../engine/report'
 import type { AnswerRecord, Progress } from '../engine/types'
 import { longDay } from '../format'
 import { loadQueue, type CloudLink } from '../storage'
+import { useTheme } from '../themes'
 
 const percent = (part: number, whole: number) => `${Math.round((part / whole) * 100)}%`
 
 export function Report({ progress, link, onBack }: { progress: Progress; link: CloudLink | null; onBack: () => void }) {
   const [answers, setAnswers] = useState<AnswerRecord[]>(loadQueue)
   const [status, setStatus] = useState<'loading' | 'ready' | 'offline'>(link ? 'loading' : 'ready')
+  const { words, levels: LEVELS } = useTheme()
+  const { she, her } = words.pronouns ?? { she: progress.name, her: `${progress.name}'s` }
+  const days = words.dayNounPlural
 
   useEffect(() => {
     if (!link) return
@@ -46,7 +50,7 @@ export function Report({ progress, link, onBack }: { progress: Progress; link: C
         {progress.name}'s times tables
         {status === 'loading' && ' · updating…'}
         {status === 'offline' && " · offline, so retention only counts answers from this device"}
-        {!link && ' · this diary isn’t saved online, so retention only counts answers from this device'}
+        {!link && ` · this ${words.thing} isn’t saved online, so retention only counts answers from this device`}
       </p>
 
       <section className="kpis" aria-label="Summary">
@@ -59,7 +63,7 @@ export function Report({ progress, link, onBack }: { progress: Progress; link: C
           <span className="tile-note">Answered fast on at least two separate days</span>
         </div>
         <div className="tile">
-          <span className="tile-label">Colored in</span>
+          <span className="tile-label">{LEVELS[3].name}</span>
           <span className="tile-value">{r.coloredIn}</span>
           <span className="tile-note">Answered right and fast at least once</span>
         </div>
@@ -83,7 +87,7 @@ export function Report({ progress, link, onBack }: { progress: Progress; link: C
           </span>
         </div>
         <div className="tile">
-          <span className="tile-label">Diary days in a row</span>
+          <span className="tile-label">{`${days[0].toUpperCase() + days.slice(1)} in a row`}</span>
           <span className="tile-value">{r.streak}</span>
           <span className="tile-note">
             {r.entries} {r.entries === 1 ? 'entry' : 'entries'} in all
@@ -117,7 +121,7 @@ export function Report({ progress, link, onBack }: { progress: Progress; link: C
             </details>
           </>
         ) : (
-          <p className="note">The chart starts after a couple of diary days.</p>
+          <p className="note">{`The chart starts after a couple of ${days}.`}</p>
         )}
       </section>
 
@@ -129,7 +133,7 @@ export function Report({ progress, link, onBack }: { progress: Progress; link: C
       <section className="card report-card">
         <h2>Check-ups</h2>
         <p className="note">
-          Every two weeks, the warm-up on her daily page starts with up to 10 facts she mastered but hasn't practiced for a week or more.
+          {`Every two weeks, the warm-up on ${her} daily page starts with up to 10 facts ${she} mastered but hasn't practiced for a week or more.`}
         </p>
         {r.checkups.length > 0 ? (
           <table className="data-table">
@@ -193,9 +197,10 @@ export function Report({ progress, link, onBack }: { progress: Progress; link: C
           <p className="note">Each day on the daily page shows up here.</p>
         )}
         <p className="note">
-          Practice time counts each question for at most 40 seconds, so breaks aren't included. Puzzles are missing-number and
-          division questions; they don't change the doodle page. The lightning lap is {LIGHTNING_LAP} facts she knows, as fast as
-          she can{progress.bestLightning > 0 ? `; her record is ${progress.bestLightning} super fast` : ''}.
+          {`Practice time counts each question for at most 40 seconds, so breaks aren't included. Puzzles are missing-number and division questions; they don't change the ${words.gridName}. The lightning lap is `}
+          {LIGHTNING_LAP}
+          {` facts ${she} knows, as fast as ${she} can`}
+          {progress.bestLightning > 0 ? `; ${her} record is ${progress.bestLightning} super fast` : ''}.
         </p>
       </section>
 

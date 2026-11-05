@@ -1,4 +1,5 @@
 import { writeEntry } from './diary'
+import type { Voice } from './voice'
 import { masteredCount, streak } from './progress'
 import { createSession, finishCheckup, hasLearningWork, lightningPool, partAsked, planCheckup, practiceRoom, puzzlePool, startPart, type Rng } from './session'
 import type { DayLog, DayPlan, DiaryEntry, PartKind, PartPlan, Progress, Question } from './types'
@@ -192,8 +193,8 @@ export function endPart(p: Progress, plan: DayPlan, now: number): PartPlan {
 /** True once every part of the page is done (bonus rounds aren't required). */
 export const pageDone = (plan: DayPlan): boolean => plan.parts.every((part) => part.kind === 'bonus' || part.done)
 
-/** Writes the day's diary page and awards its sticker. */
-export function finishPage(p: Progress, plan: DayPlan, sticker: string, now: number, rng: Rng = Math.random): DiaryEntry {
+/** Writes the day's diary page (in the theme's voice, if one is given) and awards its sticker. */
+export function finishPage(p: Progress, plan: DayPlan, sticker: string, now: number, rng: Rng = Math.random, voice?: Voice): DiaryEntry {
   p.stickers.push(sticker)
   const streakDays = streak([...p.entries, { day: plan.day }], plan.day)
   const entry = writeEntry(
@@ -205,8 +206,10 @@ export function finishPage(p: Progress, plan: DayPlan, sticker: string, now: num
       mastered: masteredCount(p),
       minutes: Math.max(1, Math.round(plan.activeMs / 60_000)),
       page: { parts: plan.parts.filter((part) => part.kind !== 'bonus'), bestBefore: plan.bestBefore },
+      events: plan.events,
     },
     rng,
+    voice,
   )
   p.entries.push(entry)
   plan.finished = true

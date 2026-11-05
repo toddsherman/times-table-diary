@@ -1,4 +1,5 @@
 import { useRef, useState, type ChangeEvent } from 'react'
+import { ThemePicker } from '../components/ThemePicker'
 import { TopBar } from '../components/TopBar'
 import { dayNumber } from '../engine/dates'
 import { ALL_FACT_IDS } from '../engine/facts'
@@ -7,6 +8,7 @@ import { mergeProgress } from '../engine/sync'
 import type { Progress, Settings as DiarySettings } from '../engine/types'
 import { timeAgo } from '../format'
 import { parseProgress, shareBackup, type CloudLink } from '../storage'
+import { useTheme } from '../themes'
 
 export interface SyncStatus {
   state: 'off' | 'syncing' | 'saved' | 'error'
@@ -44,6 +46,8 @@ export function Settings({ progress, link, sync, onChange, onSyncNow, onConnect,
   const [busy, setBusy] = useState(false)
   const fileInput = useRef<HTMLInputElement>(null)
   const { settings } = progress
+  const { id: theme, words } = useTheme()
+  const { thing } = words
   const counts = levelCounts(progress)
   const owner = progress.name
 
@@ -87,7 +91,7 @@ export function Settings({ progress, link, sync, onChange, onSyncNow, onConnect,
     if (!file) return
     try {
       const restored = parseProgress(await file.text())
-      const ok = window.confirm(`Merge the backup of ${restored.name}'s diary (${restored.entries.length} entries) into this one?`)
+      const ok = window.confirm(`Merge the backup of ${restored.name}'s ${thing} (${restored.entries.length} entries) into this one?`)
       if (!ok) return
       onChange({ ...mergeProgress(progress, restored), name: progress.name, updatedAt: Date.now() })
       setMessage('Backup loaded.')
@@ -143,7 +147,7 @@ export function Settings({ progress, link, sync, onChange, onSyncNow, onConnect,
           </>
         ) : (
           <>
-            <p>This diary is only on this iPad. Pick a family PIN to save it online and keep a progress report.</p>
+            <p>{`This ${thing} is only on this iPad. Pick a family PIN to save it online and keep a progress report.`}</p>
             <input
               className="text-input pin-input small"
               value={pin}
@@ -165,6 +169,12 @@ export function Settings({ progress, link, sync, onChange, onSyncNow, onConnect,
             </div>
           </>
         )}
+      </section>
+
+      <section className="card panel">
+        <h2>Look</h2>
+        <ThemePicker value={theme} onPick={(id) => changeSettings({ theme: id })} label={`${owner}'s look`} />
+        <p className="note">Changes the pictures, words, and colors. Progress, stickers, and pages all carry over.</p>
       </section>
 
       <section className="card panel">
@@ -214,7 +224,8 @@ export function Settings({ progress, link, sync, onChange, onSyncNow, onConnect,
         {confirm === 'forget' ? (
           <>
             <p>
-              This iPad will forget {owner}'s diary.{' '}
+              This iPad will forget {owner}
+              {`'s ${thing}.`}{' '}
               {link ? 'It stays saved online, so you can open it again with the name and PIN.' : "It isn't saved online, so it will be gone."}
               {link && sync.state === 'error' && ' The newest answers may not be saved online yet.'}
             </p>
@@ -229,7 +240,10 @@ export function Settings({ progress, link, sync, onChange, onSyncNow, onConnect,
           </>
         ) : confirm === 'delete' ? (
           <>
-            <p>This permanently deletes {owner}'s diary, progress, and answers everywhere, online and on this iPad. It can't be undone.</p>
+            <p>
+              This permanently deletes {owner}
+              {`'s ${thing}, progress, and answers everywhere, online and on this iPad. It can't be undone.`}
+            </p>
             <div className="row">
               <button type="button" className="btn small" onClick={() => setConfirm(null)}>
                 Keep it
@@ -242,11 +256,11 @@ export function Settings({ progress, link, sync, onChange, onSyncNow, onConnect,
         ) : (
           <div className="row">
             <button type="button" className="btn small" onClick={() => setConfirm('forget')}>
-              Use a different diary…
+              {`Use a different ${thing}…`}
             </button>
             {link && (
               <button type="button" className="btn small" onClick={() => setConfirm('delete')}>
-                Delete this diary everywhere…
+                {`Delete this ${thing} everywhere…`}
               </button>
             )}
           </div>

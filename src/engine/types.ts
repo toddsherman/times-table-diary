@@ -24,6 +24,8 @@ export interface Settings {
   /** How long the daily page should take, in minutes. Sizes the page; no clock is ever shown. */
   dailyMinutes: number
   sound: boolean
+  /** The look of the app: 'diary' (the original, and the default), 'bricks', 'creatures', 'ninja' or 'construction'. */
+  theme?: string
 }
 
 export interface EntryStats {
@@ -195,6 +197,8 @@ export interface DayPlan {
   finished: boolean
   /** Best lightning lap before today's, for "new record!". */
   bestBefore: number
+  /** Lines the theme wants in today's entry, like a creature hatching, collected as they happen. */
+  events?: string[]
 }
 
 /** A day's practice on the daily page, kept for the progress report. */

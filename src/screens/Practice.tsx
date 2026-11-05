@@ -4,20 +4,18 @@ import { DotArray } from '../components/DotArray'
 import { CloseIcon } from '../components/Icons'
 import { Keypad, type Key } from '../components/Keypad'
 import { PagePlan, PartDots } from '../components/PagePlan'
-import { Sticker } from '../components/Sticker'
 import { dayNumber } from '../engine/dates'
-import { addTime, beginPart, endPart, finishPage, logDay, pageDone, PARTS, showQuestion, startToday } from '../engine/day'
+import { addTime, beginPart, endPart, finishPage, logDay, pageDone, showQuestion, startToday } from '../engine/day'
 import { puzzleHint, strategyHint } from '../engine/facts'
 import { nextQuestion, partAsked, recordAnswer } from '../engine/session'
 import type { DayPlan, DiaryEntry, Level, Outcome, PartPlan, Progress, Question } from '../engine/types'
 import { sfx } from '../sound'
 import { awardSticker } from '../stickers'
 import { queueAnswer, saveProgress } from '../storage'
+import { useTheme } from '../themes'
+import type { Milestone } from '../themes/types'
 
-const FAST_CHEERS = ['SQUEEE!', 'OMG, YES!', 'Genius!', 'Nailed it!', 'So fab!', 'Boom!', 'Math star!', 'Too easy!']
-const OK_CHEERS = ['Got it!', 'Yes!', 'Correct!', 'You got it!']
-const BREAK_IDEAS = ['Stretch break! Reach for the sky.', 'Wiggle your fingers. Ready?', 'Shake out your arms!', 'Sip of water?', 'Big breath in… and out.']
-const pick = (xs: string[]) => xs[Math.floor(Math.random() * xs.length)]
+const pick = (xs: readonly string[]) => xs[Math.floor(Math.random() * xs.length)]
 
 interface Props {
   progress: Progress
@@ -37,6 +35,8 @@ interface View {
   quitting: boolean
   /** The part just finished, while the between-parts screen is up. */
   finished: PartPlan | null
+  /** Milestones being celebrated (a creature evolving, say), first one on screen. */
+  milestones: Milestone[]
 }
 
 /** The question, with the answer box wherever the missing number goes. */
@@ -82,6 +82,8 @@ function Problem({ q, slot }: { q: Question; slot: ReactNode }) {
 }
 
 export function Practice({ progress, onBreak, onPageDone }: Props) {
+  const theme = useTheme()
+  const { words, parts: PARTS, FastIcon } = theme
   // The engine mutates these copies. They're set up together in one initializer so StrictMode's
   // double call can't leave the first question and the plan out of sync.
   const [{ p, plan, first }] = useState(() => {
@@ -103,6 +105,7 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
     shakes: 0,
     quitting: false,
     finished: null,
+    milestones: [],
   })
   // Handlers read and write the latest view through this ref, so taps or key presses that land
   // before React re-renders never act on a stale question or a half-typed answer.
@@ -114,6 +117,18 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
   const shownAt = useRef(0)
   const timer = useRef<number | undefined>(undefined)
   const keyHandler = useRef<(key: Key) => void>(() => {})
+  // Milestones already reached when practice opened, so only new ones are celebrated.
+  const reached = useRef<Set<string> | null>(null)
+  reached.current ??= new Set(theme.milestones?.(p).map((m) => m.key))
+
+  /** Milestones reached since the last check. They go in today's entry too. */
+  const newMilestones = (): Milestone[] => {
+    if (!theme.milestones || !reached.current) return []
+    const fresh = theme.milestones(p).filter((m) => !reached.current?.has(m.key))
+    for (const m of fresh) reached.current.add(m.key)
+    if (fresh.length > 0) plan.events = [...(plan.events ?? []), ...fresh.map((m) => m.entryLine)]
+    return fresh
+  }
 
   const save = () => {
     logDay(p, plan)
@@ -124,7 +139,7 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
     const now = Date.now()
     const part = endPart(p, plan, now)
     if (part.kind !== 'bonus' && pageDone(plan) && !plan.finished) {
-      const entry = finishPage(p, plan, awardSticker(p.stickers), now)
+      const entry = finishPage(p, plan, awardSticker(p.stickers), now, Math.random, theme.voice)
       saveProgress(p)
       onPageDone(p, entry)
       return
@@ -188,15 +203,28 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
     update({ q: next, typed: '', mode: 'ask', gaveUp: false, cheer: null })
   }
 
-  const celebrate = (text: string, big: boolean, delay: number) => {
+  const celebrate = (text: string, big: boolean, delay: number, milestones: Milestone[] = []) => {
     update({ cheer: { text, big } })
-    timer.current = window.setTimeout(advance, delay)
+    timer.current = window.setTimeout(() => {
+      if (milestones.length === 0) return advance()
+      sfx.fanfare()
+      update({ cheer: null, milestones })
+    }, delay)
+  }
+
+  /** Closes the milestone on screen, then shows the next one or moves on. */
+  const nextMilestone = () => {
+    const [, ...rest] = live.current.milestones
+    if (rest.length > 0) return update({ milestones: rest })
+    update({ milestones: [] })
+    advance()
   }
 
   const submit = (q: Question, value: string) => {
     const ms = Math.min(performance.now() - shownAt.current, 30_000)
     const before = p.facts[q.id].level
     const outcome = recordAnswer(p, s, q, Number(value) === q.answer, ms)
+    const milestones = outcome === 'wrong' ? [] : newMilestones()
     save()
     log(q, Number(value), ms, outcome, before)
     if (outcome === 'wrong') {
@@ -206,14 +234,14 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
     }
     if (outcome === 'fast') sfx.fast()
     else sfx.correct()
-    celebrate(pick(outcome === 'fast' ? FAST_CHEERS : OK_CHEERS), outcome === 'fast', outcome === 'fast' ? 650 : 750)
+    celebrate(pick(outcome === 'fast' ? words.fastCheers : words.okCheers), outcome === 'fast', outcome === 'fast' ? 650 : 750, milestones)
   }
 
   // After a miss she copies the answer from memory (it gets covered as soon as she starts typing).
   const checkCopy = (q: Question, value: string) => {
     if (Number(value) === q.answer) {
       sfx.correct()
-      celebrate('Now you know it!', false, 900)
+      celebrate(words.copied, false, 900)
     } else {
       sfx.wrong()
       update({ typed: '', shakes: live.current.shakes + 1 })
@@ -221,8 +249,8 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
   }
 
   const showMe = () => {
-    const { q, mode, cheer } = live.current
-    if (!q || mode !== 'ask' || cheer) return
+    const { q, mode, cheer, milestones } = live.current
+    if (!q || mode !== 'ask' || cheer || milestones.length > 0) return
     const ms = performance.now() - shownAt.current
     const before = p.facts[q.id].level
     recordAnswer(p, s, q, false, ms)
@@ -232,8 +260,8 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
   }
 
   const onKey = (key: Key) => {
-    const { q, typed, mode, cheer, quitting } = live.current
-    if (!q || cheer || quitting) return
+    const { q, typed, mode, cheer, quitting, milestones } = live.current
+    if (!q || cheer || quitting || milestones.length > 0) return
     const check = mode === 'ask' ? submit : checkCopy
     if (key === 'back') return update({ typed: typed.slice(0, -1) })
     if (key === 'go') {
@@ -269,7 +297,7 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
 
-  const { q, typed, mode, gaveUp, cheer, shakes, quitting, finished } = view
+  const { q, typed, mode, gaveUp, cheer, shakes, quitting, finished, milestones } = view
   if (finished) return <BetweenParts plan={plan} part={finished} onNext={startNextPart} onBreak={() => onBreak(p)} />
   if (!q) return null
 
@@ -300,7 +328,7 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
         </div>
         {kind === 'lightning' && (
           <span className="fast-count" aria-label={`${s.part.fast} super fast so far`}>
-            <Sticker id="bolt" size={30} /> {s.part.fast}
+            <FastIcon /> {s.part.fast}
           </span>
         )}
         <span className="count">{done > length ? 'Fix-ups!' : `${done} of ${length}`}</span>
@@ -308,8 +336,8 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
 
       <main className="practice-main">
         <section className="q-card tape">
-          {mode === 'ask' && q.kind === 'checkup' && <p className="stamp-tag">Check-up!</p>}
-          {mode === 'ask' && q.kind === 'new' && <p className="stamp-tag new">New!</p>}
+          {mode === 'ask' && q.kind === 'checkup' && <p className="stamp-tag">{words.checkupTag}</p>}
+          {mode === 'ask' && q.kind === 'new' && <p className="stamp-tag new">{words.newTag}</p>}
           {mode === 'ask' ? (
             <>
               <p className="problem" key={s.asked}>
@@ -321,7 +349,7 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
             </>
           ) : (
             <div className="fix">
-              <p className="fix-title">{gaveUp ? "Here's a trick!" : 'Oops! Almost.'}</p>
+              <p className="fix-title">{gaveUp ? words.trick : words.oops}</p>
               <p className="problem small">
                 <Problem q={q} slot={<span className="reveal">{covered ? '?' : q.answer}</span>} />
               </p>
@@ -345,14 +373,29 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
       {quitting && (
         <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="quit-title">
           <div className="dialog card tape">
-            <h2 id="quit-title">Take a break?</h2>
-            <p>Everything is saved. Come back any time today to finish your page.</p>
+            <h2 id="quit-title">{words.quitTitle}</h2>
+            <p>{words.quitText}</p>
             <div className="dialog-buttons">
               <button type="button" className="btn" onClick={() => update({ quitting: false })}>
                 Keep going
               </button>
               <button type="button" className="btn pink" onClick={() => onBreak(p)}>
                 Take a break
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {milestones.length > 0 && (
+        <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="milestone-title">
+          <div key={milestones[0].key} className="dialog card milestone tape">
+            <div className="milestone-art">{milestones[0].art}</div>
+            <h2 id="milestone-title">{milestones[0].title}</h2>
+            <p>{milestones[0].text}</p>
+            <div className="dialog-buttons">
+              <button type="button" className="btn pink big" onClick={nextMilestone}>
+                {words.letsGo}
               </button>
             </div>
           </div>
@@ -373,11 +416,12 @@ function partSummary(part: PartPlan, plan: DayPlan): string {
 
 /** The pause between parts: what she just did, what's next, and the choice to keep going or rest. */
 function BetweenParts({ plan, part, onNext, onBreak }: { plan: DayPlan; part: PartPlan; onNext: () => void; onBreak: () => void }) {
-  const [idea] = useState(() => pick(BREAK_IDEAS))
+  const { words, parts: PARTS } = useTheme()
+  const [idea] = useState(() => pick(words.breakIdeas))
   const next = plan.parts[plan.current]
   return (
     <div className="screen between">
-      <h1 className="bubble-title small">{PARTS[part.kind].title} done!</h1>
+      <h1 className="bubble-title small">{words.partDone(PARTS[part.kind].title)}</h1>
       {part.firstTry > 0 && <p className="between-line">{partSummary(part, plan)}</p>}
       <section className="card today-card">
         <PagePlan plan={plan} />
@@ -392,7 +436,7 @@ function BetweenParts({ plan, part, onNext, onBreak }: { plan: DayPlan; part: Pa
           <p className="note break-idea">{idea}</p>
           <div className="dialog-buttons">
             <button type="button" className="btn pink big" onClick={onNext}>
-              Let's go!
+              {words.letsGo}
             </button>
             <button type="button" className="btn" onClick={onBreak}>
               Take a break

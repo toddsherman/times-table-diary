@@ -11,8 +11,16 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@fontsource/barlow": "^5.3.0",
+    "@fontsource/bungee": "^5.3.0",
     "@fontsource/chewy": "^5.3.0",
+    "@fontsource/fredoka": "^5.3.0",
+    "@fontsource/lilita-one": "^5.3.0",
+    "@fontsource/m-plus-rounded-1c": "^5.3.0",
+    "@fontsource/nunito": "^5.3.0",
     "@fontsource/patrick-hand": "^5.3.0",
+    "@fontsource/shojumaru": "^5.3.0",
+    "@fontsource/titan-one": "^5.3.0",
     "@neondatabase/serverless": "^1.1.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"

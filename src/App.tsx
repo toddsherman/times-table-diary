@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createDiary, deleteDiary, flushAnswers, openDiary, saveOnExit, syncDiary } from './cloud'
 import { dayNumber } from './engine/dates'
 import { createProgress } from './engine/progress'
@@ -13,6 +13,7 @@ import { Settings, type SyncStatus } from './screens/Settings'
 import { Welcome } from './screens/Welcome'
 import { setSoundOn } from './sound'
 import { eraseLocalDiary, loadLink, loadProgress, requestPersistence, saveLink, saveProgress, type CloudLink } from './storage'
+import { applyTheme, getTheme, ThemeContext, type ThemeId } from './themes'
 
 type Screen = 'home' | 'practice' | 'done' | 'doodles' | 'diary' | 'settings' | 'report'
 
@@ -26,6 +27,11 @@ export default function App() {
   const running = useRef(false)
   const again = useRef(false)
   const soundOn = progress?.settings.sound ?? true
+  // Before there's a diary, the welcome screen's picker sets the look.
+  const [welcomeTheme, setWelcomeTheme] = useState<ThemeId>('diary')
+  const theme = getTheme(progress ? progress.settings.theme : welcomeTheme)
+
+  useLayoutEffect(() => applyTheme(theme), [theme])
 
   useEffect(() => {
     screenRef.current = screen
@@ -105,90 +111,97 @@ export default function App() {
 
   const goHome = () => setScreen('home')
 
-  if (!progress) {
+  return <ThemeContext.Provider value={theme}>{renderScreen()}</ThemeContext.Provider>
+
+  function renderScreen() {
+    if (!progress) {
+      return (
+        <Welcome
+          theme={welcomeTheme}
+          onTheme={setWelcomeTheme}
+          onCreate={async (name, pin) => {
+            const fresh = createProgress(name, dayNumber())
+            if (welcomeTheme !== 'diary') fresh.settings.theme = welcomeTheme
+            fresh.settingsAt = fresh.updatedAt = Date.now()
+            const l = await createDiary(name, pin, fresh)
+            saveProgress(fresh, { touch: false })
+            start(fresh, l)
+          }}
+          onOpen={async (name, pin) => {
+            const { progress: opened, link: l } = await openDiary(name, pin)
+            saveProgress(opened, { touch: false })
+            start(opened, l)
+          }}
+        />
+      )
+    }
+
+    switch (screen) {
+      case 'practice':
+        return (
+          <Practice
+            progress={progress}
+            onBreak={(p) => {
+              commit(p)
+              goHome()
+            }}
+            onPageDone={(p, e) => {
+              commit(p)
+              setEntry(e)
+              setScreen('done')
+            }}
+          />
+        )
+      case 'done':
+        if (entry) return <EntryDone entry={entry} name={progress.name} number={progress.entries.length} onClose={goHome} />
+        break
+      case 'doodles':
+        return <DoodlePage progress={progress} onBack={goHome} />
+      case 'diary':
+        return <DiaryBook progress={progress} onBack={goHome} />
+      case 'report':
+        return <Report progress={progress} link={link} onBack={() => setScreen('settings')} />
+      case 'settings':
+        return (
+          <Settings
+            progress={progress}
+            link={link}
+            sync={sync}
+            onChange={commit}
+            onSyncNow={() => void syncNow()}
+            onConnect={async (pin) => {
+              const l = await createDiary(progress.name, pin, progress)
+              start(progress, l)
+            }}
+            onForget={() => {
+              eraseLocalDiary()
+              setProgress(null)
+              setLink(null)
+              setSync({ state: 'off' })
+              goHome()
+            }}
+            onDeleteEverywhere={async () => {
+              if (link) await deleteDiary(link)
+              eraseLocalDiary()
+              setProgress(null)
+              setLink(null)
+              setSync({ state: 'off' })
+              goHome()
+            }}
+            onReport={() => setScreen('report')}
+            onBack={goHome}
+          />
+        )
+    }
+
     return (
-      <Welcome
-        onCreate={async (name, pin) => {
-          const fresh = createProgress(name, dayNumber())
-          fresh.settingsAt = fresh.updatedAt = Date.now()
-          const l = await createDiary(name, pin, fresh)
-          saveProgress(fresh, { touch: false })
-          start(fresh, l)
-        }}
-        onOpen={async (name, pin) => {
-          const { progress: opened, link: l } = await openDiary(name, pin)
-          saveProgress(opened, { touch: false })
-          start(opened, l)
-        }}
+      <Home
+        progress={progress}
+        onStart={() => setScreen('practice')}
+        onDoodles={() => setScreen('doodles')}
+        onDiary={() => setScreen('diary')}
+        onSettings={() => setScreen('settings')}
       />
     )
   }
-
-  switch (screen) {
-    case 'practice':
-      return (
-        <Practice
-          progress={progress}
-          onBreak={(p) => {
-            commit(p)
-            goHome()
-          }}
-          onPageDone={(p, e) => {
-            commit(p)
-            setEntry(e)
-            setScreen('done')
-          }}
-        />
-      )
-    case 'done':
-      if (entry) return <EntryDone entry={entry} name={progress.name} onClose={goHome} />
-      break
-    case 'doodles':
-      return <DoodlePage progress={progress} onBack={goHome} />
-    case 'diary':
-      return <DiaryBook progress={progress} onBack={goHome} />
-    case 'report':
-      return <Report progress={progress} link={link} onBack={() => setScreen('settings')} />
-    case 'settings':
-      return (
-        <Settings
-          progress={progress}
-          link={link}
-          sync={sync}
-          onChange={commit}
-          onSyncNow={() => void syncNow()}
-          onConnect={async (pin) => {
-            const l = await createDiary(progress.name, pin, progress)
-            start(progress, l)
-          }}
-          onForget={() => {
-            eraseLocalDiary()
-            setProgress(null)
-            setLink(null)
-            setSync({ state: 'off' })
-            goHome()
-          }}
-          onDeleteEverywhere={async () => {
-            if (link) await deleteDiary(link)
-            eraseLocalDiary()
-            setProgress(null)
-            setLink(null)
-            setSync({ state: 'off' })
-            goHome()
-          }}
-          onReport={() => setScreen('report')}
-          onBack={goHome}
-        />
-      )
-  }
-
-  return (
-    <Home
-      progress={progress}
-      onStart={() => setScreen('practice')}
-      onDoodles={() => setScreen('doodles')}
-      onDiary={() => setScreen('diary')}
-      onSettings={() => setScreen('settings')}
-    />
-  )
 }

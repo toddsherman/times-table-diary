@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react'
-import { DiaryPage } from '../components/DiaryPage'
-import { Sticker } from '../components/Sticker'
+import { EntryPage } from '../components/DiaryPage'
 import type { DiaryEntry } from '../engine/types'
 import { sfx } from '../sound'
-import { STICKER_NAMES, type StickerId } from '../stickers'
+import type { StickerId } from '../stickers'
+import { useTheme } from '../themes'
 
-export function EntryDone({ entry, name, onClose }: { entry: DiaryEntry; name: string; onClose: () => void }) {
+export function EntryDone({ entry, name, number, onClose }: { entry: DiaryEntry; name: string; number: number; onClose: () => void }) {
+  const { words, rewardNames, Reward } = useTheme()
   const played = useRef(false)
   useEffect(() => {
     if (played.current) return
@@ -14,12 +15,13 @@ export function EntryDone({ entry, name, onClose }: { entry: DiaryEntry; name: s
   }, [])
 
   const { stats } = entry
+  const sticker = entry.sticker as StickerId
   return (
     <div className="screen done">
-      <DiaryPage entry={entry} name={name} />
+      <EntryPage entry={entry} name={name} number={number} />
       <div className="new-sticker">
-        <Sticker id={entry.sticker} size={132} className="pop" />
-        <p>New sticker: {STICKER_NAMES[entry.sticker as StickerId]}!</p>
+        <Reward id={sticker} size={132} className="pop" />
+        <p>{words.newReward(rewardNames[sticker])}</p>
       </div>
       <div className="stickies">
         <div className="sticky">
@@ -30,7 +32,7 @@ export function EntryDone({ entry, name, onClose }: { entry: DiaryEntry; name: s
         </div>
       </div>
       <button type="button" className="btn pink big" onClick={onClose}>
-        Close my diary
+        {words.closeBook}
       </button>
     </div>
   )
