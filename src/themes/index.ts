@@ -22,6 +22,7 @@ export function applyTheme(theme: Theme): void {
   // The diary is the base stylesheet, so it needs no attribute (and its page stays exactly as before themes).
   if (theme.id === 'diary') delete document.documentElement.dataset.theme
   else document.documentElement.dataset.theme = theme.id
+  if (document.title !== theme.words.appTitle) document.title = theme.words.appTitle
   const meta = document.querySelector('meta[name="theme-color"]')
   if (meta && meta.getAttribute('content') !== theme.themeColor) meta.setAttribute('content', theme.themeColor)
 }
