@@ -1066,10 +1066,15 @@
   border-radius: 10px;
 }
 
+/* Bungee is too wide for "CONSTRUCTION" in a picker tile, so the name uses Barlow's heavy cut. */
 .theme-tile[data-pick-theme='construction'] .theme-tile-name {
-  font-size: 0.86rem;
+  font-family: 'Barlow', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  overflow-wrap: normal;
   text-align: center;
-  hyphens: manual;
 }
 
 .theme-tile[data-pick-theme='construction'] .theme-tile-blurb {

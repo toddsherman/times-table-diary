@@ -1,10 +1,20 @@
 import { THEMES, type ThemeId } from '../themes'
 
 /** A tile per theme, each drawn in its own colors and font, with one of its pictures. */
-export function ThemePicker({ value, onPick, label }: { value: ThemeId; onPick: (id: ThemeId) => void; label: string }) {
+export function ThemePicker({
+  value,
+  onPick,
+  label,
+  showTitle = true,
+}: {
+  value: ThemeId
+  onPick: (id: ThemeId) => void
+  label: string
+  showTitle?: boolean
+}) {
   return (
     <section className="theme-picker" aria-label={label}>
-      <h2 className="theme-picker-title">{label}</h2>
+      {showTitle && <h2 className="theme-picker-title">{label}</h2>}
       <div className="theme-tiles" role="radiogroup" aria-label={label}>
         {THEMES.map(({ id, name, blurb, Reward }) => (
           <button

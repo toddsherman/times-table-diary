@@ -11,7 +11,7 @@ import { levels, parts, voice, words } from './words'
 export const construction: Theme = {
   id: 'construction',
   // The soft hyphen lets the long name break in narrow picker tiles; it's invisible otherwise.
-  name: 'Construc\u00adtion',
+  name: 'Construction',
   blurb: 'Big machines build a tower of facts',
   themeColor: '#ffc400',
   words,

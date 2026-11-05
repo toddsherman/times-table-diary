@@ -46,7 +46,9 @@ export function Settings({ progress, link, sync, onChange, onSyncNow, onConnect,
   const [busy, setBusy] = useState(false)
   const fileInput = useRef<HTMLInputElement>(null)
   const { settings } = progress
-  const { id: theme, words } = useTheme()
+  const { id: theme, words, voice } = useTheme()
+  const names = (['warmup', 'new', 'mixed', 'puzzles', 'lightning'] as const).map((kind) => voice.partNames[kind])
+  const partList = `${names.slice(0, -1).join(', ')}, and ${names.at(-1)}`
   const { thing } = words
   const counts = levelCounts(progress)
   const owner = progress.name
@@ -173,7 +175,7 @@ export function Settings({ progress, link, sync, onChange, onSyncNow, onConnect,
 
       <section className="card panel">
         <h2>Look</h2>
-        <ThemePicker value={theme} onPick={(id) => changeSettings({ theme: id })} label={`${owner}'s look`} />
+        <ThemePicker value={theme} onPick={(id) => changeSettings({ theme: id })} label={`${owner}'s look`} showTitle={false} />
         <p className="note">Changes the pictures, words, and colors. Progress, stickers, and pages all carry over.</p>
       </section>
 
@@ -187,8 +189,8 @@ export function Settings({ progress, link, sync, onChange, onSyncNow, onConnect,
           ))}
         </div>
         <p className="note">
-          Each day's page is a warm-up, new facts, practice, puzzles, and a lightning lap. The number of questions in each part is
-          set from how long {owner}'s questions usually take, so the page lasts about this long. There's no clock on screen. While{' '}
+          {`Each day's page is ${partList}. The number of questions in each part is set from how long `}
+          {owner}'s questions usually take, so the page lasts about this long. There's no clock on screen. While{' '}
           {owner} knows only a few facts, pages run shorter rather than repeating them. A page already started keeps its size.
         </p>
       </section>
