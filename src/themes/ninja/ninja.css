@@ -1,8 +1,901 @@
-/* Ninja theme. Everything is scoped to :root[data-theme='ninja'], except its tile in the theme pickers. */
+/* Ninja theme: a dojo at night. Indigo waves behind rice-paper cards, crimson and gold accents.
+   Everything is scoped to :root[data-theme='ninja'], except its tile in the theme pickers. */
 :root[data-theme='ninja'] {
-  --pink: #1f2346;
+  --n-night: #1b1f3b;
+  --n-wave: #252b58;
+  --n-washi: #f7f0e1;
+  --n-gold: #f2c14e;
+  --n-gold-dark: #b8862b;
+  --n-shadow: #0b0d1f;
+  --n-light: #ddd8f2;
+  --n-wood: #6b4a33;
+  --ink: #1c1b2e;
+  --ink-soft: #57506a;
+  --paper: var(--n-night);
+  --pink: #c8102e;
+  --pink-soft: #f8d9dc;
+  --purple: #343a8a;
+  --purple-soft: var(--n-washi);
+  --teal: #2f7d5b;
+  --teal-soft: #dbeee2;
+  --yellow: var(--n-gold);
+  --sticky: #f3e3b5;
+  --pencil: #9b94a8;
+  --lvl3: #4fae6e;
+  --lvl4: #1c1b2e;
+  --lvl5: #e8b443;
+  --hand: 'M PLUS Rounded 1c', 'Hiragino Maru Gothic ProN', system-ui, sans-serif;
+  --bubble: 'Shojumaru', 'M PLUS Rounded 1c', system-ui, serif;
+  --wobble: 12px;
+  --wobble-2: 12px;
+  --outline: 0 3px 0 #7a0a1c, 0 8px 18px rgba(0, 0, 0, 0.5);
+  --outline-sm: none;
+  /* Seigaiha: overlapping wave arcs, very faint. */
+  --n-waves:
+    radial-gradient(
+      circle at 100% 150%,
+      var(--n-night) 24%,
+      var(--n-wave) 24%,
+      var(--n-wave) 28%,
+      var(--n-night) 28%,
+      var(--n-night) 36%,
+      var(--n-wave) 36%,
+      var(--n-wave) 40%,
+      transparent 40%,
+      transparent
+    ),
+    radial-gradient(
+      circle at 0 150%,
+      var(--n-night) 24%,
+      var(--n-wave) 24%,
+      var(--n-wave) 28%,
+      var(--n-night) 28%,
+      var(--n-night) 36%,
+      var(--n-wave) 36%,
+      var(--n-wave) 40%,
+      transparent 40%,
+      transparent
+    ),
+    radial-gradient(
+      circle at 50% 100%,
+      var(--n-wave) 10%,
+      var(--n-night) 10%,
+      var(--n-night) 23%,
+      var(--n-wave) 23%,
+      var(--n-wave) 30%,
+      var(--n-night) 30%,
+      var(--n-night) 43%,
+      var(--n-wave) 43%,
+      var(--n-wave) 50%,
+      var(--n-night) 50%,
+      var(--n-night) 63%,
+      var(--n-wave) 63%,
+      var(--n-wave) 71%,
+      transparent 71%,
+      transparent
+    ),
+    radial-gradient(
+      circle at 100% 50%,
+      var(--n-wave) 5%,
+      var(--n-night) 5%,
+      var(--n-night) 15%,
+      var(--n-wave) 15%,
+      var(--n-wave) 20%,
+      var(--n-night) 20%,
+      var(--n-night) 29%,
+      var(--n-wave) 29%,
+      var(--n-wave) 34%,
+      var(--n-night) 34%,
+      var(--n-night) 44%,
+      var(--n-wave) 44%,
+      var(--n-wave) 49%,
+      transparent 49%,
+      transparent
+    ),
+    radial-gradient(
+      circle at 0 50%,
+      var(--n-wave) 5%,
+      var(--n-night) 5%,
+      var(--n-night) 15%,
+      var(--n-wave) 15%,
+      var(--n-wave) 20%,
+      var(--n-night) 20%,
+      var(--n-night) 29%,
+      var(--n-wave) 29%,
+      var(--n-wave) 34%,
+      var(--n-night) 34%,
+      var(--n-night) 44%,
+      var(--n-wave) 44%,
+      var(--n-wave) 49%,
+      transparent 49%,
+      transparent
+    );
+  --n-moon: radial-gradient(circle at 9% 92px, #f6ecd2 0 42px, rgba(246, 236, 210, 0.16) 44px 58px, transparent 60px);
 }
 
+:root[data-theme='ninja'] body {
+  font-weight: 500;
+  background: var(--n-night);
+}
+
+/* The dojo at night */
+:root[data-theme='ninja'] .screen {
+  padding-left: max(20px, env(safe-area-inset-left));
+  color: var(--n-washi);
+  background-color: var(--n-night);
+  background-image: var(--n-waves);
+  background-size: 100px 50px;
+}
+
+:root[data-theme='ninja'] .home {
+  background-image: var(--n-moon), var(--n-waves);
+  background-size:
+    100% 100%,
+    100px 50px,
+    100px 50px,
+    100px 50px,
+    100px 50px,
+    100px 50px;
+  background-repeat: no-repeat, repeat, repeat, repeat, repeat, repeat;
+}
+
+:root[data-theme='ninja'] .bubble-title {
+  font-size: clamp(2.2rem, 6vw, 3.9rem);
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  color: var(--n-gold);
+}
+
+:root[data-theme='ninja'] .bubble-title.small {
+  font-size: clamp(1.6rem, 3.6vw, 2.4rem);
+}
+
+:root[data-theme='ninja'] .cover .bubble-title {
+  font-size: clamp(2.2rem, 5vw, 3.1rem);
+}
+
+:root[data-theme='ninja'] .card .bubble-title {
+  color: var(--pink);
+  text-shadow: 0 3px 0 rgba(28, 27, 46, 0.15);
+}
+
+:root[data-theme='ninja'] .tagline {
+  color: var(--n-light);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  transform: none;
+}
+
+:root[data-theme='ninja'] .card .tagline {
+  color: var(--purple);
+}
+
+:root[data-theme='ninja'] .owner {
+  color: var(--n-washi);
+  transform: rotate(-2deg);
+}
+
+:root[data-theme='ninja'] .screen > .note,
+:root[data-theme='ninja'] .lead,
+:root[data-theme='ninja'] .legend,
+:root[data-theme='ninja'] .report-sub {
+  color: var(--n-light);
+}
+
+/* Rice-paper cards with a thin gold rule, and a braided cord instead of tape */
+:root[data-theme='ninja'] .card {
+  color: var(--ink);
+  background-color: var(--n-washi);
+  background-image: repeating-linear-gradient(100deg, rgba(150, 120, 70, 0.05) 0 2px, transparent 2px 11px);
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 0 0 6px var(--n-washi),
+    inset 0 0 0 8px rgba(184, 134, 43, 0.5),
+    0 8px 0 var(--n-shadow),
+    0 14px 26px rgba(0, 0, 0, 0.35);
+}
+
+:root[data-theme='ninja'] .panel.danger {
+  border-style: dashed;
+  box-shadow: 0 8px 0 var(--n-shadow);
+}
+
+:root[data-theme='ninja'] .tape::before {
+  top: -12px;
+  width: 104px;
+  height: 18px;
+  transform: translateX(-50%);
+  background: repeating-linear-gradient(120deg, var(--pink) 0 7px, var(--n-gold) 7px 10px);
+  border: 2.5px solid var(--ink);
+  border-radius: 9px;
+}
+
+/* Buttons: gold, crimson, pine and indigo blocks */
+:root[data-theme='ninja'] .btn {
+  color: var(--ink);
+  background: var(--n-gold);
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  box-shadow: 0 6px 0 var(--n-shadow);
+}
+
+:root[data-theme='ninja'] .btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 var(--n-shadow);
+}
+
+:root[data-theme='ninja'] .btn.pink,
+:root[data-theme='ninja'] .btn.purple,
+:root[data-theme='ninja'] .btn.teal {
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+:root[data-theme='ninja'] .btn.pink {
+  background: var(--pink);
+}
+
+:root[data-theme='ninja'] .btn.teal {
+  background: var(--teal);
+}
+
+:root[data-theme='ninja'] .btn.purple {
+  background: #3a3f86;
+}
+
+:root[data-theme='ninja'] .btn.big {
+  font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+  padding: 0.6em 1.3em;
+}
+
+:root[data-theme='ninja'] .btn.small {
+  font-family: var(--hand);
+  font-weight: 800;
+  box-shadow: 0 4px 0 var(--n-shadow);
+}
+
+:root[data-theme='ninja'] .icon-btn,
+:root[data-theme='ninja'] .back-btn {
+  color: var(--ink);
+  background: var(--n-washi);
+  border: 3px solid var(--ink);
+  box-shadow: 0 4px 0 var(--n-shadow);
+}
+
+:root[data-theme='ninja'] .back-btn {
+  font-weight: 800;
+}
+
+:root[data-theme='ninja'] .grownups {
+  color: var(--n-light);
+  border-color: #6d6899;
+}
+
+:root[data-theme='ninja'] .grownups::after {
+  background: rgba(200, 16, 46, 0.4);
+}
+
+/* Paper tags instead of sticky notes */
+:root[data-theme='ninja'] .sticky {
+  color: var(--ink);
+  background: var(--n-washi);
+  border-top: 8px solid var(--pink);
+  border-radius: 4px 4px 8px 8px;
+  box-shadow: 0 6px 0 var(--n-shadow);
+}
+
+:root[data-theme='ninja'] .sticky.pink {
+  background: var(--n-washi);
+  border-top-color: var(--n-gold);
+}
+
+:root[data-theme='ninja'] .sticky.teal {
+  background: var(--n-washi);
+  border-top-color: var(--teal);
+}
+
+:root[data-theme='ninja'] .sticky b {
+  font-family: var(--hand);
+  font-weight: 800;
+}
+
+/* The home screen's belt bar */
+:root[data-theme='ninja'] .level-bar {
+  background: rgba(247, 240, 225, 0.16);
+  border: 3px solid var(--n-washi);
+}
+
+:root[data-theme='ninja'] .level-bar span:not(:last-child) {
+  border-right-color: var(--ink);
+}
+
+:root[data-theme='ninja'] .level-bar .b1 {
+  background: #fbf8f0;
+}
+
+:root[data-theme='ninja'] .level-bar .b2 {
+  background: #f39a3b;
+}
+
+:root[data-theme='ninja'] .level-bar .b3 {
+  background: #4fae6e;
+}
+
+:root[data-theme='ninja'] .level-bar .b4 {
+  background: var(--ink);
+}
+
+:root[data-theme='ninja'] .level-bar .b5 {
+  background: linear-gradient(135deg, #f8dc85, #d9a531);
+}
+
+/* Welcome */
+:root[data-theme='ninja'] .stamp {
+  color: var(--pink);
+  border-color: var(--pink);
+  transform: rotate(-5deg);
+}
+
+:root[data-theme='ninja'] .name-input {
+  color: var(--purple);
+  border-bottom: 4px solid var(--ink);
+}
+
+:root[data-theme='ninja'] .link-btn {
+  color: var(--purple);
+  font-weight: 800;
+}
+
+:root[data-theme='ninja'] .theme-picker-title {
+  color: var(--n-gold);
+}
+
+:root[data-theme='ninja'] .card .theme-picker-title {
+  color: var(--pink);
+}
+
+/* Today's training */
+:root[data-theme='ninja'] .today-title,
+:root[data-theme='ninja'] .next-up h2,
+:root[data-theme='ninja'] .dialog h2,
+:root[data-theme='ninja'] .fix-title {
+  color: var(--pink);
+  text-shadow: none;
+}
+
+:root[data-theme='ninja'] .plan-step.next {
+  background: var(--sticky);
+  transform: none;
+}
+
+:root[data-theme='ninja'] .plan-title {
+  font-family: var(--hand);
+  font-weight: 800;
+}
+
+:root[data-theme='ninja'] .plan-blurb {
+  font-size: 0.95rem;
+}
+
+:root[data-theme='ninja'] .plan-mark {
+  font-family: var(--hand);
+  font-weight: 800;
+  background: #fff;
+}
+
+:root[data-theme='ninja'] .plan-step.done .plan-mark {
+  background: var(--teal);
+}
+
+:root[data-theme='ninja'] .between-line,
+:root[data-theme='ninja'] .new-sticker {
+  font-family: var(--hand);
+  font-weight: 800;
+  color: var(--n-gold);
+}
+
+:root[data-theme='ninja'] .break-idea {
+  transform: none;
+}
+
+/* Practice */
+:root[data-theme='ninja'] .part-name {
+  color: var(--n-gold);
+}
+
+:root[data-theme='ninja'] .count,
+:root[data-theme='ninja'] .fast-count {
+  font-family: var(--hand);
+  font-weight: 800;
+  color: var(--n-washi);
+}
+
+:root[data-theme='ninja'] .fast-count {
+  color: var(--n-gold);
+}
+
+:root[data-theme='ninja'] .part-dot {
+  background: rgba(247, 240, 225, 0.2);
+  border-color: var(--n-washi);
+}
+
+:root[data-theme='ninja'] .part-dot.done {
+  background: var(--n-gold);
+}
+
+:root[data-theme='ninja'] .part-dot.now {
+  background: var(--pink);
+}
+
+:root[data-theme='ninja'] .pencil-bar {
+  background: var(--n-washi);
+  border-color: var(--n-shadow);
+  border-radius: 12px;
+}
+
+:root[data-theme='ninja'] .pencil-fill {
+  background: repeating-linear-gradient(90deg, var(--pink) 0 18px, #a10d25 18px 22px);
+  border-right-color: var(--ink);
+}
+
+:root[data-theme='ninja'] .q-card {
+  color: var(--ink);
+  background-color: var(--n-washi);
+  background-image: repeating-linear-gradient(100deg, rgba(150, 120, 70, 0.05) 0 2px, transparent 2px 11px);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 0 0 7px var(--n-washi),
+    inset 0 0 0 9px rgba(184, 134, 43, 0.5),
+    0 9px 0 var(--n-shadow),
+    0 16px 30px rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme='ninja'] .problem,
+:root[data-theme='ninja'] .copy-row .answer-box {
+  font-family: var(--hand);
+  font-weight: 800;
+}
+
+/* The rounded font is wider than the diary's, so the question scales down a little to stay inside the card. */
+:root[data-theme='ninja'] .problem {
+  font-size: clamp(2.2rem, min(10vmin, 12cqi), 6.6rem);
+}
+
+:root[data-theme='ninja'] .problem.small {
+  font-size: clamp(1.7rem, min(6.5vmin, 11cqi), 4rem);
+}
+
+:root[data-theme='ninja'] .answer-box {
+  color: var(--pink);
+  border-bottom: 6px solid var(--ink);
+  border-radius: 0 0 4px 4px;
+}
+
+:root[data-theme='ninja'] .stamp-tag {
+  font-size: 1.1rem;
+  color: var(--purple);
+  border-color: var(--purple);
+  border-radius: 6px;
+  transform: rotate(-6deg);
+}
+
+:root[data-theme='ninja'] .stamp-tag.new {
+  color: var(--pink);
+  border-color: var(--pink);
+}
+
+:root[data-theme='ninja'] .show-me {
+  font-weight: 800;
+  color: var(--ink);
+  background: var(--sticky);
+  border: 2.5px solid var(--ink);
+  border-radius: 10px;
+  box-shadow: 0 4px 0 rgba(28, 27, 46, 0.35);
+  transform: none;
+}
+
+:root[data-theme='ninja'] .reveal {
+  color: var(--pink);
+  background: linear-gradient(transparent 35%, #f6d55c 35%, #f6d55c 92%, transparent 92%);
+}
+
+:root[data-theme='ninja'] .dot-array circle[fill='#ff4fa3'] {
+  fill: var(--pink);
+}
+
+:root[data-theme='ninja'] .dot-array circle[fill='#19c2b0'] {
+  fill: var(--teal);
+}
+
+:root[data-theme='ninja'] .dot-array circle[fill='#8b5cf6'] {
+  fill: #3a3f86;
+}
+
+:root[data-theme='ninja'] .key {
+  font-family: var(--hand);
+  font-weight: 800;
+  color: var(--ink);
+  background: var(--n-washi);
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: 0 6px 0 #8a7a5c;
+}
+
+:root[data-theme='ninja'] .key:nth-child(even) {
+  border-radius: 14px;
+}
+
+:root[data-theme='ninja'] .key:active {
+  transform: translateY(4px);
+  background: var(--pink-soft);
+  box-shadow: 0 2px 0 #8a7a5c;
+}
+
+:root[data-theme='ninja'] .key-back {
+  background: var(--sticky);
+}
+
+:root[data-theme='ninja'] .key-go {
+  font-family: var(--bubble);
+  font-weight: 400;
+  color: #fff;
+  background: var(--pink);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* The cheer: crimson ink for super fast, black ink otherwise */
+:root[data-theme='ninja'] .burst-shape {
+  width: min(78%, 440px);
+  fill: var(--pink);
+  stroke: none;
+}
+
+:root[data-theme='ninja'] .burst-text {
+  color: #fff;
+  text-shadow:
+    0 3px 0 var(--ink),
+    0 0 12px rgba(0, 0, 0, 0.35);
+  transform: rotate(-4deg);
+}
+
+:root[data-theme='ninja'] .burst:not(.big) .burst-shape {
+  width: min(58%, 320px);
+  fill: var(--ink);
+}
+
+:root[data-theme='ninja'] .burst:not(.big) .burst-text {
+  color: var(--n-gold);
+}
+
+/* The dojo board: the 12 × 12 grid on wooden planks, each fact wearing its belt */
+:root[data-theme='ninja'] .legend-item b {
+  font-family: var(--hand);
+  font-weight: 800;
+  color: var(--n-gold);
+}
+
+:root[data-theme='ninja'] .dgrid {
+  padding: 10px;
+  background: repeating-linear-gradient(180deg, #6b4a33 0 46px, #5c3f2b 46px 49px);
+  border: 4px solid #3a2619;
+  border-radius: 12px;
+  box-shadow: 0 8px 0 var(--n-shadow);
+}
+
+:root[data-theme='ninja'] .dcell {
+  font-family: var(--hand);
+  font-weight: 800;
+  border-radius: 6px;
+}
+
+:root[data-theme='ninja'] .dcell.head {
+  font-family: var(--hand);
+  font-weight: 800;
+  color: var(--n-gold);
+}
+
+:root[data-theme='ninja'] .l0 {
+  background: rgba(0, 0, 0, 0.2);
+  border: 2px dashed rgba(247, 240, 225, 0.4);
+}
+
+:root[data-theme='ninja'] .l1 {
+  color: var(--ink-soft);
+  background: #fbf8f0;
+  border: 2px solid #cfc7b5;
+}
+
+:root[data-theme='ninja'] .l2 {
+  color: var(--ink);
+  background: #f39a3b;
+  border: 2.5px solid var(--ink);
+}
+
+:root[data-theme='ninja'] .l3 {
+  color: var(--ink);
+  background: #4fae6e;
+  border: 2.5px solid var(--ink);
+}
+
+:root[data-theme='ninja'] .l4 {
+  color: #fbf8f0;
+  background: var(--ink);
+  border: 2.5px solid var(--n-gold);
+}
+
+:root[data-theme='ninja'] .l5 {
+  color: var(--ink);
+  background: linear-gradient(135deg, #f8dc85, #d9a531);
+  border: 2.5px solid var(--ink);
+}
+
+:root[data-theme='ninja'] .dcell.selected {
+  outline: 3px solid var(--n-washi);
+}
+
+:root[data-theme='ninja'] .sparkle {
+  color: var(--n-gold);
+  filter: none;
+}
+
+:root[data-theme='ninja'] .l5 .sparkle {
+  color: var(--pink);
+  filter: none;
+}
+
+:root[data-theme='ninja'] .swatch {
+  color: var(--n-gold);
+}
+
+:root[data-theme='ninja'] .detail-fact {
+  font-family: var(--hand);
+  font-weight: 800;
+  color: var(--pink);
+}
+
+/* The belt rack */
+:root[data-theme='ninja'] .ninja-rack {
+  display: grid;
+  gap: 0.5rem;
+  width: min(100%, 960px);
+  padding: 1.3rem 1.4rem 1.4rem;
+}
+
+:root[data-theme='ninja'] .ninja-rack-title {
+  font-family: var(--bubble);
+  font-weight: 400;
+  font-size: 1.7rem;
+  color: var(--pink);
+  text-align: center;
+}
+
+:root[data-theme='ninja'] .ninja-rack-note {
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+:root[data-theme='ninja'] .ninja-pegs {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.6rem 0.5rem;
+  margin: 0.3rem 0 0;
+  padding: 1rem 0.4rem 0.2rem;
+  list-style: none;
+  background: linear-gradient(#7a4b2a, #5c3f2b) top / 100% 9px no-repeat;
+  border-radius: 6px;
+}
+
+:root[data-theme='ninja'] .ninja-peg {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 2px;
+  padding: 0.35rem 0.2rem 0.5rem;
+  text-align: center;
+  background: rgba(28, 27, 46, 0.05);
+  border-radius: 10px;
+}
+
+:root[data-theme='ninja'] .ninja-peg.b5 {
+  background: rgba(232, 180, 67, 0.25);
+}
+
+:root[data-theme='ninja'] .ninja-peg svg {
+  max-width: 100%;
+  height: auto;
+}
+
+:root[data-theme='ninja'] .ninja-peg-table {
+  font-family: var(--hand);
+  font-weight: 800;
+  font-size: 1.3rem;
+  line-height: 1.1;
+}
+
+:root[data-theme='ninja'] .ninja-peg-belt {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+:root[data-theme='ninja'] .ninja-peg-next {
+  font-size: 0.85rem;
+  line-height: 1.2;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 700px) {
+  :root[data-theme='ninja'] .ninja-pegs {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* The training scroll */
+:root[data-theme='ninja'] .ninja-scroll {
+  position: relative;
+  display: grid;
+  width: min(100%, 680px);
+  color: var(--ink);
+}
+
+:root[data-theme='ninja'] .ninja-roller {
+  position: relative;
+  z-index: 1;
+  height: 24px;
+  margin: 0 -14px;
+  background: linear-gradient(#5c3a20, #b07a4a 35%, #8a5a32 60%, #4a2e19);
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  box-shadow: 0 5px 0 var(--n-shadow);
+}
+
+:root[data-theme='ninja'] .ninja-roller::before,
+:root[data-theme='ninja'] .ninja-roller::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 18px;
+  height: 30px;
+  background: var(--n-gold);
+  border: 3px solid var(--ink);
+  border-radius: 7px;
+  transform: translateY(-50%);
+}
+
+:root[data-theme='ninja'] .ninja-roller::before {
+  left: -14px;
+}
+
+:root[data-theme='ninja'] .ninja-roller::after {
+  right: -14px;
+}
+
+:root[data-theme='ninja'] .ninja-scroll-paper {
+  position: relative;
+  display: grid;
+  gap: 0.45rem;
+  margin: -4px 0;
+  padding: 1.7rem 2rem 1.5rem;
+  background-color: var(--n-washi);
+  background-image: repeating-linear-gradient(100deg, rgba(150, 120, 70, 0.05) 0 2px, transparent 2px 11px);
+  border-right: 3px solid var(--ink);
+  border-left: 3px solid var(--ink);
+}
+
+:root[data-theme='ninja'] .ninja-scroll.with-sticker .ninja-scroll-paper {
+  padding-right: 6.5rem;
+}
+
+:root[data-theme='ninja'] .ninja-scroll-head {
+  display: grid;
+  gap: 0.15rem;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
+  border-bottom: 4px solid var(--pink);
+  border-radius: 0 0 40% 10% / 0 0 4px 2px;
+}
+
+:root[data-theme='ninja'] .ninja-scroll-title {
+  font-family: var(--bubble);
+  font-weight: 400;
+  font-size: 2rem;
+  line-height: 1.1;
+  color: var(--pink);
+}
+
+:root[data-theme='ninja'] .ninja-scroll-day {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--purple);
+}
+
+:root[data-theme='ninja'] .ninja-scroll .entry-line {
+  font-size: 1.3rem;
+  line-height: 1.5;
+}
+
+:root[data-theme='ninja'] .ninja-seal {
+  justify-self: end;
+  margin-top: 0.4rem;
+  padding: 0.15em 0.55em;
+  font-family: var(--bubble);
+  font-size: 1.4rem;
+  color: var(--pink);
+  background: rgba(200, 16, 46, 0.06);
+  border: 3px solid var(--pink);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 2px rgba(200, 16, 46, 0.25);
+  transform: rotate(-5deg);
+}
+
+:root[data-theme='ninja'] .ninja-scroll-sticker {
+  position: absolute;
+  top: 2.4rem;
+  right: 1.3rem;
+  transform: rotate(8deg);
+}
+
+/* Dialogs and the milestone: a belt earned */
+:root[data-theme='ninja'] .overlay {
+  background: rgba(8, 9, 24, 0.7);
+}
+
+:root[data-theme='ninja'] .milestone-art {
+  background: radial-gradient(circle, rgba(242, 193, 78, 0.5), transparent 68%);
+}
+
+/* Grown-ups: settings and the report, kept plain */
+:root[data-theme='ninja'] .panel h2,
+:root[data-theme='ninja'] .report-card h2 {
+  color: var(--purple);
+}
+
+:root[data-theme='ninja'] .segmented button {
+  font-family: var(--hand);
+  font-weight: 800;
+  color: var(--ink);
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 0 rgba(28, 27, 46, 0.35);
+}
+
+:root[data-theme='ninja'] .segmented button.on {
+  color: #fff;
+  background: var(--pink);
+}
+
+:root[data-theme='ninja'] .tile {
+  color: var(--ink);
+  background: var(--n-washi);
+  border: 3px solid var(--ink);
+  box-shadow: 0 6px 0 var(--n-shadow);
+}
+
+:root[data-theme='ninja'] .tile-value {
+  font-weight: 800;
+}
+
+:root[data-theme='ninja'] .tile-value.hero {
+  font-size: clamp(2.2rem, 4.2vw, 2.6rem);
+  white-space: nowrap;
+}
+
+:root[data-theme='ninja'] .tile-value small {
+  font-size: 1rem;
+}
+
+:root[data-theme='ninja'] .chart-tip {
+  color: var(--ink);
+}
+
+/* This theme's tile in the theme pickers */
 .theme-tile[data-pick-theme='ninja'] {
-  --tile: #1f2346;
+  --tile: #f2c14e;
+  --tile-ink: #f7f0e1;
+  --tile-bg: #1b1f3b;
+  --tile-font: 'Shojumaru', system-ui, serif;
+  --tile-body: 'M PLUS Rounded 1c', system-ui, sans-serif;
+  border-color: #0b0d1f;
+  box-shadow: 3px 4px 0 #0b0d1f;
 }
