@@ -109,17 +109,18 @@ All of it lives in `src/engine/day.ts` and is covered by `src/engine/day.test.ts
 
 A player picks a look when starting, and grown-ups can change it any time in Settings → Look. Progress, rewards, and past pages all carry over. The choice is stored in the diary's settings (`settings.theme`), so it syncs like any other setting; diaries without it are the diary theme.
 
-| Theme | Instead of the diary page | The doodle page becomes | Rewards |
+| Theme | Instead of the diary page | On the doodle page | Rewards |
 |---|---|---|---|
 | Diary (default) | Dear Diary | The doodle page | Stickers |
-| Bricks | A build log | A build for each times table, filled in layer by layer | Special pieces |
-| Creatures | A field journal | A creature for each table that hatches and evolves | Place stamps |
-| Ninja | A training scroll | A belt for each table | Dojo treasures |
-| Construction | A site report | A 12-floor tower, one window per fact | Machines |
+| Bricks | A build log (an instruction-booklet step) | A build for each times table, one layer per fact colored in, over a baseplate grid | Special pieces |
+| Creatures | A field journal | A creature for each table that hatches, evolves twice, and goes shiny | Place stamps |
+| Ninja | A training scroll | A belt rack (one belt per table) over a dojo board | Dojo treasures |
+| Construction | A site report on a clipboard | A 12-floor tower, one window per fact | Machines |
 
 How it fits together (`src/themes/`):
 - `types.ts` is the contract. A theme supplies every kid-facing word (`Words`), level and part names, a `Voice` for its end-of-page entries (`src/engine/voice.ts`), its 12 reward pictures, and optionally its own entry page, progress view, grid, and home shelf.
-- `milestones()` lets a theme celebrate moments mid-practice, such as a creature evolving or a floor being finished. New milestones pop up after the answer that reached them and get a line in that day's entry (`DayPlan.events`).
+- `milestones()` lets a theme celebrate moments mid-practice, such as a creature evolving or a floor being finished. New milestones pop up after the answer that reached them and get a line in that day's entry (`DayPlan.events`). Pop-ups are at least 8 answers apart; milestones in between show up together in the next one (a new creatures player hatches several eggs early on).
+- All the art is original inline SVG. The creatures are original designs, and no theme uses brand or franchise names.
 - Each theme's stylesheet is scoped to `:root[data-theme='…']`. The diary is the base stylesheet and sets no attribute, so its pages are exactly what they were before themes.
 - The 12 reward slots (`src/stickers.ts`) are shared. A finished page earns a slot, and each theme draws that slot its own way, so switching looks keeps the collection.
 
