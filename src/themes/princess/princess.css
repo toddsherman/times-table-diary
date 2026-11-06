@@ -1,0 +1,1173 @@
+/*
+ * Princess theme: a storybook kingdom. Lavender sky with a faint diamond lattice, pennant bunting
+ * along the top, cream parchment cards trimmed in gold, rose and royal purple buttons.
+ * Cherry Swash for titles, Quicksand for everything else.
+ * Every rule is scoped to :root[data-theme='princess'], except its tile in the theme pickers.
+ */
+
+/*
+ * Cherry Swash only has old-style numbers (a small 1, 2 and 0; a 7 that dips below the line), which
+ * are hard to read in a math game. This face lends Quicksand's bold digits to every title.
+ */
+@font-face {
+  font-family: 'Princess Digits';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../../../node_modules/@fontsource/quicksand/files/quicksand-latin-700-normal.woff2') format('woff2');
+  unicode-range: U+0030-0039;
+}
+
+:root[data-theme='princess'] {
+  --ink: #3b1f5c;
+  --ink-soft: #64507f;
+  --paper: #f3ebff;
+  --pink: #df367a;
+  --pink-soft: #ffdcea;
+  --purple: #6a3fb0;
+  --purple-soft: #ece2ff;
+  --teal: #23946a;
+  --teal-soft: #d4f2e6;
+  --yellow: #f4c34d;
+  --sticky: #fff1c9;
+  --pencil: #9d93b3;
+  --lvl3: #f59ac4;
+  --lvl4: #9a5ce6;
+  --lvl5: #f4c34d;
+  /* Legend swatches and the fact card use amethyst; the grid gives each table its own gem. */
+  --gem: #9348d6;
+  --gem-light: #e3cbfa;
+  --gem-dark: #62249c;
+  --pr-cream: #fffaf1;
+  --pr-gold: #efc152;
+  --pr-gold-dark: #c98f1c;
+  --hand: 'Quicksand', 'Avenir Next', system-ui, sans-serif;
+  --bubble: 'Princess Digits', 'Cherry Swash', Georgia, 'Times New Roman', serif;
+  --wobble: 20px;
+  --wobble-2: 20px;
+  --outline:
+    2px 2px 0 var(--ink), -2px -2px 0 var(--ink), 2px -2px 0 var(--ink), -2px 2px 0 var(--ink), 0 2px 0 var(--ink), 2px 0 0 var(--ink),
+    0 -2px 0 var(--ink), -2px 0 0 var(--ink), 4px 5px 0 var(--ink);
+  --pr-trim: inset 0 0 0 4px var(--pr-cream), inset 0 0 0 6.5px var(--pr-gold);
+  --pr-bunting: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='30' viewBox='0 0 96 30'%3E%3Cg stroke='%233b1f5c' stroke-width='1.8' stroke-linejoin='round'%3E%3Cpath d='M3 4.2 21 6.6 12 25Z' fill='%23df367a'/%3E%3Cpath d='M27 6.6 45 4.2 36 25Z' fill='%23f4c34d'/%3E%3Cpath d='M51 4.2 69 6.6 60 25Z' fill='%239a6be0'/%3E%3Cpath d='M75 6.6 93 4.2 84 25Z' fill='%238fcbf5'/%3E%3C/g%3E%3Cpath d='M0 3Q24 10 48 3Q72 10 96 3' fill='none' stroke='%233b1f5c' stroke-width='2'/%3E%3C/svg%3E");
+  --pr-castle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='170' viewBox='0 0 640 170'%3E%3Cpath d='M0 146Q160 108 320 138T640 126V170H0Z' fill='%23e8dcfd'/%3E%3Cg fill='%23dccafa'%3E%3Crect x='250' y='72' width='140' height='98'/%3E%3Cpath d='M250 72V60H264V72H278V60H292V72H348V60H362V72H376V60H390V72Z'/%3E%3Crect x='224' y='44' width='40' height='126'/%3E%3Cpath d='M218 46 244 12 270 46Z'/%3E%3Crect x='376' y='44' width='40' height='126'/%3E%3Cpath d='M370 46 396 12 422 46Z'/%3E%3Crect x='298' y='34' width='44' height='136'/%3E%3Cpath d='M291 36 320 0 349 36Z'/%3E%3Crect x='70' y='104' width='28' height='66'/%3E%3Cpath d='M65 106 84 80 103 106Z'/%3E%3Crect x='548' y='96' width='28' height='74'/%3E%3Cpath d='M543 98 562 72 581 98Z'/%3E%3C/g%3E%3Cpath d='M306 170V138Q320 120 334 138V170Z' fill='%23cbb4f5'/%3E%3Cg fill='%23cbb4f5'%3E%3Cpath d='M240 76V66Q244 60 248 66V76Z'/%3E%3Cpath d='M392 76V66Q396 60 400 66V76Z'/%3E%3Cpath d='M316 64V54Q320 48 324 54V64Z'/%3E%3C/g%3E%3C/svg%3E");
+  --pr-sky:
+    radial-gradient(circle, rgba(255, 255, 255, 0.95) 0 1.6px, transparent 2.2px) 0 0 / 46px 46px,
+    radial-gradient(circle, rgba(239, 193, 82, 0.55) 0 1.4px, transparent 2px) 23px 23px / 46px 46px,
+    repeating-linear-gradient(45deg, transparent 0 31px, rgba(106, 63, 176, 0.07) 31px 32.5px),
+    repeating-linear-gradient(-45deg, transparent 0 31px, rgba(106, 63, 176, 0.07) 31px 32.5px);
+  font-synthesis: none;
+}
+
+:root[data-theme='princess'] body {
+  font-weight: 600;
+  background: var(--paper);
+}
+
+/* The kingdom: lavender sky, bunting along the top. */
+:root[data-theme='princess'] .screen {
+  padding-top: max(40px, env(safe-area-inset-top));
+  padding-left: max(20px, env(safe-area-inset-left));
+  background: var(--pr-sky), var(--paper);
+  background-attachment: local;
+}
+
+:root[data-theme='princess'] .screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: var(--pr-bunting) left top / 96px 30px repeat-x;
+  pointer-events: none;
+}
+
+/* A castle on the hill below the welcome cover and the home screen. */
+:root[data-theme='princess'] .welcome,
+:root[data-theme='princess'] .home {
+  padding-bottom: max(170px, env(safe-area-inset-bottom));
+  background:
+    var(--pr-castle) center bottom / 640px 170px no-repeat,
+    var(--pr-sky),
+    var(--paper);
+  background-attachment: local;
+}
+
+:root[data-theme='princess'] .bubble-title {
+  font-weight: 700;
+  font-size: clamp(2.3rem, 6vw, 4rem);
+  line-height: 1.08;
+  letter-spacing: 0.01em;
+  color: #ffd45e;
+}
+
+:root[data-theme='princess'] .bubble-title.small {
+  font-size: clamp(1.6rem, 3.6vw, 2.4rem);
+}
+
+:root[data-theme='princess'] .tagline {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--purple);
+  transform: none;
+}
+
+/* Cream parchment cards with a gold inner trim and a little crown on top. */
+:root[data-theme='princess'] .card {
+  background: var(--pr-cream);
+  border: 3px solid var(--ink);
+  border-radius: 22px;
+  box-shadow:
+    var(--pr-trim),
+    5px 6px 0 var(--ink);
+}
+
+:root[data-theme='princess'] .tape::before {
+  top: -24px;
+  width: 64px;
+  height: 40px;
+  transform: translateX(-50%);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 40'%3E%3Cg stroke='%233b1f5c' stroke-linejoin='round'%3E%3Cpath d='M8 33 5 10 19 21 32 5 45 21 59 10 56 33Z' fill='%23f4c34d' stroke-width='3'/%3E%3Crect x='6' y='29' width='52' height='9' rx='2' fill='%23c98f1c' stroke-width='3'/%3E%3Ccircle cx='32' cy='21' r='4.2' fill='%23df367a' stroke-width='2'/%3E%3Ccircle cx='5' cy='9' r='3.2' fill='%23ffe7a3' stroke-width='2'/%3E%3Ccircle cx='59' cy='9' r='3.2' fill='%23ffe7a3' stroke-width='2'/%3E%3Ccircle cx='32' cy='5' r='3.6' fill='%23ffe7a3' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+/* Buttons: round, glossy, and royal. */
+:root[data-theme='princess'] .btn {
+  font-weight: 700;
+  font-size: 1.35rem;
+  letter-spacing: 0.01em;
+  padding: 0.62em 1.3em 0.6em;
+  background: linear-gradient(180deg, #ffdc7a, #f2b934);
+  border-radius: 999px;
+  box-shadow:
+    0 5px 0 var(--ink),
+    inset 0 3px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme='princess'] .btn:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 1px 0 var(--ink),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme='princess'] .btn.pink {
+  background: linear-gradient(180deg, #f2649e, #d42c70);
+}
+
+:root[data-theme='princess'] .btn.purple {
+  background: linear-gradient(180deg, #8b62d8, #6537ad);
+}
+
+:root[data-theme='princess'] .btn.teal {
+  color: #fff;
+  background: linear-gradient(180deg, #3dbb8b, #1f8a62);
+  text-shadow: var(--outline-sm);
+}
+
+:root[data-theme='princess'] .btn.big {
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  padding: 0.55em 1.35em 0.52em;
+}
+
+:root[data-theme='princess'] .btn.small {
+  font-size: 1.05rem;
+  box-shadow:
+    0 4px 0 var(--ink),
+    inset 0 2px 0 rgba(255, 255, 255, 0.45);
+}
+
+:root[data-theme='princess'] .icon-btn {
+  background: var(--pr-cream);
+  box-shadow: 0 4px 0 var(--ink);
+}
+
+:root[data-theme='princess'] .back-btn {
+  font-weight: 700;
+  background: var(--pr-cream);
+  box-shadow: 0 4px 0 var(--ink);
+}
+
+/* Royal badges instead of sticky notes. */
+:root[data-theme='princess'] .sticky {
+  padding: 0.7rem 1rem 0.8rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  background: #fff3cf;
+  border: 3px solid var(--ink);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 0 0 3px #fff3cf,
+    inset 0 0 0 5px var(--pr-gold),
+    0 4px 0 var(--ink);
+  transform: none;
+}
+
+:root[data-theme='princess'] .sticky:nth-child(2),
+:root[data-theme='princess'] .sticky:nth-child(3) {
+  transform: none;
+}
+
+:root[data-theme='princess'] .sticky b {
+  font-weight: 700;
+  font-size: 2.1rem;
+  color: var(--purple);
+}
+
+:root[data-theme='princess'] .sticky.pink {
+  background: #ffe0ec;
+  box-shadow:
+    inset 0 0 0 3px #ffe0ec,
+    inset 0 0 0 5px #f59ac4,
+    0 4px 0 var(--ink);
+}
+
+:root[data-theme='princess'] .sticky.pink b {
+  color: #b81f5e;
+}
+
+:root[data-theme='princess'] .sticky.teal {
+  background: #ece2ff;
+  box-shadow:
+    inset 0 0 0 3px #ece2ff,
+    inset 0 0 0 5px #b89bef,
+    0 4px 0 var(--ink);
+}
+
+/* Welcome: the cover is the castle's night sky. */
+:root[data-theme='princess'] .cover {
+  color: #fff;
+  /* Stars in the sky up top, fading out before the form so its text stays clear. */
+  background:
+    linear-gradient(180deg, transparent 0 22%, #4f2a90 46%),
+    radial-gradient(circle, #fff 0 1.4px, transparent 2px) 12px 18px / 58px 52px,
+    radial-gradient(circle, rgba(255, 231, 163, 0.9) 0 1.2px, transparent 1.8px) 40px 6px / 74px 66px,
+    linear-gradient(180deg, #7a4cc4, #4f2a90 46%);
+  box-shadow:
+    inset 0 0 0 4px #4a2689,
+    inset 0 0 0 6.5px var(--pr-gold),
+    5px 6px 0 var(--ink);
+}
+
+:root[data-theme='princess'] .stamp {
+  padding: 0.25em 0.9em;
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--pr-gold);
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 0 3px 0 var(--ink);
+  transform: rotate(-3deg);
+}
+
+:root[data-theme='princess'] .cover .tagline {
+  color: #ffe7a3;
+}
+
+:root[data-theme='princess'] .cover-doodles {
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+:root[data-theme='princess'] .name-form label {
+  font-weight: 700;
+}
+
+:root[data-theme='princess'] .name-input {
+  font-weight: 700;
+  font-size: 1.9rem;
+  color: var(--purple);
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: inset 0 -5px 0 #ffe7a3;
+}
+
+:root[data-theme='princess'] .pin-input {
+  font-weight: 700;
+  border-radius: 14px;
+}
+
+:root[data-theme='princess'] .cover .pin-hint {
+  color: #ece2ff;
+}
+
+:root[data-theme='princess'] .cover .link-btn {
+  font-weight: 700;
+  color: #ffe7a3;
+}
+
+:root[data-theme='princess'] .error {
+  font-weight: 700;
+  color: #b3134f;
+}
+
+:root[data-theme='princess'] .cover .error {
+  padding: 0.2em 0.7em;
+  background: #fff;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+}
+
+:root[data-theme='princess'] .theme-picker-title {
+  font-weight: 700;
+  color: var(--purple);
+}
+
+/* Home: the title starts below the grown-ups button. */
+:root[data-theme='princess'] .home-title {
+  margin-top: 2.4rem;
+}
+
+:root[data-theme='princess'] .owner {
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: var(--purple);
+  transform: none;
+}
+
+:root[data-theme='princess'] .level-bar {
+  height: 26px;
+  background: #fbf1d9;
+  border-radius: 999px;
+}
+
+:root[data-theme='princess'] .level-bar .b1 {
+  background: #cfc8db;
+}
+
+:root[data-theme='princess'] .level-bar .b2 {
+  background: repeating-linear-gradient(45deg, #fff 0 5px, #ecdcff 5px 9px);
+}
+
+/* Below the bunting, not over it. */
+:root[data-theme='princess'] .grownups {
+  top: max(36px, env(safe-area-inset-top));
+  font-weight: 600;
+  background: rgba(255, 250, 241, 0.7);
+  border-color: #b8a6d6;
+}
+
+:root[data-theme='princess'] .grownups::after {
+  background: var(--pink-soft);
+}
+
+/* The treasury on the home screen: every royal treasure, on a velvet shelf. */
+:root[data-theme='princess'] .princess-treasury {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  width: min(100%, 680px);
+  padding: 0.9rem 1.2rem 1rem;
+  color: #fff;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.12) 0 1px, transparent 1.6px) 0 0 / 12px 12px,
+    linear-gradient(180deg, #7b4cc6, #5a2f9e);
+  border: 3px solid var(--ink);
+  border-radius: 22px;
+  box-shadow:
+    inset 0 0 0 4px #6a3fb0,
+    inset 0 0 0 6.5px var(--pr-gold),
+    5px 6px 0 var(--ink);
+}
+
+:root[data-theme='princess'] .treasury-title {
+  font-family: var(--bubble);
+  font-weight: 700;
+  font-size: 1.35rem;
+  color: #ffd45e;
+  text-shadow: var(--outline-sm);
+}
+
+:root[data-theme='princess'] .treasury-shelf {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 0.6rem;
+}
+
+:root[data-theme='princess'] .treasury-empty {
+  font-weight: 700;
+  text-align: center;
+}
+
+:root[data-theme='princess'] .treasury-note {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffe7a3;
+}
+
+/* Today's quest: the checklist */
+:root[data-theme='princess'] .today-title {
+  font-weight: 700;
+  font-size: 1.6rem;
+}
+
+:root[data-theme='princess'] .plan-step {
+  border-radius: 14px;
+}
+
+:root[data-theme='princess'] .plan-step.next {
+  background: #fff1c9;
+  box-shadow: inset 0 0 0 2px var(--pr-gold);
+  transform: none;
+}
+
+:root[data-theme='princess'] .plan-mark {
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+:root[data-theme='princess'] .plan-title {
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+:root[data-theme='princess'] .plan-blurb {
+  font-size: 1rem;
+}
+
+:root[data-theme='princess'] .next-intro {
+  font-weight: 700;
+}
+
+/* Practice */
+:root[data-theme='princess'] .part-name {
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+:root[data-theme='princess'] .part-dot {
+  border-radius: 2px;
+  transform: rotate(45deg) scale(0.92);
+}
+
+:root[data-theme='princess'] .part-dot.now {
+  background: var(--pr-gold);
+}
+
+:root[data-theme='princess'] .pencil-bar {
+  height: 26px;
+  background: #fbf1d9;
+  border-radius: 999px;
+}
+
+:root[data-theme='princess'] .pencil-fill {
+  background: repeating-linear-gradient(-45deg, #f2649e 0 10px, #ff9cc4 10px 20px);
+}
+
+:root[data-theme='princess'] .count {
+  font-weight: 700;
+}
+
+:root[data-theme='princess'] .q-card {
+  background: var(--pr-cream);
+  border-radius: 26px;
+  box-shadow:
+    var(--pr-trim),
+    6px 7px 0 var(--ink);
+}
+
+/* Cherry Swash is wide: the widest question ("144 ÷ 12 = 12") is about 6.6em, so 13cqi keeps it within about 87% of the card. */
+:root[data-theme='princess'] .problem {
+  font-weight: 700;
+  font-size: clamp(2.2rem, min(10.5vmin, 13cqi), 7rem);
+}
+
+:root[data-theme='princess'] .problem.small {
+  font-size: clamp(1.6rem, min(6.5vmin, 12cqi), 4rem);
+}
+
+:root[data-theme='princess'] .answer-box {
+  border-bottom: 5px solid var(--pr-gold);
+  border-radius: 2px;
+}
+
+:root[data-theme='princess'] .copy-row .answer-box {
+  font-size: 2.3rem;
+}
+
+:root[data-theme='princess'] .stamp-tag {
+  padding: 0.15em 0.65em;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--ink);
+  background: var(--pr-gold);
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 0 3px 0 var(--ink);
+  transform: rotate(-5deg);
+}
+
+:root[data-theme='princess'] .stamp-tag.new {
+  color: #fff;
+  background: var(--pink);
+  border-color: var(--ink);
+  text-shadow: var(--outline-sm);
+}
+
+:root[data-theme='princess'] .fast-count {
+  font-weight: 700;
+  color: var(--purple);
+}
+
+:root[data-theme='princess'] .show-me {
+  font-weight: 700;
+  font-size: 1.1rem;
+  background: #fff1c9;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 0 4px 0 var(--ink);
+  transform: none;
+}
+
+:root[data-theme='princess'] .show-me:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+:root[data-theme='princess'] .fix-title {
+  font-weight: 700;
+  font-size: 1.75rem;
+}
+
+:root[data-theme='princess'] .hint {
+  font-size: 1.3rem;
+}
+
+:root[data-theme='princess'] .hint.covered {
+  font-weight: 700;
+  background: #fff1c9;
+  border: 2px dashed var(--pr-gold-dark);
+  border-radius: 12px;
+  transform: none;
+}
+
+:root[data-theme='princess'] .reveal {
+  background: linear-gradient(transparent 35%, #ffe7a3 35%, #ffe7a3 92%, transparent 92%);
+}
+
+:root[data-theme='princess'] .copy-row {
+  font-weight: 700;
+}
+
+:root[data-theme='princess'] .dot-array circle[fill='#ff4fa3'] {
+  fill: #df367a;
+}
+
+:root[data-theme='princess'] .dot-array circle[fill='#19c2b0'] {
+  fill: #6a3fb0;
+}
+
+:root[data-theme='princess'] .dot-array circle[fill='#8b5cf6'] {
+  fill: #e0a422;
+}
+
+:root[data-theme='princess'] .key {
+  font-weight: 700;
+  font-size: clamp(1.8rem, 4.3vh, 2.6rem);
+  background: linear-gradient(180deg, #fffdf8, #f1e8ff);
+  border-radius: 20px;
+  box-shadow:
+    0 5px 0 var(--ink),
+    inset 0 -4px 0 rgba(106, 63, 176, 0.1);
+}
+
+:root[data-theme='princess'] .key:nth-child(even) {
+  border-radius: 20px;
+}
+
+:root[data-theme='princess'] .key-back {
+  background: linear-gradient(180deg, #ffe7a3, #f4c34d);
+}
+
+:root[data-theme='princess'] .key-go {
+  color: #fff;
+  background: linear-gradient(180deg, #f2649e, #d42c70);
+  text-shadow: var(--outline-sm);
+}
+
+:root[data-theme='princess'] .key:active {
+  transform: translateY(4px);
+  background: var(--pink-soft);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+/* The cheer: a gold rosette for super fast, a lavender one for right. */
+:root[data-theme='princess'] .burst .burst-shape.royal-rosette {
+  width: min(78%, 440px);
+  fill: #ffe08a;
+  stroke-width: 4;
+}
+
+:root[data-theme='princess'] .burst:not(.big) .burst-shape.royal-rosette {
+  width: min(58%, 320px);
+  fill: #e6dbff;
+}
+
+:root[data-theme='princess'] .burst-text {
+  font-weight: 700;
+  font-size: clamp(2.3rem, 7.4vmin, 4.4rem);
+  transform: rotate(-4deg);
+}
+
+:root[data-theme='princess'] .burst:not(.big) .burst-text {
+  font-size: clamp(1.8rem, 5.6vmin, 3.1rem);
+  color: var(--purple);
+}
+
+/* Between parts */
+:root[data-theme='princess'] .between-line {
+  font-weight: 700;
+  font-size: 1.55rem;
+}
+
+:root[data-theme='princess'] .next-label {
+  font-weight: 700;
+}
+
+:root[data-theme='princess'] .next-up h2 {
+  font-weight: 700;
+  font-size: 1.95rem;
+}
+
+:root[data-theme='princess'] .break-idea {
+  font-weight: 700;
+  transform: none;
+}
+
+/* The crown room */
+:root[data-theme='princess'] .lead {
+  font-weight: 600;
+}
+
+:root[data-theme='princess'] .legend {
+  font-weight: 700;
+}
+
+:root[data-theme='princess'] .legend-item b {
+  font-weight: 700;
+  color: var(--purple);
+}
+
+:root[data-theme='princess'] .princess-crowns {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  width: min(100%, 980px);
+  padding: 1.3rem 1.2rem 1.2rem;
+}
+
+:root[data-theme='princess'] .princess-crowns-title {
+  font-family: var(--bubble);
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: var(--pink);
+  text-shadow: var(--outline-sm);
+}
+
+:root[data-theme='princess'] .princess-crowns-note {
+  max-width: 34em;
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+:root[data-theme='princess'] .princess-crown-list {
+  display: grid;
+  /* Three across on a phone, up to seven on an iPad. */
+  grid-template-columns: repeat(auto-fill, minmax(min(128px, 30%), 1fr));
+  gap: 0.6rem 0.5rem;
+  width: 100%;
+  margin: 0.3rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+:root[data-theme='princess'] .princess-crown-item {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 0.1rem;
+  padding: 0.45rem 0.3rem 0.55rem;
+  text-align: center;
+  background: #f6efff;
+  border: 2px solid #ddd0f3;
+  border-radius: 16px;
+}
+
+:root[data-theme='princess'] .princess-crown-item.s3,
+:root[data-theme='princess'] .princess-crown-item.s4,
+:root[data-theme='princess'] .princess-crown-item.s5 {
+  background: radial-gradient(circle at 50% 40%, #fff6d6, #fbeac0 75%);
+  border-color: var(--pr-gold);
+}
+
+:root[data-theme='princess'] .pc-table {
+  font-family: var(--bubble);
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--purple);
+}
+
+:root[data-theme='princess'] .princess-crown {
+  display: block;
+  width: 100%;
+  max-width: 120px;
+  height: auto;
+}
+
+:root[data-theme='princess'] .pc-gem {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--gem);
+}
+
+:root[data-theme='princess'] .pc-next {
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ink-soft);
+}
+
+:root[data-theme='princess'] .pc-badge {
+  margin-top: 0.2rem;
+  padding: 0.05em 0.6em;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--pr-gold);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+}
+
+:root[data-theme='princess'] .princess-crown-item.s1 .pc-badge,
+:root[data-theme='princess'] .princess-crown-item.s2 .pc-badge {
+  background: #fff;
+}
+
+/* Gems: the legend swatches, and the grid's cells (each row in its table's gem color). */
+:root[data-theme='princess'] .swatch {
+  color: #fff;
+  border-radius: 7px;
+}
+
+:root[data-theme='princess'] .swatch.l0,
+:root[data-theme='princess'] .princess-gems .gem.l0 {
+  background: #fbf1d9;
+  border: 2px dashed #b3934f;
+}
+
+:root[data-theme='princess'] .swatch.l1,
+:root[data-theme='princess'] .princess-gems .gem.l1 {
+  color: #4a4260;
+  background:
+    radial-gradient(circle, #8f87a3 0 1.3px, transparent 1.8px) 2px 3px / 9px 8px,
+    #d6cfe1;
+  border: 2px solid #8f87a3;
+}
+
+:root[data-theme='princess'] .swatch.l2,
+:root[data-theme='princess'] .princess-gems .gem.l2 {
+  color: var(--ink);
+  background: conic-gradient(from 45deg, #fff 0 25%, var(--gem-light) 0 50%, #fff 0 75%, var(--gem-light) 0);
+  border: 2.5px solid var(--gem);
+}
+
+:root[data-theme='princess'] .swatch.l3,
+:root[data-theme='princess'] .swatch.l4,
+:root[data-theme='princess'] .swatch.l5,
+:root[data-theme='princess'] .princess-gems .gem.l3,
+:root[data-theme='princess'] .princess-gems .gem.l4,
+:root[data-theme='princess'] .princess-gems .gem.l5 {
+  color: #fff;
+  background: conic-gradient(
+    from 45deg,
+    color-mix(in srgb, var(--gem) 70%, #fff) 0 25%,
+    var(--gem) 0 50%,
+    var(--gem-dark) 0 75%,
+    var(--gem) 0
+  );
+  border: 2.5px solid var(--ink);
+  text-shadow:
+    1px 1px 0 var(--ink),
+    -1px -1px 0 var(--ink),
+    1px -1px 0 var(--ink),
+    -1px 1px 0 var(--ink);
+}
+
+:root[data-theme='princess'] .swatch.l4,
+:root[data-theme='princess'] .princess-gems .gem.l4 {
+  box-shadow: 0 0 6px 1px color-mix(in srgb, var(--gem) 70%, transparent);
+}
+
+:root[data-theme='princess'] .swatch.l5,
+:root[data-theme='princess'] .princess-gems .gem.l5 {
+  border: 3px solid var(--pr-gold);
+  box-shadow:
+    0 0 0 1.5px var(--ink),
+    0 0 5px 1px rgba(244, 195, 77, 0.9);
+}
+
+:root[data-theme='princess'] .princess-gems .gem {
+  font-family: var(--hand);
+  font-weight: 700;
+  border-radius: 9px;
+}
+
+:root[data-theme='princess'] .princess-gems .dcell.head {
+  font-weight: 700;
+}
+
+:root[data-theme='princess'] .princess-gems .row-head {
+  width: 86%;
+  justify-self: center;
+  font-size: clamp(0.8rem, 2vmin, 1.15rem);
+  color: #fff;
+  background: var(--gem);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  text-shadow:
+    1px 1px 0 var(--ink),
+    -1px -1px 0 var(--ink),
+    1px -1px 0 var(--ink),
+    -1px 1px 0 var(--ink);
+}
+
+:root[data-theme='princess'] .princess-gems .sparkle {
+  color: #fff;
+  filter: none;
+}
+
+:root[data-theme='princess'] .princess-gems .l5 .sparkle {
+  color: #ffe07a;
+}
+
+:root[data-theme='princess'] .princess-gems .dcell.selected {
+  outline: 4px solid var(--pink);
+  outline-offset: 2px;
+  transform: scale(1.1);
+}
+
+:root[data-theme='princess'] .fact-detail {
+  font-weight: 600;
+}
+
+:root[data-theme='princess'] .detail-fact {
+  font-weight: 700;
+  font-size: 2.1rem;
+}
+
+:root[data-theme='princess'] .detail-level {
+  font-weight: 700;
+}
+
+/* Royal letters: cream stationery, a crown letterhead, and a wax seal */
+:root[data-theme='princess'] .royal-letter {
+  gap: 0.5rem;
+  padding: 1.6rem 2rem 1.4rem;
+  background:
+    linear-gradient(90deg, rgba(239, 193, 82, 0.12), transparent 12%, transparent 88%, rgba(239, 193, 82, 0.12)),
+    #fffbf3;
+  border-radius: 10px;
+  box-shadow:
+    inset 0 0 0 6px #fffbf3,
+    inset 0 0 0 8px var(--pr-gold),
+    inset 0 0 0 11px #fffbf3,
+    inset 0 0 0 12.5px #f2d58b,
+    5px 6px 0 var(--ink);
+}
+
+:root[data-theme='princess'] .royal-letter.with-sticker {
+  padding-right: 2rem;
+}
+
+:root[data-theme='princess'] .letter-head {
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  padding: 0.2rem 0 0.5rem;
+  border-bottom: 3px double var(--pr-gold-dark);
+}
+
+:root[data-theme='princess'] .letter-crest {
+  display: block;
+}
+
+:root[data-theme='princess'] .letter-from {
+  font-family: var(--bubble);
+  font-weight: 700;
+  font-size: clamp(1.1rem, 2.6vw, 1.4rem);
+  color: var(--purple);
+  text-align: center;
+}
+
+:root[data-theme='princess'] .letter-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.2rem 1rem;
+  width: 100%;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+:root[data-theme='princess'] .royal-letter .page-date {
+  font-size: 1rem;
+  color: var(--ink-soft);
+  text-align: left;
+}
+
+:root[data-theme='princess'] .letter-no {
+  white-space: nowrap;
+}
+
+:root[data-theme='princess'] .royal-letter .dear {
+  margin-top: 0.4rem;
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: var(--pink);
+}
+
+:root[data-theme='princess'] .royal-letter .entry-line {
+  font-size: 1.28rem;
+  line-height: 1.5;
+}
+
+:root[data-theme='princess'] .letter-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 0.6rem 1rem;
+  margin-top: 0.6rem;
+}
+
+:root[data-theme='princess'] .letter-sign {
+  display: grid;
+  justify-items: start;
+  padding-bottom: 0.4rem;
+}
+
+:root[data-theme='princess'] .letter-close {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+:root[data-theme='princess'] .royal-letter .signature {
+  font-weight: 700;
+  font-size: 1.75rem;
+  transform: none;
+}
+
+:root[data-theme='princess'] .wax-seal {
+  flex: none;
+  filter: drop-shadow(2px 3px 0 rgba(59, 31, 92, 0.25));
+}
+
+:root[data-theme='princess'] .royal-letter .page-sticker {
+  position: static;
+  margin-right: auto;
+  transform: rotate(-6deg);
+}
+
+:root[data-theme='princess'] .new-sticker {
+  font-weight: 700;
+  font-size: 1.35rem;
+  text-align: center;
+}
+
+/* Dialogs and milestones */
+:root[data-theme='princess'] .overlay {
+  background: rgba(59, 31, 92, 0.5);
+}
+
+:root[data-theme='princess'] .dialog h2 {
+  font-weight: 700;
+  font-size: 1.75rem;
+}
+
+:root[data-theme='princess'] .milestone p {
+  font-weight: 700;
+}
+
+:root[data-theme='princess'] .milestone-art {
+  background: radial-gradient(circle, rgba(255, 224, 138, 0.7), transparent 68%);
+}
+
+:root[data-theme='princess'] .milestone .princess-crown {
+  width: min(180px, 44vw);
+  max-width: none;
+  height: auto;
+}
+
+:root[data-theme='princess'] .milestone-list .princess-crown {
+  width: 104px;
+}
+
+/* The several-at-once pop-up scrolls, which would cut its little crown in half. */
+:root[data-theme='princess'] .milestone.many.tape::before {
+  display: none;
+}
+
+/* Grown-ups */
+:root[data-theme='princess'] .panel h2,
+:root[data-theme='princess'] .report-card h2 {
+  font-weight: 700;
+  font-size: 1.4rem;
+}
+
+:root[data-theme='princess'] .panel h3 {
+  font-weight: 700;
+}
+
+/* On a phone the three page lengths wrap, and the recent-pages table scrolls inside its card. */
+:root[data-theme='princess'] .segmented {
+  flex-wrap: wrap;
+}
+
+:root[data-theme='princess'] .report-card {
+  overflow-x: auto;
+}
+
+:root[data-theme='princess'] .segmented button {
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: 1.15rem;
+  background: #fff;
+  border-radius: 999px;
+  box-shadow: 0 3px 0 var(--ink);
+}
+
+:root[data-theme='princess'] .segmented button.on {
+  background: var(--pr-gold);
+}
+
+:root[data-theme='princess'] .text-input {
+  border-radius: 12px;
+}
+
+:root[data-theme='princess'] .tile {
+  background: var(--pr-cream);
+  border-radius: 16px;
+}
+
+:root[data-theme='princess'] .tile-value {
+  font-weight: 700;
+}
+
+:root[data-theme='princess'] .tile-value.hero {
+  font-size: clamp(2.3rem, 4.4vw, 2.8rem);
+  white-space: nowrap;
+}
+
+:root[data-theme='princess'] .tile-value small {
+  font-size: 1rem;
+}
+
+:root[data-theme='princess'] .data-table th {
+  font-weight: 700;
+}
+
+/* Phones: Cherry Swash runs wide, so titles shrink a little and the quest list stacks its notes. */
+@media (max-width: 520px) {
+  :root[data-theme='princess'] .bubble-title.small {
+    font-size: 1.4rem;
+  }
+
+  :root[data-theme='princess'] .plan-step {
+    grid-template-columns: 2.1rem minmax(0, 1fr);
+    row-gap: 0;
+  }
+
+  :root[data-theme='princess'] .plan-mark {
+    grid-row: span 2;
+  }
+
+  :root[data-theme='princess'] .plan-blurb {
+    grid-column: 2;
+    font-size: 0.95rem;
+    text-align: left;
+  }
+
+  :root[data-theme='princess'] .part-name {
+    font-size: 1rem;
+  }
+
+  :root[data-theme='princess'] .count {
+    min-width: 0;
+    font-size: 1.05rem;
+    white-space: nowrap;
+  }
+
+  :root[data-theme='princess'] .practice-top {
+    gap: 0.6rem;
+  }
+
+  :root[data-theme='princess'] .princess-crowns {
+    padding: 1.2rem 0.8rem 0.9rem;
+  }
+
+  :root[data-theme='princess'] .princess-crown-item {
+    padding: 0.35rem 0.15rem 0.45rem;
+  }
+
+  :root[data-theme='princess'] .pc-next {
+    font-size: 0.78rem;
+  }
+
+  :root[data-theme='princess'] .pc-badge {
+    font-size: 0.72rem;
+  }
+
+  :root[data-theme='princess'] .royal-letter {
+    padding: 1.3rem 1.2rem 1.1rem;
+  }
+
+  :root[data-theme='princess'] .royal-letter .entry-line {
+    font-size: 1.15rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme='princess'] .pencil-fill {
+    animation: princess-ribbon 1.2s linear infinite;
+  }
+}
+
+@keyframes princess-ribbon {
+  to {
+    background-position: 28.28px 0;
+  }
+}
+
+/* The theme's tile in the pickers: a lavender card with a gold trim. */
+.theme-tile[data-pick-theme='princess'] {
+  --tile: #df367a;
+  --tile-ink: #3b1f5c;
+  --tile-bg:
+    radial-gradient(circle, rgba(255, 255, 255, 0.95) 0 1.4px, transparent 2px) 0 0 / 22px 22px,
+    linear-gradient(180deg, #f6efff, #e6d8ff);
+  --tile-font: 'Cherry Swash', Georgia, serif;
+  --tile-body: 'Quicksand', system-ui, sans-serif;
+  --tile-size: 1.15rem;
+  border-radius: 18px;
+  box-shadow:
+    inset 0 0 0 3px #f6efff,
+    inset 0 0 0 5px #efc152,
+    3px 4px 0 #3b1f5c;
+}
+
+.theme-tile[data-pick-theme='princess'] .theme-tile-name {
+  font-weight: 700;
+  overflow-wrap: normal;
+}
+
+.theme-tile[data-pick-theme='princess'] .theme-tile-blurb {
+  font-weight: 600;
+}
