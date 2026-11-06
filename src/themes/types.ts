@@ -3,7 +3,7 @@ import type { DiaryEntry, PartKind, Progress } from '../engine/types'
 import type { Voice } from '../engine/voice'
 import type { StickerId } from '../stickers'
 
-export type ThemeId = 'diary' | 'bricks' | 'creatures' | 'ninja' | 'construction'
+export type ThemeId = 'diary' | 'bricks' | 'creatures' | 'ninja' | 'construction' | 'basketball' | 'princess' | 'puppy'
 
 /** Every word on the kids' screens that changes with the theme. The diary's are the originals. */
 export interface Words {

@@ -1617,7 +1617,8 @@ figure {
 
 .theme-tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  /* At most four to a row, so eight looks make two even rows. */
+  grid-template-columns: repeat(auto-fit, minmax(max(128px, calc((100% - 3 * 0.7rem) / 4)), 1fr));
   gap: 0.7rem;
   width: 100%;
 }
