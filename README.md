@@ -103,7 +103,8 @@ All of it lives in `src/engine/day.ts` and is covered by `src/engine/day.test.ts
 - **One day, many parts.** A fact is scored on its first try of the day, whichever part it comes up in. At most 4 new facts a day can land in pencil (missed or slow); the rest wait for tomorrow.
 - **Breaks.** Between parts she can keep going or take a break. Everything (including the question on screen) is saved, so she can come back any time that day. The diary page is written when the last part is done.
 - **Bonus rounds.** After the page is done, "Bonus round" adds 20 more practice questions with no extra diary page.
-- **Sync.** If two devices both worked on today's page, the one that got further keeps it; facts merge as before.
+- **New lessons.** Also after the page is done, "New lesson" starts a whole new page the same day: all five parts, sized to the daily minutes again. Facts are scored again on their first try in the new lesson. That can't race a fact up the levels: a fact only moves up when it's due, and from inked on, each step up puts its next review at least a day away. The 4-a-day limit on new facts in pencil starts over with each lesson, but no more than 8 facts are ever in pencil at once. Each lesson writes its own diary page (the second says "Page number 2 today!") and earns a sticker. The day counts once in the streak, and its line in the progress report adds every lesson up ("10 of 10 in 2 lessons").
+- **Sync.** If two devices both worked on today's page, the later lesson wins, then the copy that got further; facts merge as before.
 
 ## Themes
 

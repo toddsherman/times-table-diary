@@ -32,6 +32,8 @@ export const WORDS: Words = {
   keepGoing: (part) => `Keep going: ${part}`,
   bonusRound: 'Bonus trek',
   keepGoingBonus: 'Keep going: bonus trek',
+  newLesson: 'New lesson: another expedition',
+  lessonNumber: (lesson) => `Expedition ${lesson} today`,
   gridButton: 'My creatures',
   bookButton: 'Field journal',
 
@@ -157,6 +159,7 @@ export const VOICE: Voice = {
     'My creatures say goodnight!',
     'Snack time. Explorers need snacks.',
   ],
+  again: (lesson) => `Expedition number ${lesson} today! The trail just kept calling.`,
 }
 
 /** One place stamp per finished expedition, by reward slot. 'star' is also the picker tile's picture. */

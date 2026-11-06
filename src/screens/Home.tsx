@@ -12,12 +12,14 @@ import { useTheme } from '../themes'
 interface Props {
   progress: Progress
   onStart: () => void
+  /** Starts a whole new page once today's is finished. */
+  onNewLesson: () => void
   onDoodles: () => void
   onDiary: () => void
   onSettings: () => void
 }
 
-export function Home({ progress, onStart, onDoodles, onDiary, onSettings }: Props) {
+export function Home({ progress, onStart, onNewLesson, onDoodles, onDiary, onSettings }: Props) {
   const { words, parts, Reward, HomeShelf } = useTheme()
   const today = dayNumber()
   const days = streak(progress.entries, today)
@@ -31,6 +33,7 @@ export function Home({ progress, onStart, onDoodles, onDiary, onSettings }: Prop
       : started
         ? words.keepGoing(parts[next.kind].title.toLowerCase())
         : words.startToday
+  const lesson = plan.lesson ?? 1
   const counts = levelCounts(progress)
   // Colored in or better. Strict mastery takes several days, and "0 mastered" on day one is no fun.
   const coloredIn = counts[3] + counts[4] + counts[5]
@@ -69,13 +72,26 @@ export function Home({ progress, onStart, onDoodles, onDiary, onSettings }: Prop
         <h2 id="today-title" className="today-title">
           {plan.finished ? words.todayDone : words.todayTitle}
         </h2>
+        {lesson > 1 && <p className="lesson-note">{words.lessonNumber(lesson)}</p>}
         <PagePlan plan={plan} />
         {!plan.finished && next && <p className="next-intro">{parts[next.kind].intro}</p>}
       </section>
 
-      <button type="button" className={`btn big ${plan.finished ? '' : 'pink'}`} onClick={onStart}>
-        {start}
-      </button>
+      {plan.finished ? (
+        // Once today's page is done: a bonus round, or a whole new lesson.
+        <div className="home-actions">
+          <button type="button" className="btn big" onClick={onStart}>
+            {start}
+          </button>
+          <button type="button" className="btn big pink" onClick={onNewLesson}>
+            {words.newLesson}
+          </button>
+        </div>
+      ) : (
+        <button type="button" className="btn big pink" onClick={onStart}>
+          {start}
+        </button>
+      )}
 
       <div className="home-links">
         <button type="button" className="btn teal" onClick={onDoodles}>

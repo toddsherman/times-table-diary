@@ -34,6 +34,8 @@ export interface Voice {
   metMany: (count: number) => string
   streak: (days: number) => string
   closers: readonly string[]
+  /** Right after the opener on a new lesson's page: "Page number 2 today!" */
+  again: (lesson: number) => string
 }
 
 /** The original voice: a dramatic, first-person diary. */
@@ -82,4 +84,5 @@ export const DIARY_VOICE: Voice = {
     "SQUEEE!!! (That's my happy noise.)",
     'Time for a snack. Brains need snacks.',
   ],
+  again: (lesson) => `Page number ${lesson} today! I just could NOT stop.`,
 }

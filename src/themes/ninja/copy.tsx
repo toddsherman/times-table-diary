@@ -73,6 +73,8 @@ export const NINJA_WORDS: Words = {
   keepGoing: (part) => `Keep going: ${part}`,
   bonusRound: 'Extra training',
   keepGoingBonus: 'Keep going: extra training',
+  newLesson: 'New lesson: train again',
+  lessonNumber: (lesson) => `Training ${lesson} today`,
   gridButton: 'My belts',
   bookButton: 'Read my scrolls',
 
@@ -156,4 +158,5 @@ export const NINJA_VOICE: Voice = {
     'Now for a snack. Even ninjas need snacks.',
     'Bow. Smile. Back tomorrow!',
   ],
+  again: (lesson) => `Training number ${lesson} today! A true ninja keeps going.`,
 }

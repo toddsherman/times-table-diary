@@ -32,6 +32,8 @@ export const words: Words = {
   keepGoing: (part) => `Keep going: ${part}`,
   bonusRound: 'Overtime',
   keepGoingBonus: 'Keep going: overtime',
+  newLesson: 'New lesson: another shift',
+  lessonNumber: (lesson) => `Shift ${lesson} today`,
   gridButton: 'My tower',
   bookButton: 'Site reports',
 
@@ -157,4 +159,5 @@ export const voice: Voice = {
     'Beep, beep! Backing out for the day.',
     'Time for a snack. Builders need snacks.',
   ],
+  again: (lesson) => `That was shift number ${lesson} today! This crew does NOT quit.`,
 }

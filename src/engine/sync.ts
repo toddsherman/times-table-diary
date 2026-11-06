@@ -15,10 +15,14 @@ function unionBy<T>(xs: T[], ys: T[], key: (item: T) => number): T[] {
   return [...byKey.values()].sort((a, b) => key(a) - key(b))
 }
 
-/** The later day's page, or on the same day, the copy with more of it done. */
+/**
+ * The later day's page, or on the same day the later lesson (a new lesson only starts once the
+ * one before it is finished), or on the same lesson, the copy with more of it done.
+ */
 function laterPage(x: DayPlan | undefined, y: DayPlan | undefined): DayPlan | undefined {
   if (!x || !y) return x ?? y
   if (x.day !== y.day) return x.day > y.day ? x : y
+  if ((x.lesson ?? 1) !== (y.lesson ?? 1)) return (x.lesson ?? 1) > (y.lesson ?? 1) ? x : y
   if (x.finished !== y.finished) return x.finished ? x : y
   return y.session.asked > x.session.asked ? y : x
 }

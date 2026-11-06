@@ -43,6 +43,10 @@ export interface Words {
   keepGoing: (part: string) => string
   bonusRound: string
   keepGoingBonus: string
+  /** The button for a whole new page once today's is done, e.g. "New lesson: another page". */
+  newLesson: string
+  /** Under today's title from the second lesson on, e.g. "Page 2 today". */
+  lessonNumber: (lesson: number) => string
   gridButton: string
   bookButton: string
 

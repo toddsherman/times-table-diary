@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { parseProgress } from '../storage'
-import { addTime, beginPart, endPart, finishPage, LIGHTNING_LAP, pageDone, planDay, plannedMinutes, startToday } from './day'
+import { addTime, beginPart, endPart, finishPage, LIGHTNING_LAP, pageDone, planDay, plannedMinutes, startNewLesson, startToday } from './day'
 import { ALL_FACT_IDS, parseFact, stageOf } from './facts'
 import { createProgress, withSettings } from './progress'
 import { nextQuestion, recordAnswer, startPart, createSession, type Rng } from './session'
@@ -264,7 +264,112 @@ describe('working through the page', () => {
   })
 })
 
+/** Plays a lesson that's already started to its end, and writes its diary page. */
+function playLesson(p: Progress, plan: DayPlan, student: Student, rng: Rng) {
+  while (!pageDone(plan)) playPart(p, plan, student, rng)
+  return finishPage(p, plan, 'star', 4000, rng)
+}
+
+/** Right about 85% of the time, and fast on about 60% of those. */
+const sometimes =
+  (rng: Rng): Student =>
+  () => {
+    const correct = rng() < 0.85
+    return { correct, ms: correct && rng() < 0.6 ? 1500 : 6000 }
+  }
+
+describe('a new lesson the same day', () => {
+  it("waits until today's page is finished", () => {
+    const p = createProgress('Ava', TODAY)
+    const rng = seeded(1)
+    const plan = startToday(p, TODAY, 0, rng)
+    playPart(p, plan, whiz, rng)
+    expect(startNewLesson(p, TODAY, 1000, rng)).toBe(plan)
+    expect(plan.lesson).toBeUndefined()
+  })
+
+  it("starts a whole new page, and keeps the first lesson in the day's log", () => {
+    const p = createProgress('Ava', TODAY)
+    const { plan } = playDay(p, learnsFromFixups)
+    const second = startNewLesson(p, TODAY, 3000, seeded(5))
+    expect(second).not.toBe(plan)
+    expect(p.today).toBe(second)
+    expect(second.lesson).toBe(2)
+    expect(kinds(second)).toEqual(['warmup', 'new', 'mixed', 'puzzles', 'lightning'])
+    expect(second.session.asked).toBe(0)
+    expect(second.finished).toBe(false)
+    expect(p.days).toHaveLength(1)
+    expect(p.days[0]).toMatchObject({ day: TODAY, parts: 10, done: 5, questions: plan.session.asked, lessons: 2 })
+  })
+
+  it('writes a second diary page and sticker, adds up the day, and counts the day once in the streak', () => {
+    const p = createProgress('Ava', TODAY)
+    playDay(p, whiz, { day: TODAY - 1 })
+    const first = playDay(p, learnsFromFixups)
+    expect(first.entry.lines.some((line) => line.startsWith('Page number'))).toBe(false)
+    const rng = seeded(6)
+    const second = startNewLesson(p, TODAY, 3000, rng)
+    const entry = playLesson(p, second, learnsFromFixups, rng)
+    expect(p.entries).toHaveLength(3)
+    expect(p.stickers).toHaveLength(3)
+    expect(entry.lines[1]).toBe('Page number 2 today! I just could NOT stop.')
+    expect(entry.lines).toContain("That's 2 diary days in a row. I am UNSTOPPABLE.")
+    expect(entry.stats.total).toBe(second.session.asked)
+    const log = p.days.find((d) => d.day === TODAY)
+    const parts = first.plan.parts.length + second.parts.length
+    expect(log).toMatchObject({ parts, done: parts, lessons: 2, questions: first.plan.session.asked + second.session.asked })
+    expect(log?.activeMs).toBe((first.plan.session.asked + second.session.asked) * 6000)
+
+    // A third lesson, and a bonus round after it, carry on the same way.
+    const third = startNewLesson(p, TODAY, 5000, rng)
+    expect(third.lesson).toBe(3)
+    expect(playLesson(p, third, learnsFromFixups, rng).lines[1]).toBe('Page number 3 today! I just could NOT stop.')
+    expect(p.days.find((d) => d.day === TODAY)).toMatchObject({ parts: parts + third.parts.length, done: parts + third.parts.length, lessons: 3 })
+    expect(startToday(p, TODAY, 6000).parts.at(-1)?.kind).toBe('bonus')
+    expect(startNewLesson(p, TODAY + 1, 7000).lesson).toBeUndefined()
+  })
+
+  it('never moves a fact up more than one level in a day, however many lessons', () => {
+    const p = createProgress('Ava', TODAY)
+    const answers = seeded(9)
+    for (let d = 0; d < 6; d++) playDay(p, sometimes(answers), { day: TODAY + d, seed: d + 1 })
+    const day = TODAY + 6
+    const before = Object.fromEntries(ALL_FACT_IDS.map((id) => [id, p.facts[id].level]))
+    playDay(p, sometimes(answers), { day, seed: 20 })
+    for (let lesson = 0; lesson < 3; lesson++) {
+      const rng = seeded(30 + lesson)
+      playLesson(p, startNewLesson(p, day, 9000, rng), sometimes(answers), rng)
+    }
+    expect(p.today?.lesson).toBe(4)
+    for (const id of ALL_FACT_IDS) {
+      const was = before[id]
+      expect(p.facts[id].level, id).toBeLessThanOrEqual(was === 0 ? 3 : was + 1)
+    }
+  })
+})
+
 describe('syncing the daily page', () => {
+  it('keeps a new lesson over the finished one before it, whichever device has which', () => {
+    const ipad = createProgress('Ava', TODAY)
+    playDay(ipad, learnsFromFixups)
+    const server = parseProgress(JSON.stringify(ipad))
+    const rng = seeded(7)
+    const second = startNewLesson(ipad, TODAY, 3000, rng)
+    playPart(ipad, second, learnsFromFixups, rng)
+
+    for (const merged of [mergeProgress(ipad, server), mergeProgress(server, ipad)]) {
+      expect(merged.today?.lesson).toBe(2)
+      expect(merged.today?.current).toBe(1)
+      expect(merged.entries).toHaveLength(1)
+      expect(merged.days).toEqual(ipad.days)
+      for (const id of ALL_FACT_IDS) expect(merged.facts[id].seen).toBe(Math.max(ipad.facts[id].seen, server.facts[id].seen))
+    }
+    // A backup file or the server's copy keeps the lesson and the earlier lessons' log.
+    const restored = parseProgress(JSON.stringify(ipad))
+    expect(restored.today?.lesson).toBe(2)
+    expect(restored.today?.earlier).toEqual(second.earlier)
+  })
+
   it('keeps the copy of today that got further, and pools the practice log', () => {
     const ipad = createProgress('Ava', TODAY)
     const phone = structuredClone(ipad)

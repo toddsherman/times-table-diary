@@ -24,6 +24,8 @@ export interface EntryContext {
   page?: { parts: PartPlan[]; bestBefore: number }
   /** Things that happened today worth a line of their own, from the theme (say, a creature hatching). */
   events?: string[]
+  /** Which of the day's lessons this page was. From the second on, the entry says so. */
+  lesson?: number
 }
 
 function listParts(kinds: PartKind[], voice: Voice): string {
@@ -51,14 +53,16 @@ function pageLines({ parts, bestBefore }: NonNullable<EntryContext['page']>, voi
 /** Writes the end-of-page entry, in the diary's voice unless a theme gives its own. */
 export function writeEntry(
   s: SessionState,
-  { streakDays, sticker, now, mastered, minutes: given, page, events = [] }: EntryContext,
+  { streakDays, sticker, now, mastered, minutes: given, page, events = [], lesson = 1 }: EntryContext,
   rng: Rng = Math.random,
   voice: Voice = DIARY_VOICE,
 ): DiaryEntry {
   const minutes = given ?? Math.max(1, Math.round((now - s.startedAt) / 60_000))
   const time = minutes === 1 ? 'about a minute' : `${minutes} minutes`
   const speedy = s.fast > 0 && s.fast >= s.firstTry / 2 ? s.fast : null
-  const lines = [pick(voice.openers, rng), voice.did(s.asked, time, speedy)]
+  const lines = [pick(voice.openers, rng)]
+  if (lesson > 1) lines.push(voice.again(lesson))
+  lines.push(voice.did(s.asked, time, speedy))
   if (page) lines.push(...pageLines(page, voice, rng))
 
   const checkup = s.checkup

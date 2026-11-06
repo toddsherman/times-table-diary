@@ -1065,6 +1065,23 @@ figure {
   text-align: center;
 }
 
+/* From a day's second lesson on, under today's title: "Page 2 today". */
+.lesson-note {
+  margin-top: -0.35rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--purple);
+  text-align: center;
+}
+
+/* Once today's page is done: a bonus round or a new lesson, side by side when they fit. */
+.home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
 .between {
   justify-content: center;
 }

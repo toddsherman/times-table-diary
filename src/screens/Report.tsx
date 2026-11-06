@@ -185,6 +185,7 @@ export function Report({ progress, link, onBack }: { progress: Progress; link: C
                   <td>{longDay(d.day)}</td>
                   <td>
                     {d.done} of {d.parts}
+                    {(d.lessons ?? 1) > 1 ? ` in ${d.lessons} lessons` : null}
                   </td>
                   <td>{Math.round(d.activeMs / 60_000)} min</td>
                   <td>{d.puzzles.asked > 0 ? `${d.puzzles.right} of ${d.puzzles.asked}` : '–'}</td>

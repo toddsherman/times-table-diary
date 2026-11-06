@@ -40,6 +40,8 @@ export const diary: Theme = {
     keepGoing: (part) => `Keep going: ${part}`,
     bonusRound: 'Bonus round',
     keepGoingBonus: 'Keep going: bonus round',
+    newLesson: 'New lesson: another page',
+    lessonNumber: (lesson) => `Page ${lesson} today`,
     gridButton: 'My doodle page',
     bookButton: 'Read my diary',
 

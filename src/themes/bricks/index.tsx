@@ -51,6 +51,7 @@ const voice: Voice = {
     "Click, clack, SNAP! (That's my happy noise.)",
     'Time for a snack. Builders need snacks.',
   ],
+  again: (lesson) => `Build number ${lesson} today! I just could NOT stop building.`,
 }
 
 /** A table's build finished (every fact colored in), and later gone gold (every fact mastered). */
@@ -116,6 +117,8 @@ export const bricks: Theme = {
     keepGoing: (part) => `Keep building: ${part}`,
     bonusRound: 'Bonus bricks',
     keepGoingBonus: 'Keep going: bonus bricks',
+    newLesson: 'New lesson: another build',
+    lessonNumber: (lesson) => `Build ${lesson} today`,
     gridButton: 'My builds',
     bookButton: 'Read my build log',
 

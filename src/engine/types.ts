@@ -199,6 +199,13 @@ export interface DayPlan {
   bestBefore: number
   /** Lines the theme wants in today's entry, like a creature hatching, collected as they happen. */
   events?: string[]
+  /**
+   * Which of the day's lessons this page is: missing (or 1) for the first, 2 for a new lesson
+   * started after finishing it, and so on.
+   */
+  lesson?: number
+  /** The day's practice in earlier lessons, so the day's log line covers every lesson. */
+  earlier?: DayLog
 }
 
 /** A day's practice on the daily page, kept for the progress report. */
@@ -210,8 +217,10 @@ export interface DayLog {
   activeMs: number
   questions: number
   puzzles: { asked: number; right: number }
-  /** Super-fast answers in the lightning lap, if she did it. */
+  /** Super-fast answers in the lightning lap, if she did it (her best lap, on a day with several lessons). */
   lightning: { asked: number; fast: number } | null
+  /** Lessons that day, when there was more than one. Parts and the totals above add them all up. */
+  lessons?: number
 }
 
 /** One answer, as logged to the server for the progress report. */

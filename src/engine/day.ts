@@ -141,6 +141,27 @@ export function startToday(p: Progress, today: number, now: number, rng: Rng = M
   return plan
 }
 
+/**
+ * Starts another whole page on a day whose page is already finished: a new lesson, with every
+ * part of a daily page, sized the same way. Answers count again (a fact only levels up on a day
+ * it's due, so it can't race up the levels in one day), and the new-facts limit starts over,
+ * though no more than MAX_LEARNING facts are ever in pencil at once. What the day's earlier
+ * lessons did stays in the day's log line. Returns the page as it is if it isn't finished yet.
+ */
+export function startNewLesson(p: Progress, today: number, now: number, rng: Rng = Math.random): DayPlan {
+  const before = p.today?.day === today ? p.today : undefined
+  if (!before?.finished) return startToday(p, today, now, rng)
+  // The log line can know more than the page, say after a sync brought in another device's practice.
+  const own = dayLogOf(before)
+  const logged = p.days.find((d) => d.day === today)
+  const plan = planDay(p, today, now, rng)
+  plan.lesson = (before.lesson ?? 1) + 1
+  plan.earlier = logged && logged.questions > own.questions ? logged : own
+  p.today = plan
+  logDay(p, plan)
+  return plan
+}
+
 /** Shortest a practice part gets trimmed to. */
 const MIN_TRIMMED = 5
 
@@ -207,6 +228,7 @@ export function finishPage(p: Progress, plan: DayPlan, sticker: string, now: num
       minutes: Math.max(1, Math.round(plan.activeMs / 60_000)),
       page: { parts: plan.parts.filter((part) => part.kind !== 'bonus'), bestBefore: plan.bestBefore },
       events: plan.events,
+      lesson: plan.lesson,
     },
     rng,
     voice,
@@ -225,13 +247,13 @@ function resultsOf(plan: DayPlan, i: number): PartPlan {
   return { ...part, asked: partAsked(s), firstTry: s.part.firstTry, right: s.part.right, fast: s.part.fast }
 }
 
-/** Today's line for the progress report. */
+/** Today's line for the progress report, adding in the day's earlier lessons. */
 export function dayLogOf(plan: DayPlan): DayLog {
   const results = plan.parts.map((_, i) => resultsOf(plan, i))
   const core = results.filter((part) => part.kind !== 'bonus')
   const puzzles = results.filter((part) => part.kind === 'puzzles')
   const lap = results.find((part) => part.kind === 'lightning' && part.firstTry > 0)
-  return {
+  const line: DayLog = {
     day: plan.day,
     parts: core.length,
     done: core.filter((part) => part.done).length,
@@ -239,6 +261,19 @@ export function dayLogOf(plan: DayPlan): DayLog {
     questions: plan.session.asked,
     puzzles: { asked: puzzles.reduce((n, part) => n + part.firstTry, 0), right: puzzles.reduce((n, part) => n + part.right, 0) },
     lightning: lap ? { asked: lap.firstTry, fast: lap.fast } : null,
+  }
+  const e = plan.earlier
+  if (!e) return line
+  const laps = [e.lightning, line.lightning].filter((l) => l !== null)
+  return {
+    day: plan.day,
+    parts: e.parts + line.parts,
+    done: e.done + line.done,
+    activeMs: e.activeMs + line.activeMs,
+    questions: e.questions + line.questions,
+    puzzles: { asked: e.puzzles.asked + line.puzzles.asked, right: e.puzzles.right + line.puzzles.right },
+    lightning: laps.length > 0 ? laps.reduce((best, l) => (l.fast > best.fast ? l : best)) : null,
+    lessons: plan.lesson ?? (e.lessons ?? 1) + 1,
   }
 }
 

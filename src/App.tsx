@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createDiary, deleteDiary, flushAnswers, openDiary, saveOnExit, syncDiary } from './cloud'
 import { dayNumber } from './engine/dates'
+import { startNewLesson } from './engine/day'
 import { createProgress } from './engine/progress'
 import type { DiaryEntry, Progress } from './engine/types'
 import { DiaryBook } from './screens/DiaryBook'
@@ -200,6 +201,12 @@ export default function App() {
       <Home
         progress={progress}
         onStart={() => setScreen('practice')}
+        onNewLesson={() => {
+          const next = structuredClone(progress)
+          startNewLesson(next, dayNumber(), Date.now())
+          commit(next)
+          setScreen('practice')
+        }}
         onDoodles={() => setScreen('doodles')}
         onDiary={() => setScreen('diary')}
         onSettings={() => setScreen('settings')}
