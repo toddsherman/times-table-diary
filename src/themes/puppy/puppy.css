@@ -1,0 +1,1008 @@
+/*
+ * Puppies theme: a sunny backyard puppy school. Cream paper with paw prints, collar red, sky blue
+ * and grass green, stitched cards like a plush dog bed, bones and dog tags. Sniglet for titles and
+ * numbers, Nunito for everything else.
+ * Every rule is scoped to :root[data-theme='puppy'], except its tile in the theme pickers.
+ */
+:root[data-theme='puppy'] {
+  --ink: #4a3226;
+  --ink-soft: #745949;
+  --paper: #fff6e3;
+  --rule: transparent;
+  --margin: transparent;
+  --pink: #d63c30;
+  --pink-soft: #ffdcd5;
+  --purple: #2a6fb3;
+  --purple-soft: #e1f0ff;
+  --teal: #62b84f;
+  --teal-soft: #e2f5d8;
+  --yellow: #ffcf4a;
+  --sticky: #fff0c4;
+  --pencil: #a38d79;
+  --lvl3: #9fd87f;
+  --lvl4: #84c6f5;
+  --lvl5: #ffc93c;
+  --hand: 'Nunito', system-ui, sans-serif;
+  --bubble: 'Sniglet', 'Nunito', system-ui, sans-serif;
+  --wobble: 18px;
+  --wobble-2: 18px;
+  --stitch: rgba(196, 148, 92, 0.42);
+  --grass: #7cc45a;
+  --sky: linear-gradient(180deg, #cdeeff, #eef8ff);
+  /* Two faint paw prints on a 120px tile. */
+  --paws: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='%23f1dfc4'%3E%3Cg transform='translate(16 18) rotate(-22 10 10)'%3E%3Cellipse cx='10' cy='13.5' rx='5' ry='4.3'/%3E%3Cellipse cx='3.8' cy='8.6' rx='2.2' ry='2.6'/%3E%3Cellipse cx='7.8' cy='4.4' rx='2.2' ry='2.7'/%3E%3Cellipse cx='12.2' cy='4.4' rx='2.2' ry='2.7'/%3E%3Cellipse cx='16.2' cy='8.6' rx='2.2' ry='2.6'/%3E%3C/g%3E%3Cg transform='translate(76 72) rotate(24 10 10)'%3E%3Cellipse cx='10' cy='13.5' rx='5' ry='4.3'/%3E%3Cellipse cx='3.8' cy='8.6' rx='2.2' ry='2.6'/%3E%3Cellipse cx='7.8' cy='4.4' rx='2.2' ry='2.7'/%3E%3Cellipse cx='12.2' cy='4.4' rx='2.2' ry='2.7'/%3E%3Cellipse cx='16.2' cy='8.6' rx='2.2' ry='2.6'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  /* A cream bone, the theme's washi tape. */
+  --bone: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 92 38'%3E%3Cg fill='%234a3226' stroke='%234a3226' stroke-width='5'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Ccircle cx='12' cy='26' r='8.5'/%3E%3Ccircle cx='80' cy='12' r='8.5'/%3E%3Ccircle cx='80' cy='26' r='8.5'/%3E%3Crect x='12' y='10.5' width='68' height='17'/%3E%3C/g%3E%3Cg fill='%23fff1d6'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Ccircle cx='12' cy='26' r='8.5'/%3E%3Ccircle cx='80' cy='12' r='8.5'/%3E%3Ccircle cx='80' cy='26' r='8.5'/%3E%3Crect x='12' y='10.5' width='68' height='17'/%3E%3C/g%3E%3Cpath d='M20 16H70' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E");
+  font-synthesis: none;
+}
+
+:root[data-theme='puppy'] body {
+  font-weight: 700;
+}
+
+:root[data-theme='puppy'] .screen {
+  padding-left: max(20px, env(safe-area-inset-left));
+  background-color: var(--paper);
+  background-image: var(--paws);
+  background-size: 120px 120px;
+}
+
+:root[data-theme='puppy'] .bubble-title {
+  font-size: clamp(2.3rem, 5.6vw, 3.9rem);
+  letter-spacing: 0.01em;
+  line-height: 1.08;
+}
+
+:root[data-theme='puppy'] .bubble-title.small {
+  font-size: clamp(1.6rem, 3.6vw, 2.3rem);
+}
+
+:root[data-theme='puppy'] .tagline {
+  font-size: 1.2rem;
+  font-weight: 800;
+  transform: rotate(-1deg);
+}
+
+/* Stitched cards, like a plush dog bed, with a bone instead of washi tape. */
+:root[data-theme='puppy'] .card {
+  background: #fffdf7;
+  border: 3px solid var(--ink);
+  border-radius: 22px;
+  outline: 2px dashed var(--stitch);
+  outline-offset: -10px;
+  box-shadow: 4px 6px 0 var(--ink);
+}
+
+:root[data-theme='puppy'] .tape::before {
+  top: -18px;
+  width: 92px;
+  height: 38px;
+  background: var(--bone) center / contain no-repeat;
+  transform: translateX(-50%) rotate(-4deg);
+}
+
+/* Big round buttons that press down. */
+:root[data-theme='puppy'] .btn {
+  letter-spacing: 0.01em;
+  border-radius: 18px;
+  box-shadow: 0 5px 0 var(--ink);
+}
+
+:root[data-theme='puppy'] .btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+:root[data-theme='puppy'] .btn.big {
+  font-size: clamp(1.6rem, 3.4vw, 2.2rem);
+}
+
+:root[data-theme='puppy'] .btn.small {
+  box-shadow: 0 4px 0 var(--ink);
+}
+
+:root[data-theme='puppy'] .icon-btn {
+  background: #fffdf7;
+  box-shadow: 0 3px 0 var(--ink);
+}
+
+:root[data-theme='puppy'] .back-btn {
+  font-weight: 800;
+  background: #fffdf7;
+  box-shadow: 0 3px 0 var(--ink);
+}
+
+/* Dog tags instead of sticky notes: a hole at the top for the ring. */
+:root[data-theme='puppy'] .sticky {
+  position: relative;
+  padding: 1.35rem 1rem 0.8rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  border: 3px solid var(--ink);
+  border-radius: 22px;
+  box-shadow: 0 5px 0 var(--ink);
+}
+
+:root[data-theme='puppy'] .sticky::before {
+  content: '';
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background: var(--paper);
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+:root[data-theme='puppy'] .sticky b {
+  font-weight: 800;
+  font-size: 2.2rem;
+}
+
+:root[data-theme='puppy'] .sticky.pink {
+  background: #ffd9d1;
+}
+
+:root[data-theme='puppy'] .sticky.teal {
+  background: #dcf2cf;
+}
+
+/* Welcome: the cover is a sunny sky over the grass. */
+:root[data-theme='puppy'] .cover {
+  background:
+    linear-gradient(var(--grass), var(--grass)) left bottom / 100% 18px no-repeat,
+    linear-gradient(180deg, #cdeeff 0, #eef8ff 40%, #fffaf0 70%);
+}
+
+:root[data-theme='puppy'] .stamp {
+  padding: 0.25em 0.9em;
+  font-size: 1.1rem;
+  color: #fff;
+  background: var(--pink);
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 0 3px 0 var(--ink);
+  text-shadow: var(--outline-sm);
+  transform: rotate(-4deg);
+}
+
+:root[data-theme='puppy'] .cover .bubble-title {
+  font-size: clamp(2.1rem, 5vw, 3.1rem);
+}
+
+:root[data-theme='puppy'] .cover .btn.big {
+  padding: 0.55em 1.1em;
+  font-size: clamp(1.45rem, 3vw, 1.9rem);
+}
+
+:root[data-theme='puppy'] .cover-doodles {
+  gap: 0.4rem;
+  align-items: flex-end;
+}
+
+:root[data-theme='puppy'] .name-form label {
+  font-weight: 800;
+}
+
+:root[data-theme='puppy'] .name-input {
+  font-size: 2rem;
+  color: var(--pink);
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  box-shadow: inset 0 -5px 0 #ffe7a8;
+}
+
+:root[data-theme='puppy'] .pin-input {
+  font-weight: 800;
+  border-radius: 16px;
+}
+
+:root[data-theme='puppy'] .link-btn {
+  font-weight: 800;
+}
+
+:root[data-theme='puppy'] .error {
+  font-weight: 800;
+  color: #b3261e;
+}
+
+:root[data-theme='puppy'] .cover .error {
+  padding: 0.2em 0.7em;
+  background: #fff;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+}
+
+:root[data-theme='puppy'] .theme-picker-title {
+  color: var(--purple);
+}
+
+/* Home */
+:root[data-theme='puppy'] .owner {
+  font-size: 1.7rem;
+  transform: rotate(-2deg);
+}
+
+:root[data-theme='puppy'] .level-bar {
+  height: 26px;
+  background: #fffdf7;
+  border-radius: 999px;
+}
+
+:root[data-theme='puppy'] .level-bar .b1 {
+  background: #f3e2cc;
+}
+
+:root[data-theme='puppy'] .level-bar .b2 {
+  background: repeating-linear-gradient(45deg, #fff 0 5px, #f0dcc2 5px 8px);
+}
+
+:root[data-theme='puppy'] .grownups {
+  font-weight: 700;
+}
+
+/* The home screen's yard: every puppy along the fence, then the toys and treats. */
+:root[data-theme='puppy'] .pup-home {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  width: min(100%, 900px);
+}
+
+:root[data-theme='puppy'] .pup-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+  margin: 0;
+  padding: 0.5rem 0.6rem 0;
+  overflow: hidden;
+  list-style: none;
+  background: var(--sky);
+  border: 3px solid var(--ink);
+  border-radius: 22px;
+  box-shadow: 0 5px 0 var(--ink);
+}
+
+:root[data-theme='puppy'] .pup-row li {
+  display: grid;
+  place-items: end center;
+  padding: 6px 0 4px;
+  /* Grass, then a picket fence behind it. */
+  background:
+    linear-gradient(#7cc45a, #6bb64b) left bottom / 100% 18px no-repeat,
+    linear-gradient(#e2cfb2, #e2cfb2) left bottom 38px / 100% 3px no-repeat,
+    repeating-linear-gradient(90deg, #dcc7a8 0 1.5px, #fffaf0 1.5px 9px, #dcc7a8 9px 10.5px, transparent 10.5px 16px) left bottom 18px / 100%
+      34px no-repeat;
+}
+
+:root[data-theme='puppy'] .pup-row .pup-art {
+  position: relative;
+}
+
+:root[data-theme='puppy'] .pup-toys {
+  gap: 0.6rem;
+  /* Six to a row, so twelve make two even rows. */
+  max-width: 440px;
+}
+
+:root[data-theme='puppy'] .pup-home-note {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+@media (min-width: 560px) {
+  :root[data-theme='puppy'] .pup-row {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 940px) {
+  :root[data-theme='puppy'] .pup-row {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+}
+
+/* Today's training: the checklist */
+:root[data-theme='puppy'] .today-title {
+  font-size: 1.6rem;
+}
+
+:root[data-theme='puppy'] .plan-step.next {
+  background: var(--sticky);
+  outline: 2px dashed #e0b45c;
+  outline-offset: -2px;
+  transform: none;
+}
+
+:root[data-theme='puppy'] .plan-mark {
+  background: #fffdf7;
+}
+
+:root[data-theme='puppy'] .plan-step.done .plan-mark {
+  color: #fff;
+  background: var(--teal);
+}
+
+:root[data-theme='puppy'] .plan-title {
+  font-size: 1.15rem;
+}
+
+:root[data-theme='puppy'] .plan-blurb {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+:root[data-theme='puppy'] .next-intro {
+  font-weight: 800;
+}
+
+/* Practice */
+:root[data-theme='puppy'] .part-name {
+  font-size: 1.2rem;
+}
+
+:root[data-theme='puppy'] .pencil-bar {
+  height: 26px;
+  background: #fffdf7;
+  border-radius: 999px;
+}
+
+/* A red collar with white polka dots. */
+:root[data-theme='puppy'] .pencil-fill {
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.7) 2.6px, transparent 3.2px) 0 0 / 14px 14px,
+    var(--pink);
+}
+
+:root[data-theme='puppy'] .count {
+  font-weight: 800;
+}
+
+:root[data-theme='puppy'] .q-card {
+  background: #fffdf7;
+  border-radius: 26px;
+  outline: 2px dashed var(--stitch);
+  outline-offset: -12px;
+  box-shadow: 4px 7px 0 var(--ink);
+}
+
+/* Sniglet is wide: the widest question ("144 ÷ 12 = …") is about 7.3em, so 12.6cqi fills about 92% of the card. */
+:root[data-theme='puppy'] .problem {
+  font-size: clamp(2.2rem, min(11vmin, 12.6cqi), 7rem);
+}
+
+:root[data-theme='puppy'] .problem.small {
+  font-size: clamp(1.7rem, min(7vmin, 11.5cqi), 4.2rem);
+}
+
+:root[data-theme='puppy'] .answer-box {
+  border-bottom: 6px dotted var(--pink);
+}
+
+:root[data-theme='puppy'] .copy-row .answer-box {
+  font-size: 2.4rem;
+}
+
+/* NEW TRICK! and Vet check! hang like dog tags. */
+:root[data-theme='puppy'] .stamp-tag {
+  padding: 0.15em 0.7em;
+  font-size: 1.1rem;
+  color: var(--ink);
+  background: var(--yellow);
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 0 3px 0 var(--ink);
+  transform: rotate(-5deg);
+}
+
+:root[data-theme='puppy'] .stamp-tag.new {
+  color: #fff;
+  background: var(--pink);
+  text-shadow: var(--outline-sm);
+}
+
+:root[data-theme='puppy'] .show-me {
+  font-weight: 800;
+  background: var(--sticky);
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  box-shadow: 0 4px 0 var(--ink);
+  transform: none;
+}
+
+:root[data-theme='puppy'] .show-me:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+:root[data-theme='puppy'] .fix-title {
+  font-size: 1.8rem;
+}
+
+:root[data-theme='puppy'] .hint {
+  font-size: 1.3rem;
+}
+
+:root[data-theme='puppy'] .hint.covered {
+  font-weight: 800;
+  background: var(--sticky);
+  border: 2px dashed #d9b98a;
+  border-radius: 12px;
+  transform: none;
+}
+
+:root[data-theme='puppy'] .copy-row {
+  font-weight: 800;
+}
+
+:root[data-theme='puppy'] .dot-array circle[fill='#ff4fa3'] {
+  fill: #d63c30;
+}
+
+:root[data-theme='puppy'] .dot-array circle[fill='#19c2b0'] {
+  fill: #2a6fb3;
+}
+
+:root[data-theme='puppy'] .dot-array circle[fill='#8b5cf6'] {
+  fill: #4fa63c;
+}
+
+:root[data-theme='puppy'] .key {
+  background: #fffdf7;
+  border-radius: 20px;
+  box-shadow: 0 5px 0 var(--ink);
+}
+
+:root[data-theme='puppy'] .key:nth-child(even) {
+  border-radius: 20px;
+}
+
+:root[data-theme='puppy'] .key-back {
+  background: var(--sticky);
+}
+
+:root[data-theme='puppy'] .key-go {
+  color: #fff;
+  background: var(--pink);
+}
+
+:root[data-theme='puppy'] .key:active {
+  transform: translateY(4px);
+  background: var(--sticky);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+/* The cheer: a big bone. */
+:root[data-theme='puppy'] .burst .burst-shape.bone-burst {
+  width: min(90%, 500px);
+  fill: #ffe28a;
+}
+
+:root[data-theme='puppy'] .burst:not(.big) .burst-shape.bone-burst {
+  width: min(68%, 360px);
+  fill: #d6ecff;
+}
+
+:root[data-theme='puppy'] .bone-edge {
+  fill: var(--ink);
+  stroke: var(--ink);
+  stroke-width: 10;
+}
+
+:root[data-theme='puppy'] .bone-fill {
+  stroke: none;
+}
+
+:root[data-theme='puppy'] .burst-text {
+  font-size: clamp(2rem, 6.4vmin, 3.5rem);
+  transform: rotate(-4deg);
+}
+
+:root[data-theme='puppy'] .burst:not(.big) .burst-text {
+  font-size: clamp(1.6rem, 4.8vmin, 2.5rem);
+  color: var(--purple);
+  text-shadow: 2px 2px 0 #fff;
+}
+
+/* Between parts */
+:root[data-theme='puppy'] .between-line {
+  font-size: 1.5rem;
+}
+
+:root[data-theme='puppy'] .next-label {
+  font-weight: 800;
+}
+
+:root[data-theme='puppy'] .next-up h2 {
+  font-size: 2rem;
+}
+
+:root[data-theme='puppy'] .break-idea {
+  font-weight: 800;
+}
+
+/* The grid page: the puppy yard */
+:root[data-theme='puppy'] .lead {
+  font-size: 1.2rem;
+}
+
+:root[data-theme='puppy'] .legend {
+  font-weight: 800;
+}
+
+:root[data-theme='puppy'] .swatch {
+  border-radius: 8px;
+}
+
+:root[data-theme='puppy'] .l0 {
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px dotted #cdb593;
+}
+
+:root[data-theme='puppy'] .dcell {
+  font-weight: 800;
+  border-radius: 10px;
+}
+
+:root[data-theme='puppy'] .dcell.head {
+  color: var(--purple);
+}
+
+:root[data-theme='puppy'] .dcell.selected {
+  outline: 3px solid var(--pink);
+  outline-offset: 2px;
+}
+
+:root[data-theme='puppy'] .sparkle,
+:root[data-theme='puppy'] .l5 .sparkle {
+  color: #fff;
+  filter: none;
+}
+
+:root[data-theme='puppy'] .swatch.l4,
+:root[data-theme='puppy'] .swatch.l5 {
+  color: #fff;
+}
+
+:root[data-theme='puppy'] .fact-detail {
+  font-weight: 700;
+}
+
+:root[data-theme='puppy'] .detail-fact {
+  font-size: 2rem;
+  white-space: nowrap;
+}
+
+:root[data-theme='puppy'] .pup-yard {
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+  width: min(100%, 980px);
+}
+
+:root[data-theme='puppy'] .pup-yard-note {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--ink-soft);
+}
+
+:root[data-theme='puppy'] .pup-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 34px 14px;
+  width: 100%;
+  margin: 0;
+  padding: 26px 8px 6px;
+  list-style: none;
+}
+
+@media (min-width: 440px) {
+  :root[data-theme='puppy'] .pup-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 700px) {
+  :root[data-theme='puppy'] .pup-cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  :root[data-theme='puppy'] .pup-cards {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+/* A kennel for each puppy: a roof in its bed's color, with the table on the name plate. */
+:root[data-theme='puppy'] .pup-card {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 2px;
+  padding: 0.7rem 0.45rem 0.7rem;
+  text-align: center;
+  background: #fffdf7;
+  border: 3px solid var(--ink);
+  border-radius: 6px 6px 16px 16px;
+  box-shadow: 0 5px 0 var(--ink);
+}
+
+:root[data-theme='puppy'] .pup-card.stage-4 {
+  background: linear-gradient(180deg, #fffbe8, #fff1bd);
+}
+
+:root[data-theme='puppy'] .pup-roof {
+  position: absolute;
+  top: -27px;
+  left: -10px;
+  width: calc(100% + 20px);
+  height: 30px;
+  overflow: visible;
+}
+
+:root[data-theme='puppy'] .pup-table {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  padding: 0 0.5em;
+  font-family: var(--bubble);
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--ink);
+  background: #fffdf7;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  transform: translateX(-50%);
+}
+
+:root[data-theme='puppy'] .pup-pic {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  margin-top: 4px;
+  background: radial-gradient(ellipse 46% 13% at 50% 93%, #cdebb8 0 96%, transparent 100%);
+}
+
+:root[data-theme='puppy'] .pup-name {
+  font-family: var(--bubble);
+  font-size: 1.15rem;
+  line-height: 1.15;
+}
+
+:root[data-theme='puppy'] .pup-stage {
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--purple);
+}
+
+:root[data-theme='puppy'] .pup-card.stage-0 .pup-stage {
+  color: var(--ink-soft);
+}
+
+:root[data-theme='puppy'] .pup-meter {
+  display: block;
+  width: 86%;
+  height: 10px;
+  margin: 3px 0 2px;
+  overflow: hidden;
+  background: #f3e2cc;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+}
+
+:root[data-theme='puppy'] .pup-meter span {
+  display: block;
+  height: 100%;
+  background: var(--bed);
+}
+
+:root[data-theme='puppy'] .pup-next {
+  font-size: 0.85rem;
+  line-height: 1.2;
+  color: var(--ink-soft);
+}
+
+/* Scrapbook pages: dotted paper, a taped photo, and love from the trainer. */
+:root[data-theme='puppy'] .scrapbook {
+  display: block;
+  padding: 1.5rem 1.6rem 1.2rem;
+  background:
+    radial-gradient(#ecdcc4 1.2px, transparent 1.7px) 0 0 / 18px 18px,
+    #fffdf6;
+}
+
+:root[data-theme='puppy'] .scrapbook.with-sticker {
+  padding-right: 1.6rem;
+}
+
+:root[data-theme='puppy'] .scrap-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem 1rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 3px dotted #dcc19c;
+}
+
+:root[data-theme='puppy'] .scrapbook .dear {
+  font-size: clamp(1.5rem, 3.4vw, 2rem);
+  text-shadow: var(--outline-sm);
+}
+
+:root[data-theme='puppy'] .scrap-no {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15em 0.75em;
+  font-family: var(--bubble);
+  font-size: 1.05rem;
+  color: #fff;
+  white-space: nowrap;
+  background: var(--purple);
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  transform: rotate(3deg);
+}
+
+:root[data-theme='puppy'] .scrapbook .page-date {
+  margin: 0.4rem 0 0.5rem;
+  font-weight: 800;
+  text-align: left;
+}
+
+:root[data-theme='puppy'] .scrap-photo {
+  position: relative;
+  float: right;
+  display: grid;
+  justify-items: center;
+  margin: 0.3rem 0 0.7rem 1.1rem;
+  padding: 8px 8px 6px;
+  background: #fff;
+  border: 2px solid #e4d2ba;
+  box-shadow: 2px 4px 0 rgba(74, 50, 38, 0.18);
+  transform: rotate(3deg);
+}
+
+:root[data-theme='puppy'] .scrap-photo::before {
+  content: '';
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  width: 66px;
+  height: 20px;
+  background: repeating-linear-gradient(-45deg, rgba(214, 60, 48, 0.6) 0 6px, rgba(255, 246, 227, 0.85) 6px 12px);
+  transform: translateX(-50%) rotate(-6deg);
+}
+
+:root[data-theme='puppy'] .scrap-photo .pup-art {
+  background: var(--sky);
+}
+
+:root[data-theme='puppy'] .scrap-photo figcaption {
+  font-family: var(--bubble);
+  font-size: 0.95rem;
+}
+
+:root[data-theme='puppy'] .scrapbook .entry-line {
+  margin-bottom: 0.35rem;
+  font-size: 1.3rem;
+  line-height: 1.5;
+}
+
+:root[data-theme='puppy'] .scrap-foot {
+  clear: both;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  margin-top: 0.6rem;
+}
+
+:root[data-theme='puppy'] .scrapbook .signature {
+  font-family: var(--hand);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--ink-soft);
+  text-align: left;
+  transform: none;
+}
+
+:root[data-theme='puppy'] .sig-name {
+  font-family: var(--bubble);
+  font-size: 1.5rem;
+  color: var(--pink);
+}
+
+:root[data-theme='puppy'] .scrapbook .page-sticker {
+  position: static;
+  margin-left: auto;
+  transform: rotate(-6deg);
+}
+
+@media (max-width: 480px) {
+  :root[data-theme='puppy'] .scrapbook {
+    padding: 1.3rem 1.1rem 1rem;
+  }
+
+  :root[data-theme='puppy'] .scrapbook .entry-line {
+    font-size: 1.15rem;
+  }
+}
+
+:root[data-theme='puppy'] .new-sticker {
+  font-size: 1.35rem;
+}
+
+/* Dialogs and milestones */
+:root[data-theme='puppy'] .overlay {
+  background: rgba(74, 50, 38, 0.5);
+}
+
+:root[data-theme='puppy'] .dialog h2 {
+  font-size: 1.8rem;
+}
+
+:root[data-theme='puppy'] .milestone p {
+  font-weight: 800;
+}
+
+:root[data-theme='puppy'] .milestone-art .pup-art {
+  width: min(170px, 44vw);
+  height: auto;
+}
+
+:root[data-theme='puppy'] .milestone-list .pup-art {
+  width: 110px;
+}
+
+/* Grown-ups */
+:root[data-theme='puppy'] .panel h2,
+:root[data-theme='puppy'] .report-card h2 {
+  font-size: 1.4rem;
+}
+
+:root[data-theme='puppy'] .segmented {
+  flex-wrap: wrap;
+}
+
+:root[data-theme='puppy'] .segmented button {
+  font-family: var(--hand);
+  font-size: 1.15rem;
+  font-weight: 800;
+  border-radius: 14px;
+}
+
+:root[data-theme='puppy'] .segmented button.on {
+  background: var(--teal);
+}
+
+:root[data-theme='puppy'] .text-input {
+  border-radius: 12px;
+}
+
+:root[data-theme='puppy'] .tile {
+  border-radius: 16px;
+}
+
+:root[data-theme='puppy'] .tile-value {
+  font-weight: 800;
+}
+
+:root[data-theme='puppy'] .tile-value.hero {
+  font-size: clamp(2.4rem, 4.4vw, 2.9rem);
+  white-space: nowrap;
+}
+
+/* Phones: Sniglet is wide, so the busiest screens get smaller type and a second row. */
+@media (max-width: 480px) {
+  :root[data-theme='puppy'] .practice-top {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  :root[data-theme='puppy'] .practice-top .pencil-bar {
+    order: 3;
+    flex: 1 0 100%;
+  }
+
+  :root[data-theme='puppy'] .count {
+    min-width: 0;
+    margin-left: auto;
+  }
+
+  :root[data-theme='puppy'] .q-card {
+    gap: 0.8rem;
+    padding: 1.2rem 1rem;
+  }
+
+  /* A fix-up has the most to show, so on a phone it drops the bone, tightens up, and can scroll. */
+  :root[data-theme='puppy'] .q-card:has(.fix) {
+    justify-content: safe center;
+    overflow-y: auto;
+    padding-top: 0.9rem;
+  }
+
+  :root[data-theme='puppy'] .q-card:has(.fix)::before {
+    display: none;
+  }
+
+  :root[data-theme='puppy'] .fix {
+    gap: 0.45rem;
+  }
+
+  :root[data-theme='puppy'] .fix-title {
+    font-size: 1.25rem;
+  }
+
+  :root[data-theme='puppy'] .hint {
+    font-size: 1.05rem;
+  }
+
+  :root[data-theme='puppy'] .dot-array svg {
+    max-height: 12vh;
+  }
+
+  :root[data-theme='puppy'] .dot-array figcaption {
+    font-size: 0.85rem;
+  }
+
+  :root[data-theme='puppy'] .burst-text {
+    font-size: clamp(1.5rem, 6.4vmin, 3.5rem);
+  }
+
+  :root[data-theme='puppy'] .burst:not(.big) .burst-text {
+    font-size: clamp(1.3rem, 4.8vmin, 2.5rem);
+  }
+
+  :root[data-theme='puppy'] .plan-title {
+    font-size: 1rem;
+  }
+
+  :root[data-theme='puppy'] .plan-blurb {
+    font-size: 0.9rem;
+  }
+
+  :root[data-theme='puppy'] .bubble-title.small {
+    font-size: 1.4rem;
+  }
+
+  :root[data-theme='puppy'] .data-table {
+    font-size: 0.9rem;
+  }
+
+  :root[data-theme='puppy'] .scrap-photo {
+    float: none;
+    width: fit-content;
+    margin: 0.5rem auto 0.9rem;
+  }
+}
+
+/* The theme's tile in the pickers: sky over grass. */
+.theme-tile[data-pick-theme='puppy'] {
+  --tile: #d63c30;
+  --tile-ink: #4a3226;
+  --tile-bg: linear-gradient(#7cc45a, #7cc45a) left bottom / 100% 10px no-repeat, linear-gradient(180deg, #d4efff, #fffaf0 72%);
+  --tile-font: 'Sniglet', 'Nunito', system-ui, sans-serif;
+  --tile-body: 'Nunito', system-ui, sans-serif;
+  /* Sniglet is wide: "Puppies" is about 4.3em, so this keeps it whole in the narrowest (128px) tile. */
+  --tile-size: 1.12rem;
+  padding-bottom: 1rem;
+  border-radius: 18px;
+}
+
+.theme-tile[data-pick-theme='puppy'] .theme-tile-name {
+  overflow-wrap: normal;
+}
+
+.theme-tile[data-pick-theme='puppy'] .theme-tile-blurb {
+  font-weight: 700;
+}
