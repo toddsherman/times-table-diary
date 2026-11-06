@@ -128,8 +128,10 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
     if (!theme.milestones || !reached.current) return []
     const fresh = theme.milestones(p).filter((m) => !reached.current?.has(m.key))
     for (const m of fresh) reached.current.add(m.key)
-    if (fresh.length > 0) plan.events = [...(plan.events ?? []), ...fresh.map((m) => m.entryLine)]
-    return fresh
+    // A table that jumps past several of its milestones in one answer celebrates only the highest.
+    const top = fresh.filter((m, i) => !m.group || !fresh.slice(i + 1).some((later) => later.group === m.group))
+    if (top.length > 0) plan.events = [...(plan.events ?? []), ...top.map((m) => m.entryLine)]
+    return top
   }
 
   // Milestones reached but not shown yet, the answer count when the last pop-up showed, and what

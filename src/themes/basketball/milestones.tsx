@@ -34,22 +34,25 @@ const LINES: Record<number, { title: (t: number) => string; text: (t: number) =>
 }
 
 /**
- * Each table's current milestone. Only the current one is listed, so a table that goes straight
- * from nothing to halftime in one go is celebrated once, for halftime.
+ * Every milestone each table has reached, up to its current one. Lower ones stay listed so a miss
+ * that drops a table back doesn't celebrate them again; a table that goes straight from nothing to
+ * halftime in one go is celebrated once, for halftime (they share a group).
  */
 export function milestones(p: Progress): Milestone[] {
   const out: Milestone[] = []
   for (const t of FACTORS) {
-    const level = tableLevel(p, t)
-    const lines = LINES[level]
-    if (!lines) continue
-    out.push({
-      key: `t${t}-m${level}`,
-      title: lines.title(t),
-      text: lines.text(t),
-      entryLine: lines.entry(t),
-      art: <Pennant level={level} table={t} width={110} />,
-    })
+    const top = tableLevel(p, t)
+    for (let level = 1; level <= top; level++) {
+      const lines = LINES[level]
+      out.push({
+        key: `t${t}-m${level}`,
+        group: `t${t}`,
+        title: lines.title(t),
+        text: lines.text(t),
+        entryLine: lines.entry(t),
+        art: <Pennant level={level} table={t} width={110} />,
+      })
+    }
   }
   return out
 }

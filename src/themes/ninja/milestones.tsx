@@ -29,22 +29,25 @@ const LINES: Record<number, { text: (t: number) => string; entry: (t: number) =>
 }
 
 /**
- * Each table's current belt. Only the current one is listed, so a table that jumps from no
- * belt to orange in one go is celebrated once, for orange.
+ * Every belt each table has, up to its current one. Lower belts stay listed so a miss that drops a
+ * table back doesn't celebrate the lower belt as new; a table that jumps from no belt to orange in
+ * one go is celebrated once, for orange (they share a group).
  */
 export function beltMilestones(p: Progress): Milestone[] {
   const out: Milestone[] = []
   for (const t of FACTORS) {
-    const b = tableBelt(p, t)
-    const lines = LINES[b]
-    if (!lines) continue
-    out.push({
-      key: `t${t}-b${b}`,
-      title: `${BELTS[b].name} in the ${t}s!`,
-      text: lines.text(t),
-      entryLine: lines.entry(t),
-      art: <BeltArt level={b} label={String(t)} />,
-    })
+    const top = tableBelt(p, t)
+    for (let b = 1; b <= top; b++) {
+      const lines = LINES[b]
+      out.push({
+        key: `t${t}-b${b}`,
+        group: `t${t}`,
+        title: `${BELTS[b].name} in the ${t}s!`,
+        text: lines.text(t),
+        entryLine: lines.entry(t),
+        art: <BeltArt level={b} label={String(t)} />,
+      })
+    }
   }
   return out
 }

@@ -34,23 +34,26 @@ const LINES: Record<number, { title: (t: number) => string; text: (t: number, ge
 }
 
 /**
- * Each table's crown at its current stage. Only the current stage is listed, so a crown that goes
- * from forged to crowned in one go is celebrated once, for the crowning.
+ * Every stage each crown has reached, up to its current one. Lower stages stay listed so a miss
+ * that drops a crown back doesn't celebrate them again; a crown that goes from forged to crowned in
+ * one go is celebrated once, for the crowning (they share a group).
  */
 export function crownMilestones(p: Progress): Milestone[] {
   const out: Milestone[] = []
   for (const t of FACTORS) {
-    const stage = crownStage(p, t)
-    const lines = LINES[stage]
-    if (!lines) continue
+    const top = crownStage(p, t)
     const gem = gemOf(t)
-    out.push({
-      key: `crown${t}-s${stage}`,
-      title: lines.title(t),
-      text: lines.text(t, gem.plural),
-      entryLine: lines.entry(t, gem.name.toLowerCase()),
-      art: <Crown progress={p} table={t} width={170} label={`The ${t}s crown: ${CROWN_STAGES[stage].toLowerCase()}`} />,
-    })
+    for (let stage = 1; stage <= top; stage++) {
+      const lines = LINES[stage]
+      out.push({
+        key: `crown${t}-s${stage}`,
+        group: `crown${t}`,
+        title: lines.title(t),
+        text: lines.text(t, gem.plural),
+        entryLine: lines.entry(t, gem.name.toLowerCase()),
+        art: <Crown progress={p} table={t} width={170} label={`The ${t}s crown: ${CROWN_STAGES[stage].toLowerCase()}`} />,
+      })
+    }
   }
   return out
 }

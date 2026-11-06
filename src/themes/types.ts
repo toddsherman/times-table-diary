@@ -100,6 +100,11 @@ export interface Milestone {
   /** Written in the day's entry. */
   entryLine: string
   art: ReactNode
+  /**
+   * Milestones that build on each other (one table's belts, say). When several in a group are
+   * reached at once, only the last one listed is celebrated.
+   */
+  group?: string
 }
 
 export interface PageProps {
