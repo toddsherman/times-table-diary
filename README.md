@@ -4,7 +4,7 @@ A times tables practice game (1 × 1 to 12 × 12) styled like a doodled-in diary
 
 Practice is one "daily page" a day, sized to take about 20 minutes (10 or 15 can be chosen instead). There's no clock on screen: the page is a set amount of work, worked out from how long her questions usually take. When the page is done she gets an auto-written diary page and a sticker. Her "doodle page" (the 12 × 12 grid) fills in as facts go from blank → pencil → inked → colored in → sparkly → gold star.
 
-It comes in five looks: the original diary, plus bricks, creatures, ninja, and construction (see [Themes](#themes)). Each has its own words, art, fonts, and colors; the practice underneath is the same.
+It comes in eight looks: the original diary, plus bricks, creatures, ninja, construction, basketball, princess, and puppies (see [Themes](#themes)). Each has its own words, art, fonts, and colors; the practice underneath is the same.
 
 **Live:** https://www.todd.sh/timesTableDiary/App · **How it works and why:** https://www.todd.sh/timesTableDiary
 
@@ -117,10 +117,13 @@ A player picks a look when starting, and grown-ups can change it any time in Set
 | Creatures | A field journal | A creature for each table that hatches, evolves twice, and goes shiny | Place stamps |
 | Ninja | A training scroll | A belt rack (one belt per table) over a dojo board | Dojo treasures |
 | Construction | A site report on a clipboard | A 12-floor tower, one window per fact | Machines |
+| Basketball | A game recap from the sports page, with a box score | A half-court shot chart for each table (air ball → slam dunk), and pennants and banners in the rafters | Trophy-case prizes |
+| Princess | A royal letter with a wax seal | A crown for each table, with a gem per fact that gets cut, polished, and sparkles | Royal treasures |
+| Puppies | A scrapbook page with a taped photo | A puppy for each table that comes home, learns to sit, graduates, and becomes a champion | Toys and treats |
 
 How it fits together (`src/themes/`):
 - `types.ts` is the contract. A theme supplies every kid-facing word (`Words`), level and part names, a `Voice` for its end-of-page entries (`src/engine/voice.ts`), its 12 reward pictures, and optionally its own entry page, progress view, grid, and home shelf.
-- `milestones()` lets a theme celebrate moments mid-practice, such as a creature evolving or a floor being finished. New milestones pop up after the answer that reached them and get a line in that day's entry (`DayPlan.events`). Pop-ups are at least 8 answers apart; milestones in between show up together in the next one (a new creatures player hatches several eggs early on).
+- `milestones()` lets a theme celebrate moments mid-practice, such as a creature evolving or a floor being finished. New milestones pop up after the answer that reached them and get a line in that day's entry (`DayPlan.events`). Pop-ups are at least 8 answers apart; milestones in between show up together in the next one (a new creatures player hatches several eggs early on). A theme lists every milestone reached so far, not just the latest, so a miss that drops a table back can't make an earlier one look new. Milestones that share a `group` (one table's belts, say) and arrive in the same answer show only the highest.
 - All the art is original inline SVG. The creatures are original designs, and no theme uses brand or franchise names.
 - Each theme's stylesheet is scoped to `:root[data-theme='…']`. The diary is the base stylesheet and sets no attribute, so its pages are exactly what they were before themes.
 - The 12 reward slots (`src/stickers.ts`) are shared. A finished page earns a slot, and each theme draws that slot its own way, so switching looks keeps the collection.

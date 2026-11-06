@@ -618,7 +618,8 @@
 }
 
 .theme-tile[data-pick-theme='creatures'] .theme-tile-name {
-  font-size: 1.05rem;
+  /* Small enough that "Creatures" stays on one line in the four-across Settings picker. */
+  font-size: 0.98rem;
 }
 
 .theme-tile[data-pick-theme='creatures'] .theme-tile-blurb {
