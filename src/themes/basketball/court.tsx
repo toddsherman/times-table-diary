@@ -1,5 +1,7 @@
+import type { CSSProperties } from 'react'
 import { ALL_FACT_IDS, factId, FACTORS } from '../../engine/facts'
 import type { Progress } from '../../engine/types'
+import { freshProps, useNewSince } from '../../motion'
 import { STICKER_IDS } from '../../stickers'
 import { Gear } from './art'
 import { C, MILESTONE_NAMES, nextStep, SPOT, tableLevel } from './palette'
@@ -14,7 +16,9 @@ const SPOTS = FACTORS.map((b) => {
   const deg = outer ? 180 + (b - 1) * 30 : 198 + (b - 8) * 36
   const r = outer ? 46 : 27
   const a = (deg * Math.PI) / 180
-  return { b, x: round(60 + r * Math.cos(a)), y: round(12 - r * Math.sin(a)) }
+  // How far the spot is from the middle of the court, so a tap can ripple out from the hoop.
+  const ripple = outer ? 4 + Math.abs(b - 4) : Math.abs(b - 10)
+  return { b, x: round(60 + r * Math.cos(a)), y: round(12 - r * Math.sin(a)), ripple }
 })
 
 /** A half court from above: lane, free-throw circle, three-point line, hoop at the top. */
@@ -32,17 +36,40 @@ function Court() {
   )
 }
 
-/** One table's shot chart: a spot for each fact, drawn by its level. */
-export function ShotChart({ progress, table, className = '' }: { progress: Progress; table: number; className?: string }) {
+/**
+ * One table's shot chart: a spot for each fact, drawn by its level. Spots in `fresh` (facts that
+ * went up since the charts were last open) pop in, in the order of `freshOrder`. A tap ripples the
+ * made shots out from the hoop.
+ */
+export function ShotChart({
+  progress,
+  table,
+  className = '',
+  fresh,
+  freshOrder = [],
+}: {
+  progress: Progress
+  table: number
+  className?: string
+  fresh?: ReadonlySet<string>
+  freshOrder?: readonly string[]
+}) {
   const made = FACTORS.filter((b) => progress.facts[factId(table, b)].level >= 3).length
   return (
-    <svg className={`bb-shot-chart ${className}`} viewBox="0 0 120 70" role="img" aria-label={`${table}s shot chart: ${made} of 12 at layup or better`}>
+    <svg className={`bb-shot-chart ${className}`} viewBox="0 0 120 70" role="img" aria-label={`${table}s shot chart: ${made} of 12 at layup or better`} data-tap="">
       <Court />
-      {SPOTS.map(({ b, x, y }) => {
-        const level = progress.facts[factId(table, b)].level
+      {SPOTS.map(({ b, x, y, ripple }) => {
+        const id = factId(table, b)
+        const level = progress.facts[id].level
         const s = SPOT[level]
+        const isFresh = fresh?.has(id) ?? false
         return (
-          <g key={b}>
+          <g
+            key={b}
+            className={level >= 3 ? 'bb-spot made' : 'bb-spot'}
+            data-fresh={isFresh ? '' : undefined}
+            style={{ '--ripple': ripple, ...(isFresh && { '--fresh-i': freshOrder.indexOf(id) }) } as CSSProperties}
+          >
             <circle cx={x} cy={y} r={6.4} fill={s.fill} stroke={s.stroke} strokeWidth={s.width} strokeDasharray={s.dash} />
             <text x={x} y={y + 2.6} textAnchor="middle" fontFamily="'Nunito', sans-serif" fontWeight={800} fontSize={7.4} fill={s.text}>
               {b}
@@ -56,8 +83,11 @@ export function ShotChart({ progress, table, className = '' }: { progress: Progr
 
 const tablesAt = (p: Progress, level: number) => FACTORS.filter((t) => tableLevel(p, t) >= level).length
 
-/** A pennant (or, from banner up, a championship banner) hanging from the rafters, with the table on it. */
-export function Pennant({ level, table, width = 120 }: { level: number; table: number; width?: number }) {
+/**
+ * A pennant (or, from banner up, a championship banner) hanging from the rafters, with the table on
+ * it. A fresh one (raised since the rafters were last shown) drops in, `order`-th of them.
+ */
+export function Pennant({ level, table, width = 120, fresh = false, order = 0 }: { level: number; table: number; width?: number; fresh?: boolean; order?: number }) {
   const label = String(table)
   const big = label.length > 1 ? 34 : 40
   const banner = level >= 4
@@ -65,7 +95,16 @@ export function Pennant({ level, table, width = 120 }: { level: number; table: n
   const ink = [C.navySoft, C.navy, '#fff', '#fff', C.gold, C.navy][level]
   const shape = banner ? 'M14 16H86V108L68 96 50 108 32 96 14 108Z' : 'M12 16H88L50 112Z'
   return (
-    <svg className="bb-pennant" viewBox="0 0 100 120" width={width} height={(width * 120) / 100} role="img" aria-label={`${table}s: ${MILESTONE_NAMES[level]}`}>
+    <svg
+      className={level > 0 ? 'bb-pennant up' : 'bb-pennant'}
+      viewBox="0 0 100 120"
+      width={width}
+      height={(width * 120) / 100}
+      role="img"
+      aria-label={`${table}s: ${MILESTONE_NAMES[level]}`}
+      data-tap=""
+      {...freshProps(fresh, order)}
+    >
       <path d="M50 2v10" stroke={C.navySoft} strokeWidth={2.5} />
       <path
         d={shape}
@@ -103,6 +142,8 @@ export function Pennant({ level, table, width = 120 }: { level: number; table: n
 /** The grid page's top: a scoreboard of the season, then a shot chart for each times table. */
 export function ShotCharts({ progress }: { progress: Progress }) {
   const made = ALL_FACT_IDS.filter((id) => progress.facts[id].level >= 3).length
+  const fresh = useNewSince(progress, 'charts', Object.fromEntries(ALL_FACT_IDS.map((id) => [id, progress.facts[id].level])))
+  const freshOrder = FACTORS.flatMap((t) => FACTORS.map((b) => factId(t, b))).filter((id) => fresh.has(id))
   return (
     <section className="bb-charts" aria-label="Shot charts">
       <div className="bb-board">
@@ -133,7 +174,7 @@ export function ShotCharts({ progress }: { progress: Progress }) {
                 <b>{t}s</b>
                 <span>{MILESTONE_NAMES[level]}</span>
               </span>
-              <ShotChart progress={progress} table={t} />
+              <ShotChart progress={progress} table={t} fresh={fresh} freshOrder={freshOrder} />
               <span className="bb-chart-meter" aria-hidden="true">
                 <span style={{ width: `${Math.round(next.done * 100)}%` }} />
               </span>
@@ -149,6 +190,10 @@ export function ShotCharts({ progress }: { progress: Progress }) {
 /** The home screen: a pennant for every table up in the rafters, and the trophy case below. */
 export function Arena({ progress }: { progress: Progress }) {
   const collected = STICKER_IDS.filter((id) => progress.stickers.includes(id))
+  // Pennants raised and prizes won since home was last shown drop in once.
+  const raised = useNewSince(progress, 'rafters', Object.fromEntries(FACTORS.map((t) => [t, tableLevel(progress, t)])))
+  const raisedOrder = FACTORS.filter((t) => raised.has(String(t)))
+  const won = useNewSince(progress, 'trophies', Object.fromEntries(collected.map((id) => [id, 1])))
   return (
     <section className="bb-arena" aria-label="Your banners and trophy case">
       <div className="bb-rafters">
@@ -156,7 +201,7 @@ export function Arena({ progress }: { progress: Progress }) {
         <ol className="bb-pennants">
           {FACTORS.map((t) => (
             <li key={t}>
-              <Pennant level={tableLevel(progress, t)} table={t} width={46} />
+              <Pennant level={tableLevel(progress, t)} table={t} width={46} fresh={raised.has(String(t))} order={raisedOrder.indexOf(t)} />
             </li>
           ))}
         </ol>
@@ -164,9 +209,9 @@ export function Arena({ progress }: { progress: Progress }) {
       <div className="bb-case">
         <p className="bb-arena-title">Trophy case</p>
         {collected.length > 0 ? (
-          <div className="bb-case-shelf">
+          <div className="bb-case-shelf" data-tap-each="">
             {collected.map((id) => (
-              <Gear key={id} id={id} size={62} />
+              <Gear key={id} id={id} size={62} className={won.has(id) ? 'fresh' : ''} />
             ))}
           </div>
         ) : (

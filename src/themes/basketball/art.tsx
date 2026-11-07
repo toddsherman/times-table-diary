@@ -205,7 +205,7 @@ export function Gear({ id, size, className = '' }: { id: StickerId; size: number
   const art = ART[id]
   if (!art) return null
   return (
-    <svg className={`sticker bb-gear ${className}`} viewBox="0 0 100 100" width={size} height={size} role="img" aria-label={REWARD_NAMES[id]}>
+    <svg className={`sticker bb-gear bb-gear-${id} ${className}`} viewBox="0 0 100 100" width={size} height={size} role="img" aria-label={REWARD_NAMES[id]}>
       {art}
     </svg>
   )
