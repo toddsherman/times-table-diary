@@ -1,8 +1,9 @@
 import { Fragment, useState } from 'react'
 import { TopBar } from '../components/TopBar'
-import { factId, FACTORS, parseFact, strategyHint } from '../engine/facts'
+import { ALL_FACT_IDS, factId, FACTORS, parseFact, strategyHint } from '../engine/facts'
 import { levelCounts, median } from '../engine/progress'
 import type { Progress } from '../engine/types'
+import { freshProps, useNewSince } from '../motion'
 import { useTheme } from '../themes'
 
 /** The doodle page, or each theme's version of it: every fact and how far along it is. */
@@ -12,6 +13,9 @@ export function DoodlePage({ progress, onBack }: { progress: Progress; onBack: (
   const counts = levelCounts(progress)
   const fact = selected ? parseFact(selected) : null
   const stat = selected ? progress.facts[selected] : null
+  // Facts that went up a level since this page was last open get one small celebration.
+  const fresh = useNewSince(progress, 'grid', Object.fromEntries(ALL_FACT_IDS.map((id) => [id, progress.facts[id].level])))
+  const freshOrder = ALL_FACT_IDS.filter((id) => fresh.has(id))
 
   return (
     <div className="screen doodles">
@@ -30,7 +34,7 @@ export function DoodlePage({ progress, onBack }: { progress: Progress; onBack: (
 
       <div className="doodle-layout">
         {Grid ? (
-          <Grid progress={progress} selected={selected} onSelect={setSelected} />
+          <Grid progress={progress} selected={selected} onSelect={setSelected} fresh={fresh} />
         ) : (
           <div className="dgrid">
             <span className="dcell head">×</span>
@@ -52,6 +56,7 @@ export function DoodlePage({ progress, onBack }: { progress: Progress; onBack: (
                       className={`dcell l${level} ${selected === id ? 'selected' : ''}`}
                       aria-label={`${a} times ${b}: ${LEVELS[level].name}`}
                       onClick={() => setSelected(id)}
+                      {...freshProps(fresh.has(id), freshOrder.indexOf(id))}
                     >
                       {level > 0 ? a * b : ''}
                       {level >= 4 && (

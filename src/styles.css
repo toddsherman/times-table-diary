@@ -1600,6 +1600,97 @@ figure {
   }
 }
 
+/* Motion beyond the basics: what a tap does, a small celebration for things that grew since a
+   screen was last open, and the diary's twinkles. Other themes add their own, scoped to their
+   root (see motion.ts). Nothing here moves on a device set to reduce motion. */
+@media (prefers-reduced-motion: no-preference) {
+  /* A sticker that's new since home was last shown lands on the shelf and settles. */
+  .sticker-shelf > .fresh {
+    animation: sticker-land 900ms cubic-bezier(0.2, 1.4, 0.4, 1) 250ms both;
+  }
+
+  /* Tap a sticker and it peels up at a corner, then pats back down. */
+  .sticker-shelf > .tapped {
+    transform-origin: 20% 85%;
+    animation: sticker-peel 650ms ease-in-out;
+  }
+
+  /* Facts that went up a level since the page was last open pulse once, one after another. */
+  .dcell[data-fresh] {
+    animation: dcell-fresh 900ms ease-out calc(300ms + min(var(--fresh-i, 0), 40) * 60ms) both;
+  }
+
+  /* The diary's gold stars twinkle now and then, a few at a time. */
+  :root:not([data-theme]) .dcell.l5 .sparkle svg {
+    animation: diary-twinkle 9s ease-in-out infinite;
+  }
+
+  :root:not([data-theme]) .dcell.l5:nth-child(3n) .sparkle svg {
+    animation-delay: -3.1s;
+  }
+
+  :root:not([data-theme]) .dcell.l5:nth-child(3n + 1) .sparkle svg {
+    animation-delay: -6.3s;
+  }
+
+  :root:not([data-theme]) .dcell.l5:nth-child(4n) .sparkle svg {
+    animation-duration: 11s;
+  }
+
+  :root:not([data-theme]) .dcell.l5:nth-child(5n + 2) .sparkle svg {
+    animation-duration: 13s;
+  }
+}
+
+@keyframes sticker-land {
+  0% {
+    opacity: 0;
+    transform: translateY(-36px) scale(1.25) rotate(-12deg);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(3px) scale(0.94) rotate(3deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes sticker-peel {
+  35% {
+    transform: translateY(-7px) rotate(-9deg) scale(1.08);
+  }
+  70% {
+    transform: translateY(-1px) rotate(3deg);
+  }
+}
+
+@keyframes dcell-fresh {
+  0% {
+    transform: none;
+    box-shadow: 0 0 0 0 var(--fresh-glow, rgba(255, 79, 163, 0.65));
+  }
+  35% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: none;
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+
+@keyframes diary-twinkle {
+  0%,
+  90%,
+  100% {
+    transform: none;
+  }
+  95% {
+    transform: scale(1.45) rotate(25deg);
+  }
+}
+
 /* Theme pickers (welcome screen and grown-ups). Each theme's CSS colors its own tile. */
 .theme-picker {
   display: grid;

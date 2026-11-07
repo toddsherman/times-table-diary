@@ -144,8 +144,11 @@ export interface Theme {
   Page?: (props: PageProps) => ReactNode
   /** Shown on the grid page above the legend, e.g. a creature for each table. */
   Collection?: (props: { progress: Progress }) => ReactNode
-  /** Replaces the 12×12 grid on the grid page. Must call onSelect(factId) when a fact is tapped. */
-  Grid?: (props: { progress: Progress; selected: string | null; onSelect: (id: string) => void }) => ReactNode
+  /**
+   * Replaces the 12×12 grid on the grid page. Must call onSelect(factId) when a fact is tapped.
+   * `fresh` holds the facts that went up a level since the page was last open (see motion.ts).
+   */
+  Grid?: (props: { progress: Progress; selected: string | null; onSelect: (id: string) => void; fresh: ReadonlySet<string> }) => ReactNode
   /** Replaces the reward shelf on the home screen. */
   HomeShelf?: (props: { progress: Progress }) => ReactNode
   /** Every milestone reached so far. New ones are celebrated during practice. */

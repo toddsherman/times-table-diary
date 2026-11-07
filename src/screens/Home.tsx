@@ -6,6 +6,7 @@ import { previewDay } from '../engine/day'
 import { ALL_FACT_IDS } from '../engine/facts'
 import { levelCounts, streak } from '../engine/progress'
 import type { Progress } from '../engine/types'
+import { useNewSince } from '../motion'
 import { STICKER_IDS } from '../stickers'
 import { useTheme } from '../themes'
 
@@ -38,6 +39,8 @@ export function Home({ progress, onStart, onNewLesson, onDoodles, onDiary, onSet
   // Colored in or better. Strict mastery takes several days, and "0 mastered" on day one is no fun.
   const coloredIn = counts[3] + counts[4] + counts[5]
   const collected = STICKER_IDS.filter((id) => progress.stickers.includes(id))
+  // A reward that's new since home was last shown lands on the shelf with a little bounce.
+  const freshRewards = useNewSince(progress, 'rewards', Object.fromEntries(collected.map((id) => [id, 1])))
 
   return (
     <div className="screen home">
@@ -106,9 +109,9 @@ export function Home({ progress, onStart, onNewLesson, onDoodles, onDiary, onSet
         <HomeShelf progress={progress} />
       ) : (
         collected.length > 0 && (
-          <section className="sticker-shelf" aria-label={words.shelfLabel}>
+          <section className="sticker-shelf" aria-label={words.shelfLabel} data-tap-each="">
             {collected.map((id) => (
-              <Reward key={id} id={id} size={60} />
+              <Reward key={id} id={id} size={60} className={freshRewards.has(id) ? 'fresh' : ''} />
             ))}
           </section>
         )
