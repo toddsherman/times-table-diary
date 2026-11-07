@@ -1,5 +1,6 @@
 import { dateFromDay } from '../../engine/dates'
 import type { Progress } from '../../engine/types'
+import { useNewSince } from '../../motion'
 import type { StickerId } from '../../stickers'
 import { tableColoredIn, tableStage } from '../tables'
 import type { PageProps } from '../types'
@@ -8,6 +9,12 @@ import { BUILDS } from './models'
 
 /** A build for every times table, one layer per fact colored in. */
 export function BuildCollection({ progress }: { progress: Progress }) {
+  // Every layer built, so the layers new since the last look can drop in, in order.
+  const layers = Object.fromEntries(
+    BUILDS.flatMap((_, i) => Array.from({ length: tableColoredIn(progress, i + 1) }, (_, k) => [`${i + 1}-${k + 1}`, 1])),
+  )
+  const fresh = useNewSince(progress, 'builds', layers)
+  const newLayers = BUILDS.map((_, i) => Object.keys(layers).filter((key) => key.startsWith(`${i + 1}-`) && fresh.has(key)).length)
   return (
     <section className="bricks-builds" aria-label="Your builds">
       {BUILDS.map((build, i) => {
@@ -17,7 +24,16 @@ export function BuildCollection({ progress }: { progress: Progress }) {
         const status = stage === 4 ? 'Gold build!' : built === 12 ? 'Built!' : built === 0 ? 'In the box' : `${built} of 12 layers`
         return (
           <figure key={table} className={`bricks-build ${built === 12 ? 'done' : ''} ${stage === 4 ? 'gold' : ''}`}>
-            <BrickModel rows={build.rows} built={built} gold={stage === 4} shine={stage >= 3} label={`${build.name}: ${status}`} />
+            <BrickModel
+              rows={build.rows}
+              built={built}
+              gold={stage === 4}
+              shine={stage >= 3}
+              label={`${build.name}: ${status}`}
+              fresh={newLayers[i]}
+              freshFrom={newLayers.slice(0, i).reduce((sum, n) => sum + n, 0)}
+              tap
+            />
             <figcaption>
               <span className="bricks-build-name">
                 <b>×{table}</b> {build.name}

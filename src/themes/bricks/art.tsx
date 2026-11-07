@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import type { StickerId } from '../../stickers'
 import { LINE, PALETTE, REWARD_MODELS, REWARD_NAMES } from './models'
 
@@ -55,6 +55,7 @@ export function Twinkle({ x, y, r, fill = '#fff' }: { x: number; y: number; r: n
   const k = r * 0.28
   return (
     <path
+      className="bricks-twinkle"
       d={`M${x} ${y - r}Q${x + k} ${y - k} ${x + r} ${y}Q${x + k} ${y + k} ${x} ${y + r}Q${x - k} ${y + k} ${x - r} ${y}Q${x - k} ${y - k} ${x} ${y - r}Z`}
       fill={fill}
       stroke={LINE}
@@ -75,10 +76,16 @@ interface ModelProps {
   className?: string
   size?: number
   label?: string
+  /** How many of the top built layers are new since the last look: they drop in once. */
+  fresh?: number
+  /** Where this model's first new layer falls among everything new on screen, for the stagger. */
+  freshFrom?: number
+  /** Tapping the model makes it hop and click its top layer back on. */
+  tap?: boolean
 }
 
 /** Draws a model as bricks. */
-export function BrickModel({ rows, built = rows.length, gold = false, shine = false, square = false, className, size, label }: ModelProps) {
+export function BrickModel({ rows, built = rows.length, gold = false, shine = false, square = false, className, size, label, fresh = 0, freshFrom = 0, tap = false }: ModelProps) {
   const cols = Math.max(...rows.map((row) => row.length))
   const firstBuilt = rows.length - built
   const w = cols * U
@@ -92,13 +99,22 @@ export function BrickModel({ rows, built = rows.length, gold = false, shine = fa
   rows.forEach((row, r) => {
     const solid = r >= firstBuilt
     const top = r * H
+    // Built layers carry their height from the bottom (and whether they're new) for the motion.
+    const isNew = solid && r < firstBuilt + fresh
+    const layer = solid
+      ? {
+          className: r === firstBuilt ? 'bricks-layer bricks-top' : 'bricks-layer',
+          style: { '--r': rows.length - 1 - r, ...(isNew && { '--fresh-i': freshFrom + firstBuilt + fresh - 1 - r }) } as CSSProperties,
+          ...(isNew && { 'data-fresh': '' }),
+        }
+      : {}
     for (const brick of bricksOf(row, r)) {
       const color = gold ? goldOf(PALETTE[brick.color]) : PALETTE[brick.color]
       const x = brick.c * U
       const bw = brick.len * U
       parts.push(
         solid ? (
-          <g key={`b${r}-${brick.c}`}>
+          <g key={`b${r}-${brick.c}`} {...layer}>
             <rect x={x} y={top} width={bw} height={H} rx={1.2} fill={color} stroke={LINE} strokeWidth={1} />
             <rect x={x + 1.3} y={top + 1.3} width={bw - 2.6} height={2.2} rx={1} fill="#fff" opacity={0.35} />
             <rect x={x + 1} y={top + H - 2.8} width={bw - 2} height={1.8} rx={0.8} fill="#000" opacity={0.16} />
@@ -127,7 +143,7 @@ export function BrickModel({ rows, built = rows.length, gold = false, shine = fa
         const d = `M${sx} ${top + 0.7}V${top - STUD_H + 1}Q${sx} ${top - STUD_H} ${sx + 1} ${top - STUD_H}H${sx + STUD_W - 1}Q${sx + STUD_W} ${top - STUD_H} ${sx + STUD_W} ${top - STUD_H + 1}V${top + 0.7}`
         parts.push(
           solid ? (
-            <path key={`s${r}-${c}`} d={d} fill={color} stroke={LINE} strokeWidth={1} strokeLinejoin="round" />
+            <path key={`s${r}-${c}`} {...layer} d={d} fill={color} stroke={LINE} strokeWidth={1} strokeLinejoin="round" />
           ) : (
             <path key={`s${r}-${c}`} d={d} fill="#fff" fillOpacity={0.5} stroke="#8f9aab" strokeWidth={0.8} strokeDasharray="2.4 1.6" />
           ),
@@ -148,6 +164,7 @@ export function BrickModel({ rows, built = rows.length, gold = false, shine = fa
       role={label ? 'img' : undefined}
       aria-label={label}
       aria-hidden={label ? undefined : true}
+      data-tap={tap ? '' : undefined}
     >
       {parts}
     </svg>

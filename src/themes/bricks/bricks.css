@@ -797,6 +797,196 @@
   color: var(--purple);
 }
 
+/* Motion (see motion.ts): bricks hop and snap, builds build themselves, gold builds glint. */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme='bricks'] {
+    --fresh-glow: rgba(217, 38, 44, 0.6);
+  }
+
+  :root[data-theme='bricks'] .bricks-layer {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+  }
+
+  :root[data-theme='bricks'] .bricks-twinkle {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+  }
+
+  /* Gold builds glint now and then, one twinkle at a time. */
+  :root[data-theme='bricks'] .bricks-build.gold .bricks-twinkle {
+    animation: bricks-glint 8s ease-in-out infinite;
+  }
+
+  :root[data-theme='bricks'] .bricks-build.gold .bricks-twinkle + .bricks-twinkle {
+    animation-delay: -4.3s;
+  }
+
+  :root[data-theme='bricks'] .bricks-build.gold:nth-child(even) .bricks-twinkle {
+    animation-delay: -2.2s;
+    animation-duration: 9.5s;
+  }
+
+  :root[data-theme='bricks'] .bricks-build.gold:nth-child(even) .bricks-twinkle + .bricks-twinkle {
+    animation-delay: -6.6s;
+  }
+
+  /* Layers built since the last look drop onto their builds, one after another. */
+  :root[data-theme='bricks'] .bricks-layer[data-fresh] {
+    animation: bricks-layer-drop 380ms calc(350ms + min(var(--fresh-i, 0), 16) * 85ms) both;
+  }
+
+  /* A finished build builds itself from the bottom up, then shines. */
+  :root[data-theme='bricks'] .milestone-art svg {
+    overflow: visible;
+  }
+
+  :root[data-theme='bricks'] .milestone-art .bricks-layer {
+    animation: bricks-layer-drop 300ms calc(150ms + var(--r, 0) * 80ms) both;
+  }
+
+  :root[data-theme='bricks'] .milestone-art .bricks-twinkle {
+    animation: bricks-twinkle-flash 600ms cubic-bezier(0.2, 1.6, 0.4, 1) 1.2s both;
+  }
+
+  /* A new reward drops onto the shelf (or the end of the page) and snaps down. */
+  :root[data-theme='bricks'] .sticker-shelf > .fresh {
+    transform-origin: 50% 100%;
+    animation: bricks-drop-snap 750ms 250ms both;
+  }
+
+  :root[data-theme='bricks'] .new-sticker .sticker.pop {
+    transform-origin: 50% 100%;
+    animation: bricks-drop-snap 750ms 150ms both;
+  }
+
+  /* Taps: a reward hops and snaps back down; a build hops and its top layer clicks on again. */
+  :root[data-theme='bricks'] .sticker-shelf > .tapped {
+    transform-origin: 50% 100%;
+    animation: bricks-hop 520ms;
+  }
+
+  :root[data-theme='bricks'] .bricks-build svg.tapped {
+    transform-origin: 50% 100%;
+    animation: bricks-hop 560ms;
+  }
+
+  :root[data-theme='bricks'] .bricks-build svg.tapped .bricks-top {
+    animation: bricks-click 560ms;
+  }
+}
+
+@keyframes bricks-layer-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(1px) scaleY(0.9);
+    animation-timing-function: ease-out;
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes bricks-drop-snap {
+  0% {
+    opacity: 0;
+    transform: translateY(-48px);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.12, 0.84);
+    animation-timing-function: ease-out;
+  }
+  72% {
+    opacity: 1;
+    transform: translateY(-6px) scale(0.96, 1.05);
+    animation-timing-function: ease-in;
+  }
+  86% {
+    opacity: 1;
+    transform: scale(1.04, 0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes bricks-hop {
+  0% {
+    transform: none;
+    animation-timing-function: ease-out;
+  }
+  15% {
+    transform: scale(1.06, 0.9);
+    animation-timing-function: ease-out;
+  }
+  45% {
+    transform: translateY(-10px) scale(0.96, 1.05);
+    animation-timing-function: ease-in;
+  }
+  75% {
+    transform: scale(1.1, 0.88);
+    animation-timing-function: ease-out;
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes bricks-click {
+  0%,
+  20% {
+    transform: none;
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+  78% {
+    transform: translateY(-4px);
+    animation-timing-function: ease-in;
+  }
+  88% {
+    transform: translateY(0.8px) scaleY(0.92);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes bricks-glint {
+  0%,
+  88%,
+  100% {
+    transform: none;
+  }
+  93% {
+    transform: scale(1.5) rotate(45deg);
+  }
+}
+
+@keyframes bricks-twinkle-flash {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-90deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.5) rotate(20deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .theme-tile[data-pick-theme='bricks'] {
   --tile: #d9262c;
   --tile-ink: #1d2433;
