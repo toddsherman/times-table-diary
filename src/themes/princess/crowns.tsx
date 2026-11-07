@@ -1,6 +1,7 @@
-import { type CSSProperties, Fragment } from 'react'
-import { factId, FACTORS } from '../../engine/facts'
+import { type CSSProperties, Fragment, useId } from 'react'
+import { ALL_FACT_IDS, factId, FACTORS } from '../../engine/facts'
 import type { Progress } from '../../engine/types'
+import { freshProps, useNewSince } from '../../motion'
 import { STICKER_IDS } from '../../stickers'
 import { PrincessMark, PrincessReward } from './art'
 import { sparkle, star } from './shapes'
@@ -75,11 +76,31 @@ const TIPS = [
   [108, 27],
 ] as const
 
-/** A table's crown: its gems by level, gold once forged, on a velvet cushion once crowned. */
-export function Crown({ progress, table, width = 120, label }: { progress: Progress; table: number; width?: number; label?: string }) {
+/**
+ * A table's crown: its gems by level, gold once forged, on a velvet cushion once crowned.
+ * A tap tilts it. `fresh` marks a crown that grew since the crown room was last open.
+ */
+export function Crown({
+  progress,
+  table,
+  width = 120,
+  label,
+  fresh = false,
+  order = 0,
+}: {
+  progress: Progress
+  table: number
+  width?: number
+  label?: string
+  fresh?: boolean
+  order?: number
+}) {
+  const clip = useId()
   const gem = gemOf(table)
   const stage = crownStage(progress, table)
   const forged = stage >= 1
+  // Each table's crown glints at a different tip.
+  const [tx, ty] = TIPS[table % TIPS.length]
   return (
     <svg
       className={`princess-crown s${stage}`}
@@ -88,6 +109,8 @@ export function Crown({ progress, table, width = 120, label }: { progress: Progr
       height={(width * 100) / 120}
       role="img"
       aria-label={label ?? `The ${table}s crown: ${CROWN_STAGES[stage].toLowerCase()}`}
+      data-tap=""
+      {...freshProps(fresh, order)}
     >
       {stage >= 4 && (
         <g fill={stage === 5 ? P.gold : '#fff'} stroke={P.ink} strokeWidth={1.2} strokeLinejoin="round">
@@ -136,6 +159,19 @@ export function Crown({ progress, table, width = 120, label }: { progress: Progr
         const spot = SPOTS[i]
         return <GemShape key={b} cx={spot.x} cy={spot.y} r={spot.oval ? 5 : 5.2} level={progress.facts[factId(table, b)].level} gem={gem} oval={spot.oval} />
       })}
+      {forged && (
+        // A shine and a sparkle, unseen until the crown is tapped, grows, or (once crowned) glints.
+        <>
+          <clipPath id={clip}>
+            <path d={BODY} />
+            <rect x="11" y="66" width="98" height="21" rx="3" />
+          </clipPath>
+          <g clipPath={`url(#${clip})`}>
+            <path className="pc-glint" d="M-12 -4H0L-30 104H-42Z" fill="#fff" opacity={0} />
+          </g>
+          <path className="pc-twinkle" d={sparkle(tx, ty, 8)} fill="#fff" stroke={P.ink} strokeWidth={1.1} strokeLinejoin="round" opacity={0} />
+        </>
+      )}
     </svg>
   )
 }
@@ -152,6 +188,9 @@ function nextStep(p: Progress, table: number, stage: CrownStage): string {
 /** The grid page's crowns: one for each times table, a gem for each fact. */
 export function CrownRoom({ progress }: { progress: Progress }) {
   const crowned = FACTORS.filter((t) => crownStage(progress, t) >= 3).length
+  // Crowns that grew since the room was last open shine once, one after another.
+  const fresh = useNewSince(progress, 'crowns', Object.fromEntries(FACTORS.map((t) => [t, crownStage(progress, t)])))
+  const freshOrder = FACTORS.filter((t) => fresh.has(String(t)))
   return (
     <section className="card princess-crowns" aria-labelledby="princess-crowns-title">
       <h2 id="princess-crowns-title" className="princess-crowns-title">
@@ -166,7 +205,7 @@ export function CrownRoom({ progress }: { progress: Progress }) {
           return (
             <li key={t} className={`princess-crown-item s${stage}`}>
               <span className="pc-table">{t}s</span>
-              <Crown progress={progress} table={t} width={112} />
+              <Crown progress={progress} table={t} width={112} fresh={fresh.has(String(t))} order={freshOrder.indexOf(t)} />
               <span className="pc-gem" style={{ '--gem': gemOf(t).dark } as CSSProperties}>
                 {gemOf(t).name}
               </span>
@@ -181,7 +220,18 @@ export function CrownRoom({ progress }: { progress: Progress }) {
 }
 
 /** The 12 × 12 grid as gems: each table's row in its crown's gem color. */
-export function GemGrid({ progress, selected, onSelect }: { progress: Progress; selected: string | null; onSelect: (id: string) => void }) {
+export function GemGrid({
+  progress,
+  selected,
+  onSelect,
+  fresh,
+}: {
+  progress: Progress
+  selected: string | null
+  onSelect: (id: string) => void
+  fresh: ReadonlySet<string>
+}) {
+  const freshOrder = ALL_FACT_IDS.filter((id) => fresh.has(id))
   return (
     <div className="dgrid princess-gems">
       <span className="dcell head">×</span>
@@ -201,12 +251,15 @@ export function GemGrid({ progress, selected, onSelect }: { progress: Progress; 
             {FACTORS.map((b) => {
               const id = factId(a, b)
               const level = progress.facts[id].level
+              // A gem that went up a level since the page was last open sparkles once.
+              const isFresh = fresh.has(id)
               return (
                 <button
                   key={id}
                   type="button"
                   className={`dcell gem l${level} ${selected === id ? 'selected' : ''}`}
-                  style={colors}
+                  style={isFresh ? ({ ...colors, '--fresh-i': freshOrder.indexOf(id) } as CSSProperties) : colors}
+                  data-fresh={isFresh ? '' : undefined}
                   aria-label={`${a} times ${b}: ${levels[level].name}`}
                   onClick={() => onSelect(id)}
                 >
@@ -230,13 +283,15 @@ export function GemGrid({ progress, selected, onSelect }: { progress: Progress; 
 export function Treasury({ progress }: { progress: Progress }) {
   const collected = STICKER_IDS.filter((id) => progress.stickers.includes(id))
   const crowned = FACTORS.filter((t) => crownStage(progress, t) >= 3).length
+  // A treasure that's new since home was last shown arrives with a little flourish.
+  const fresh = useNewSince(progress, 'treasury', Object.fromEntries(collected.map((id) => [id, 1])))
   return (
     <section className="princess-treasury" aria-label="Your royal treasures">
       <p className="treasury-title">Royal treasury</p>
       {collected.length > 0 ? (
-        <div className="treasury-shelf">
+        <div className="treasury-shelf" data-tap-each="">
           {collected.map((id) => (
-            <PrincessReward key={id} id={id} size={60} />
+            <PrincessReward key={id} id={id} size={60} className={fresh.has(id) ? 'fresh' : ''} />
           ))}
         </div>
       ) : (

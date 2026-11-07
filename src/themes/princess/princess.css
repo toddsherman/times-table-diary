@@ -1146,6 +1146,265 @@
   }
 }
 
+/* Motion: crowns tilt and shine when tapped, shine once when they grew, and crowned ones glint
+   now and then in the crown room. New gems sparkle once, a new treasure arrives with a flourish,
+   and a crown floats down in its pop-up. See motion.ts. */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme='princess'] .princess-crown {
+    transform-origin: 50% 90%;
+  }
+
+  :root[data-theme='princess'] .pc-glint,
+  :root[data-theme='princess'] .pc-twinkle {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  /* Crowned crowns glint at one tip, each on its own slow beat, so only one or two at a time. */
+  :root[data-theme='princess'] .princess-crown-item .princess-crown:is(.s3, .s4, .s5) .pc-twinkle {
+    animation: princess-twinkle 9s ease-in-out infinite;
+  }
+
+  :root[data-theme='princess'] .princess-crown-item:nth-child(3n) .princess-crown .pc-twinkle {
+    animation-duration: 11s;
+    animation-delay: -4s;
+  }
+
+  :root[data-theme='princess'] .princess-crown-item:nth-child(3n + 1) .princess-crown .pc-twinkle {
+    animation-duration: 13s;
+    animation-delay: -8.5s;
+  }
+
+  :root[data-theme='princess'] .princess-crown-item:nth-child(4n + 2) .princess-crown .pc-twinkle {
+    animation-delay: -2.5s;
+  }
+
+  /* A crown that grew since the room was last open lifts and shines, one after another. */
+  :root[data-theme='princess'] .princess-crown[data-fresh] {
+    animation: princess-crown-lift 1300ms ease-in-out calc(300ms + min(var(--fresh-i, 0), 11) * 220ms) both;
+  }
+
+  :root[data-theme='princess'] .princess-crown[data-fresh] .pc-glint {
+    animation: princess-glint 700ms ease-in-out calc(550ms + min(var(--fresh-i, 0), 11) * 220ms) both;
+  }
+
+  /* The crown pop-up: the crown floats down, settles, then shines and sparkles. */
+  :root[data-theme='princess'] .milestone-art .princess-crown {
+    animation: princess-crown-land 1000ms cubic-bezier(0.25, 1.2, 0.5, 1) var(--land-delay, 0ms) both;
+  }
+
+  :root[data-theme='princess'] .milestone-art .pc-glint {
+    animation: princess-glint 650ms ease-in-out calc(var(--land-delay, 0ms) + 750ms) both;
+  }
+
+  :root[data-theme='princess'] .milestone-art .pc-twinkle {
+    animation: princess-sparkle-once 600ms ease-out calc(var(--land-delay, 0ms) + 900ms) both;
+  }
+
+  :root[data-theme='princess'] .milestone-list li:nth-child(2) {
+    --land-delay: 150ms;
+  }
+
+  :root[data-theme='princess'] .milestone-list li:nth-child(3) {
+    --land-delay: 300ms;
+  }
+
+  :root[data-theme='princess'] .milestone-list li:nth-child(n + 4) {
+    --land-delay: 450ms;
+  }
+
+  /* Gems that went up a level since the page was last open sparkle once, one after another. */
+  :root[data-theme='princess'] .princess-gems .gem[data-fresh] {
+    animation: princess-gem-pop 900ms ease-out calc(300ms + min(var(--fresh-i, 0), 40) * 60ms) both;
+  }
+
+  :root[data-theme='princess'] .princess-gems .gem[data-fresh]::after {
+    content: '';
+    position: absolute;
+    top: -30%;
+    left: 50%;
+    z-index: 2;
+    width: 70%;
+    aspect-ratio: 1;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 .8Q10 10 19.2 10Q10 10 10 19.2Q10 10 .8 10Q10 10 10 .8Z' fill='%23fff' stroke='%233b1f5c' stroke-width='1.3' stroke-linejoin='round'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    pointer-events: none;
+    animation: princess-sparkle-once 900ms ease-out calc(300ms + min(var(--fresh-i, 0), 40) * 60ms) both;
+  }
+
+  /* The end of a quest: the new treasure shimmers in. */
+  :root[data-theme='princess'] .new-sticker .sticker.pop {
+    animation: princess-reward-in 1000ms cubic-bezier(0.2, 1.3, 0.4, 1) both;
+  }
+
+  /* A treasure that's new since home was last shown arrives on the shelf. */
+  :root[data-theme='princess'] .treasury-shelf > .fresh {
+    animation: princess-treasure-in 1000ms cubic-bezier(0.2, 1.3, 0.4, 1) 300ms both;
+  }
+
+  /* Taps come last so they win over the one-time shines. */
+  :root[data-theme='princess'] .treasury-shelf > .tapped {
+    transform-origin: 50% 85%;
+    animation: princess-treasure-tap 600ms ease-in-out;
+  }
+
+  :root[data-theme='princess'] .princess-crown.tapped {
+    animation: princess-crown-tilt 650ms ease-out;
+  }
+
+  :root[data-theme='princess'] .princess-crown.tapped .pc-glint {
+    animation: princess-glint 500ms ease-in-out 80ms both;
+  }
+}
+
+@keyframes princess-twinkle {
+  0%,
+  88%,
+  100% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  92% {
+    opacity: 1;
+    transform: scale(1.15) rotate(45deg);
+  }
+  96% {
+    opacity: 0.9;
+    transform: scale(0.85) rotate(70deg);
+  }
+}
+
+@keyframes princess-sparkle-once {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.2) rotate(45deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5) rotate(90deg);
+  }
+}
+
+@keyframes princess-glint {
+  0% {
+    opacity: 0;
+    transform: none;
+  }
+  15%,
+  80% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(165px);
+  }
+}
+
+@keyframes princess-crown-lift {
+  0%,
+  100% {
+    transform: none;
+  }
+  30% {
+    transform: translateY(-5px) scale(1.04);
+  }
+  60% {
+    transform: translateY(-2px) scale(1.02);
+  }
+}
+
+@keyframes princess-crown-land {
+  0% {
+    opacity: 0;
+    transform: translateY(-36px) rotate(-8deg);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(5px) rotate(2deg);
+  }
+  78% {
+    transform: translateY(-2px) rotate(-1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes princess-crown-tilt {
+  25% {
+    transform: translateY(-2px) rotate(-9deg);
+  }
+  55% {
+    transform: rotate(6deg);
+  }
+  80% {
+    transform: rotate(-2deg);
+  }
+}
+
+@keyframes princess-gem-pop {
+  0%,
+  100% {
+    transform: none;
+  }
+  35% {
+    transform: scale(1.22) rotate(-6deg);
+  }
+  65% {
+    transform: scale(0.96) rotate(2deg);
+  }
+}
+
+@keyframes princess-reward-in {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.5);
+    filter: brightness(1) drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff)
+      drop-shadow(2px 3px 0 rgba(42, 33, 64, 0.25));
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.1);
+    filter: brightness(1.3) drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff)
+      drop-shadow(2px 3px 0 rgba(42, 33, 64, 0.25));
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: brightness(1) drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff)
+      drop-shadow(2px 3px 0 rgba(42, 33, 64, 0.25));
+  }
+}
+
+@keyframes princess-treasure-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-24px) scale(1.2) rotate(-10deg);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(2px) scale(0.96) rotate(3deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes princess-treasure-tap {
+  30% {
+    transform: translateY(-8px) rotate(-10deg) scale(1.1);
+  }
+  60% {
+    transform: translateY(-2px) rotate(6deg);
+  }
+}
+
 /* The theme's tile in the pickers: a lavender card with a gold trim. */
 .theme-tile[data-pick-theme='princess'] {
   --tile: #df367a;
