@@ -889,6 +889,158 @@
   color: var(--ink);
 }
 
+/* Motion: the moon's halo breathes on home, belts swing on their pegs, rewards spin like thrown
+   stars. Nothing moves on a device set to reduce motion. */
+@media (prefers-reduced-motion: no-preference) {
+  /* The moon's glow, behind everything else on home. */
+  :root[data-theme='ninja'] .home {
+    isolation: isolate;
+  }
+
+  :root[data-theme='ninja'] .home::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 2px;
+    left: calc(9% - 90px);
+    width: 180px;
+    height: 180px;
+    pointer-events: none;
+    background: radial-gradient(circle, transparent 0 41px, rgba(246, 236, 210, 0.3) 44px, rgba(246, 236, 210, 0.1) 64px, transparent 90px);
+    border-radius: 50%;
+    animation: ninja-halo 7s ease-in-out infinite alternate;
+  }
+
+  /* A belt earned since the rack was last open, or in the milestone pop-up, drops onto its peg. */
+  :root[data-theme='ninja'] .ninja-belt[data-fresh] {
+    transform-origin: 50% 15%;
+    animation: ninja-belt-drop 1.3s ease-out calc(300ms + min(var(--fresh-i, 0), 11) * 180ms) both;
+  }
+
+  :root[data-theme='ninja'] .milestone-art .ninja-belt {
+    transform-origin: 50% 15%;
+    animation: ninja-belt-drop 1.3s ease-out 150ms both;
+  }
+
+  :root[data-theme='ninja'] .milestone-list li:nth-child(2) .ninja-belt {
+    animation-delay: 350ms;
+  }
+
+  :root[data-theme='ninja'] .milestone-list li:nth-child(3) .ninja-belt {
+    animation-delay: 550ms;
+  }
+
+  :root[data-theme='ninja'] .milestone-list li:nth-child(n + 4) .ninja-belt {
+    animation-delay: 750ms;
+  }
+
+  /* A reward new since home was last shown, and the one at the end of a page, spin in like a thrown star. */
+  :root[data-theme='ninja'] .sticker-shelf > .fresh {
+    transform-origin: 50% 50%;
+    animation: ninja-spin-in 900ms cubic-bezier(0.25, 0.8, 0.35, 1) 250ms both;
+  }
+
+  :root[data-theme='ninja'] .new-sticker .sticker.pop {
+    animation: ninja-spin-in 1.1s cubic-bezier(0.25, 0.8, 0.35, 1) both;
+  }
+
+  /* Facts that went up a belt since the board was last open glow gold. */
+  :root[data-theme='ninja'] .dcell[data-fresh] {
+    --fresh-glow: rgba(242, 193, 78, 0.8);
+  }
+
+  /* Taps: a belt swings from the top, a reward on the shelf spins once. */
+  :root[data-theme='ninja'] .ninja-belt.tapped {
+    transform-origin: 50% 15%;
+    animation: ninja-swing 750ms ease-out;
+  }
+
+  :root[data-theme='ninja'] .sticker-shelf > .tapped {
+    transform-origin: 50% 50%;
+    animation: ninja-spin 600ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+}
+
+@keyframes ninja-halo {
+  from {
+    opacity: 0.45;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes ninja-belt-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-34px) rotate(-6deg);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(3px) rotate(0);
+  }
+  48% {
+    transform: translateY(0) rotate(8deg);
+  }
+  66% {
+    transform: rotate(-5deg);
+  }
+  84% {
+    transform: rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ninja-swing {
+  15% {
+    transform: rotate(11deg);
+  }
+  35% {
+    transform: rotate(-8deg);
+  }
+  55% {
+    transform: rotate(5deg);
+  }
+  75% {
+    transform: rotate(-2deg);
+  }
+}
+
+@keyframes ninja-spin {
+  0% {
+    transform: none;
+  }
+  65% {
+    transform: rotate(380deg) scale(1.12);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ninja-spin-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-40px) rotate(-720deg) scale(0.3);
+  }
+  65% {
+    opacity: 1;
+    transform: rotate(12deg) scale(1.1);
+  }
+  82% {
+    transform: rotate(-5deg) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* This theme's tile in the theme pickers */
 .theme-tile[data-pick-theme='ninja'] {
   --tile: #f2c14e;

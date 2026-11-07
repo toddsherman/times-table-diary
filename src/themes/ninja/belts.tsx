@@ -1,14 +1,27 @@
 import { FACTORS } from '../../engine/facts'
 import type { Progress } from '../../engine/types'
+import { freshProps, useNewSince } from '../../motion'
 import { atLeast, BELTS, GOLD, INK, tableBelt } from './palette'
 
-/** A belt tied in a knot, tails hanging. With `label`, the table number sits on the knot. */
-export function BeltArt({ level, label, width = 120 }: { level: number; label?: string; width?: number }) {
+/**
+ * A belt tied in a knot, tails hanging. With `label`, the table number sits on the knot. A tap swings
+ * it; `fresh` drops it onto its peg (`order` staggers several).
+ */
+export function BeltArt({ level, label, width = 120, fresh = false, order = 0 }: { level: number; label?: string; width?: number; fresh?: boolean; order?: number }) {
   const belt = BELTS[level]
   const none = level === 0
   const fill = none ? 'none' : belt.color
   return (
-    <svg className="ninja-belt" viewBox="0 0 120 84" width={width} height={(width * 84) / 120} role="img" aria-label={belt.name}>
+    <svg
+      className="ninja-belt"
+      viewBox="0 0 120 84"
+      width={width}
+      height={(width * 84) / 120}
+      role="img"
+      aria-label={belt.name}
+      data-tap=""
+      {...freshProps(fresh, order)}
+    >
       <g
         stroke={none ? '#9a93b5' : INK}
         strokeWidth={none ? 2.5 : 3.5}
@@ -42,7 +55,11 @@ export function BeltArt({ level, label, width = 120 }: { level: number; label?: 
 
 /** The grid page's belt rack: one belt per times table, and what the next belt needs. */
 export function BeltRack({ progress }: { progress: Progress }) {
-  const earned = FACTORS.filter((t) => tableBelt(progress, t) > 0).length
+  const belts = Object.fromEntries(FACTORS.map((t) => [t, tableBelt(progress, t)]))
+  const earned = FACTORS.filter((t) => belts[t] > 0).length
+  // A belt earned since the rack was last open drops onto its peg.
+  const fresh = useNewSince(progress, 'belts', belts)
+  const freshOrder = FACTORS.filter((t) => fresh.has(String(t)))
   return (
     <section className="card ninja-rack" aria-labelledby="ninja-rack-title">
       <h2 id="ninja-rack-title" className="ninja-rack-title">
@@ -53,12 +70,12 @@ export function BeltRack({ progress }: { progress: Progress }) {
       </p>
       <ol className="ninja-pegs">
         {FACTORS.map((t) => {
-          const b = tableBelt(progress, t)
+          const b = belts[t]
           const next = b < 5 ? `${atLeast(progress, t, b + 1)} of 12 to ${BELTS[b + 1].name.toLowerCase()}` : 'Grand master!'
           return (
             <li key={t} className={`ninja-peg b${b}`}>
               <span className="ninja-peg-table">{t}s</span>
-              <BeltArt level={b} width={96} />
+              <BeltArt level={b} width={96} fresh={fresh.has(String(t))} order={freshOrder.indexOf(t)} />
               <span className="ninja-peg-belt">{b > 0 ? BELTS[b].name : 'No belt yet'}</span>
               <span className="ninja-peg-next">{next}</span>
             </li>
