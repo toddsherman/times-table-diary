@@ -986,6 +986,325 @@
   }
 }
 
+/* Motion (see motion.ts). Tails wag now and then, a tapped puppy hops, and a puppy that grew
+   bounces with a heart. Nothing moves on a device set to reduce motion. */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme='puppy'] {
+    --fresh-glow: rgba(255, 107, 129, 0.65);
+  }
+
+  /* Room to hop and for the heart to float up, except inside the scrapbook photo's frame. */
+  :root[data-theme='puppy'] .pup-art {
+    overflow: visible;
+  }
+
+  :root[data-theme='puppy'] .scrap-photo .pup-art {
+    overflow: hidden;
+  }
+
+  /* Moving parts turn around their own spots, in the art's 100 × 100 units. */
+  :root[data-theme='puppy'] .pup-body {
+    transform-box: view-box;
+    transform-origin: 50px 93px;
+  }
+
+  :root[data-theme='puppy'] .pup-peek {
+    transform-box: view-box;
+    transform-origin: 50px 88px;
+  }
+
+  :root[data-theme='puppy'] .pup-tail {
+    transform-box: view-box;
+    transform-origin: 63px 89px;
+    /* Each tail gives a quick wag every several seconds, on its own beat. */
+    animation: puppy-wag calc(6.5s + var(--wag, 0) * 0.25s) ease-in-out calc(var(--wag, 0) * -0.9s) infinite;
+  }
+
+  :root[data-theme='puppy'] .pup-tail.tail-curl {
+    transform-origin: 64px 82px;
+  }
+
+  :root[data-theme='puppy'] .pup-tail.tail-fluff {
+    transform-origin: 70px 87px;
+  }
+
+  :root[data-theme='puppy'] .pup-shadow,
+  :root[data-theme='puppy'] .pup-wait {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  :root[data-theme='puppy'] .pup-heart {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+  }
+
+  /* A puppy grows mid-practice: it bounces into the pop-up, a heart pops, and it wags twice.
+     Several at once arrive one after another. */
+  :root[data-theme='puppy'] .milestone-art .pup-art {
+    transform-origin: 50% 100%;
+    animation: puppy-arrive 900ms cubic-bezier(0.3, 0.9, 0.4, 1) var(--arrive, 0ms) both;
+  }
+
+  :root[data-theme='puppy'] .milestone-art .pup-heart {
+    animation: puppy-heart 1300ms ease-out calc(var(--arrive, 0ms) + 450ms) both;
+  }
+
+  :root[data-theme='puppy'] .milestone-art .pup-tail {
+    animation: puppy-wag-fast 600ms ease-in-out calc(var(--arrive, 0ms) + 800ms) 2;
+  }
+
+  :root[data-theme='puppy'] .milestone-list li:nth-child(2) {
+    --arrive: 150ms;
+  }
+
+  :root[data-theme='puppy'] .milestone-list li:nth-child(3) {
+    --arrive: 300ms;
+  }
+
+  :root[data-theme='puppy'] .milestone-list li:nth-child(n + 4) {
+    --arrive: 450ms;
+  }
+
+  /* A puppy that grew since the screen was last open bounces twice, with a heart. */
+  :root[data-theme='puppy'] .pup-art[data-fresh] {
+    transform-origin: 50% 100%;
+    animation: puppy-fresh 1300ms ease-in-out calc(400ms + var(--fresh-i, 0) * 200ms) both;
+  }
+
+  :root[data-theme='puppy'] .pup-art[data-fresh] .pup-heart {
+    animation: puppy-heart 1300ms ease-out calc(400ms + var(--fresh-i, 0) * 200ms) both;
+  }
+
+  :root[data-theme='puppy'] .pup-art[data-fresh] .pup-tail {
+    animation: puppy-wag-fast 600ms ease-in-out calc(600ms + var(--fresh-i, 0) * 200ms);
+  }
+
+  /* The new toy or treat at the end of a page drops in and bounces. */
+  :root[data-theme='puppy'] .new-sticker .sticker.pop {
+    transform-origin: 50% 100%;
+    animation: puppy-drop 950ms cubic-bezier(0.3, 0.7, 0.4, 1) both;
+  }
+
+  /* Tap a puppy: it hops and wags hard. A shy one in bed peeks up; an empty bed's heart beats.
+     The tap's own run on the art is just a clock, so the class comes off when the hop is over. */
+  :root[data-theme='puppy'] .pup-art.tapped {
+    animation: puppy-tap-clock 700ms linear;
+  }
+
+  :root[data-theme='puppy'] .pup-art.tapped .pup-body {
+    animation: puppy-hop 650ms ease-in-out;
+  }
+
+  :root[data-theme='puppy'] .pup-art.tapped .pup-shadow {
+    animation: puppy-shadow 650ms ease-in-out;
+  }
+
+  :root[data-theme='puppy'] .pup-art.tapped .pup-tail {
+    animation: puppy-wag-fast 650ms ease-in-out;
+  }
+
+  :root[data-theme='puppy'] .pup-art.tapped .pup-peek {
+    animation: puppy-peek 600ms ease-in-out;
+  }
+
+  :root[data-theme='puppy'] .pup-art.tapped .pup-wait {
+    animation: puppy-beat 600ms ease-in-out;
+  }
+
+  /* Tap a toy and it squeaks: a squash and a spring back. */
+  :root[data-theme='puppy'] .pup-toys > .tapped {
+    transform-origin: 50% 100%;
+    animation: puppy-squeak 450ms ease-out;
+  }
+}
+
+@keyframes puppy-wag {
+  0%,
+  80%,
+  100% {
+    transform: none;
+  }
+  83% {
+    transform: rotate(-16deg);
+  }
+  86.5% {
+    transform: rotate(12deg);
+  }
+  90% {
+    transform: rotate(-12deg);
+  }
+  93.5% {
+    transform: rotate(8deg);
+  }
+  96.5% {
+    transform: rotate(-3deg);
+  }
+}
+
+@keyframes puppy-wag-fast {
+  15% {
+    transform: rotate(-20deg);
+  }
+  35% {
+    transform: rotate(16deg);
+  }
+  55% {
+    transform: rotate(-18deg);
+  }
+  75% {
+    transform: rotate(12deg);
+  }
+}
+
+@keyframes puppy-hop {
+  18% {
+    transform: scale(1.05, 0.92);
+  }
+  45% {
+    transform: translateY(-11px) scale(0.97, 1.04);
+  }
+  70% {
+    transform: scale(1.05, 0.94);
+  }
+  85% {
+    transform: scale(0.98, 1.02);
+  }
+}
+
+@keyframes puppy-shadow {
+  45% {
+    transform: scale(0.7);
+  }
+  70% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes puppy-peek {
+  40% {
+    transform: translateY(-6px) rotate(-4deg);
+  }
+  70% {
+    transform: translateY(1px) rotate(2deg);
+  }
+}
+
+@keyframes puppy-beat {
+  25% {
+    transform: scale(1.15);
+  }
+  50% {
+    transform: scale(0.97);
+  }
+  70% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes puppy-heart {
+  0%,
+  22% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  38% {
+    opacity: 1;
+    transform: translateY(-6px) scale(1.15);
+  }
+  50% {
+    transform: translateY(-9px) scale(0.95);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(-13px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.9);
+  }
+}
+
+@keyframes puppy-fresh {
+  10% {
+    transform: scale(1.06, 0.92);
+  }
+  24% {
+    transform: translateY(-12%) scale(0.96, 1.05);
+  }
+  38% {
+    transform: scale(1.05, 0.95);
+  }
+  48% {
+    transform: translateY(-5%);
+  }
+  58%,
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes puppy-arrive {
+  0% {
+    opacity: 0;
+    transform: translateY(-30%) scale(0.8);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.08, 0.9);
+  }
+  65% {
+    transform: translateY(-6%) scale(0.97, 1.03);
+  }
+  82% {
+    transform: scale(1.02, 0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes puppy-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-60px) rotate(-10deg);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.1, 0.88);
+  }
+  55% {
+    transform: translateY(-18px) scale(0.96, 1.04);
+  }
+  70% {
+    transform: scale(1.05, 0.95);
+  }
+  82% {
+    transform: translateY(-5px);
+  }
+  92%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes puppy-squeak {
+  30% {
+    transform: scale(1.14, 0.84);
+  }
+  60% {
+    transform: scale(0.95, 1.06);
+  }
+}
+
+@keyframes puppy-tap-clock {
+  to {
+    opacity: 1;
+  }
+}
+
 /* The theme's tile in the pickers: sky over grass. */
 .theme-tile[data-pick-theme='puppy'] {
   --tile: #d63c30;

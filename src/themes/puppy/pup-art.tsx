@@ -1,4 +1,5 @@
-import { useId, type ReactNode } from 'react'
+import { type CSSProperties, useId, type ReactNode } from 'react'
+import { freshProps } from '../../motion'
 import { BLUE, GOLD, INK, RED, STAGE_LABELS, pupFor, type Pup } from './pups'
 
 const line = { stroke: INK, strokeWidth: 2.6, strokeLinejoin: 'round', strokeLinecap: 'round' } as const
@@ -13,6 +14,7 @@ const HEAD = 'M50 18C64.5 18 73 27.5 73 39.5C73 51.5 63 58.5 50 58.5C37 58.5 27 
 const MUZZLE = 'M50 39.5C57.5 39.5 62 44 62 48.5C62 53.5 56.5 56 50 56C43.5 56 38 53.5 38 48.5C38 44 42.5 39.5 50 39.5Z'
 const NOSE = 'M45 43.2C46.5 41.6 53.5 41.6 55 43.2C55.6 45 52.6 47.4 50 47.6C47.4 47.4 44.4 45 45 43.2Z'
 const BODY = 'M36.5 93C31.5 82 33.5 63 50 59.5C66.5 63 68.5 82 63.5 93Z'
+const HEART = 'M50 62C40 55 35 49 35 43.5C35 39 38.5 36 42.5 36C46 36 48.5 38 50 40.5C51.5 38 54 36 57.5 36C61.5 36 65 39 65 43.5C65 49 60 55 50 62Z'
 
 /** Left ears; the right ones are the same drawings mirrored. */
 const EAR = {
@@ -209,7 +211,16 @@ export function PupHead({ pup, mood }: { pup: Pup; mood: Mood }) {
   )
 }
 
+/** The tail, in a group that wags around its base (see puppy.css). Each table wags on its own beat. */
 function Tail({ pup, wag }: { pup: Pup; wag: boolean }) {
+  return (
+    <g className={`pup-tail tail-${pup.tail}`} style={{ '--wag': (pup.table * 7) % 12 } as CSSProperties}>
+      <TailDrawing pup={pup} wag={wag} />
+    </g>
+  )
+}
+
+function TailDrawing({ pup, wag }: { pup: Pup; wag: boolean }) {
   if (pup.tail === 'curl') {
     const d = 'M63 82C72 82 80 77 79.5 68.5C79 61.5 70.5 61 70 66.5'
     return (
@@ -285,7 +296,8 @@ function pupDrawing(pup: Pup, stage: number): ReactNode {
     return (
       <>
         <path
-          d="M50 62C40 55 35 49 35 43.5C35 39 38.5 36 42.5 36C46 36 48.5 38 50 40.5C51.5 38 54 36 57.5 36C61.5 36 65 39 65 43.5C65 49 60 55 50 62Z"
+          className="pup-wait"
+          d={HEART}
           fill="none"
           stroke={INK}
           strokeOpacity={0.45}
@@ -305,8 +317,10 @@ function pupDrawing(pup: Pup, stage: number): ReactNode {
       <>
         <BedBack color={pup.bed} />
         <ellipse cx={50} cy={80.5} rx={20} ry={7.5} fill={pup.coat} stroke={INK} strokeWidth={2} />
-        <g transform="translate(50 64.5) scale(0.8) translate(-50 -38.5)">
-          <PupHead pup={pup} mood="shy" />
+        <g className="pup-peek">
+          <g transform="translate(50 64.5) scale(0.8) translate(-50 -38.5)">
+            <PupHead pup={pup} mood="shy" />
+          </g>
         </g>
         <BedFront color={pup.bed} />
         <Paw x={41} y={87.6} fill={paw} />
@@ -317,35 +331,48 @@ function pupDrawing(pup: Pup, stage: number): ReactNode {
   const paw = marks.has('socks') ? pup.light : pup.coat
   return (
     <>
-      <ellipse cx={50} cy={95.2} rx={31} ry={3.4} fill={INK} opacity={0.14} />
-      <Tail pup={pup} wag />
-      <ellipse cx={34.5} cy={86} rx={10.5} ry={8.5} fill={pup.coat} {...line} />
-      <ellipse cx={65.5} cy={86} rx={10.5} ry={8.5} fill={pup.coat} {...line} />
-      <BodyFill pup={pup} />
-      <rect x={41} y={75} width={7} height={17} rx={3.5} fill={pup.coat} {...line} strokeWidth={2.2} />
-      <rect x={52} y={75} width={7} height={17} rx={3.5} fill={pup.coat} {...line} strokeWidth={2.2} />
-      <Paw x={44.5} y={92.2} fill={paw} />
-      <Paw x={55.5} y={92.2} fill={paw} />
-      <PupHead pup={pup} mood="happy" />
-      {stage >= 3 && (
-        <>
-          <path d="M37.6 56.6Q50 64.5 62.4 56.6L63 60.8Q50 69.5 37 60.8Z" fill={RED} {...line} strokeWidth={2} />
-          <circle cx={50} cy={65.8} r={1.7} fill="none" stroke={INK} strokeWidth={1.4} />
-          <circle cx={50} cy={70.6} r={5.2} fill={GOLD} stroke={INK} strokeWidth={2} />
-          <text x={50} y={72.6} textAnchor="middle" fontFamily="'Nunito', system-ui, sans-serif" fontWeight={800} fontSize={pup.table > 9 ? 5 : 6} fill={INK}>
-            {pup.table}
-          </text>
-        </>
-      )}
-      {stage >= 4 && (
-        <>
-          <Rosette />
-          <Twinkle x={15} y={22} s={5} />
-          <Twinkle x={86} y={14} s={4} />
-          <Twinkle x={90} y={44} s={3.4} />
-        </>
-      )}
+      <ellipse className="pup-shadow" cx={50} cy={95.2} rx={31} ry={3.4} fill={INK} opacity={0.14} />
+      <g className="pup-body">
+        <Tail pup={pup} wag />
+        <ellipse cx={34.5} cy={86} rx={10.5} ry={8.5} fill={pup.coat} {...line} />
+        <ellipse cx={65.5} cy={86} rx={10.5} ry={8.5} fill={pup.coat} {...line} />
+        <BodyFill pup={pup} />
+        <rect x={41} y={75} width={7} height={17} rx={3.5} fill={pup.coat} {...line} strokeWidth={2.2} />
+        <rect x={52} y={75} width={7} height={17} rx={3.5} fill={pup.coat} {...line} strokeWidth={2.2} />
+        <Paw x={44.5} y={92.2} fill={paw} />
+        <Paw x={55.5} y={92.2} fill={paw} />
+        <PupHead pup={pup} mood="happy" />
+        {stage >= 3 && (
+          <>
+            <path d="M37.6 56.6Q50 64.5 62.4 56.6L63 60.8Q50 69.5 37 60.8Z" fill={RED} {...line} strokeWidth={2} />
+            <circle cx={50} cy={65.8} r={1.7} fill="none" stroke={INK} strokeWidth={1.4} />
+            <circle cx={50} cy={70.6} r={5.2} fill={GOLD} stroke={INK} strokeWidth={2} />
+            <text x={50} y={72.6} textAnchor="middle" fontFamily="'Nunito', system-ui, sans-serif" fontWeight={800} fontSize={pup.table > 9 ? 5 : 6} fill={INK}>
+              {pup.table}
+            </text>
+          </>
+        )}
+        {stage >= 4 && (
+          <>
+            <Rosette />
+            <Twinkle x={15} y={22} s={5} />
+            <Twinkle x={86} y={14} s={4} />
+            <Twinkle x={90} y={44} s={3.4} />
+          </>
+        )}
+      </g>
     </>
+  )
+}
+
+/** A heart over a puppy that just grew. Hidden until puppy.css pops it. */
+function Heart({ stage }: { stage: number }) {
+  // Above the head: low over the bed for a puppy still in it, up by the ear for one sitting up.
+  const at = stage === 1 ? 'translate(71 44) scale(0.46) translate(-50 -49)' : 'translate(76 14) scale(0.55) translate(-50 -49)'
+  return (
+    <g transform={at}>
+      <path className="pup-heart" d={HEART} fill="#ff6b81" stroke={INK} strokeWidth={5} strokeLinejoin="round" opacity={0} />
+    </g>
   )
 }
 
@@ -379,8 +406,26 @@ function BodyFill({ pup }: { pup: Pup }) {
 /**
  * A table's puppy at a stage: its bed (0), shy in its bed (1), sitting (2), with a collar (3), champion (4).
  * Every stage shares one square, so puppies line up; `fit` trims the empty sky above a bed instead.
+ * A tap makes it hop. `fresh` (a puppy that grew since the screen was last open) bounces it once
+ * with a heart; `freshOrder` staggers several.
  */
-export function PuppyArt({ table, stage, size = 92, fit = false, className = '' }: { table: number; stage: number; size?: number; fit?: boolean; className?: string }) {
+export function PuppyArt({
+  table,
+  stage,
+  size = 92,
+  fit = false,
+  className = '',
+  fresh = false,
+  freshOrder = 0,
+}: {
+  table: number
+  stage: number
+  size?: number
+  fit?: boolean
+  className?: string
+  fresh?: boolean
+  freshOrder?: number
+}) {
   const pup = pupFor(table)
   const label = stage === 0 ? `${pup.name}'s bed, waiting` : `${pup.name}: ${STAGE_LABELS[stage].toLowerCase()}`
   const trim = fit && stage <= 1
@@ -392,8 +437,11 @@ export function PuppyArt({ table, stage, size = 92, fit = false, className = '' 
       height={trim ? size * 0.64 : size}
       role="img"
       aria-label={label}
+      data-tap=""
+      {...freshProps(fresh, freshOrder)}
     >
       {pupDrawing(pup, stage)}
+      {stage > 0 && <Heart stage={stage} />}
     </svg>
   )
 }

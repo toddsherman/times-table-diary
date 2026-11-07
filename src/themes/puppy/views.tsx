@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react'
 import { dateFromDay } from '../../engine/dates'
 import type { Progress } from '../../engine/types'
+import { useNewSince } from '../../motion'
 import { STICKER_IDS, type StickerId } from '../../stickers'
 import type { PageProps } from '../types'
 import { PuppyArt } from './pup-art'
@@ -9,9 +10,14 @@ import { PawPrint, PuppyReward } from './rewards'
 
 const bed = (color: string) => ({ '--bed': color }) as CSSProperties
 
+/** Each table's puppy stage, for spotting the puppies that grew since a screen was last open. */
+const stages = (p: Progress) => Object.fromEntries(PUPS.map((pup) => [pup.table, pupStage(p, pup.table)]))
+
 /** The grid page's top: a kennel for each table's puppy, and what it needs next. */
 export function Collection({ progress }: { progress: Progress }) {
   const home = PUPS.filter((pup) => pupStage(progress, pup.table) > 0).length
+  const grew = useNewSince(progress, 'yard', stages(progress))
+  const grewOrder = PUPS.filter((pup) => grew.has(String(pup.table)))
   return (
     <section className="pup-yard" aria-labelledby="pup-yard-note">
       <p id="pup-yard-note" className="pup-yard-note">
@@ -28,7 +34,7 @@ export function Collection({ progress }: { progress: Progress }) {
               </svg>
               <span className="pup-table">{pup.table}s</span>
               <span className="pup-pic">
-                <PuppyArt table={pup.table} stage={stage} size={92} />
+                <PuppyArt table={pup.table} stage={stage} size={92} fresh={grew.has(String(pup.table))} freshOrder={grewOrder.indexOf(pup)} />
               </span>
               <span className="pup-name">{pup.name}</span>
               <span className="pup-stage">{STAGE_LABELS[stage]}</span>
@@ -48,20 +54,24 @@ export function Collection({ progress }: { progress: Progress }) {
 export function HomeShelf({ progress }: { progress: Progress }) {
   const toys = STICKER_IDS.filter((id) => progress.stickers.includes(id))
   const home = PUPS.filter((pup) => pupStage(progress, pup.table) > 0).length
+  const grew = useNewSince(progress, 'pups', stages(progress))
+  const grewOrder = PUPS.filter((pup) => grew.has(String(pup.table)))
+  // A toy or treat that's new since home was last shown lands with a bounce, like the diary's stickers.
+  const newToys = useNewSince(progress, 'toys', Object.fromEntries(toys.map((id) => [id, 1])))
   return (
     <section className="pup-home" aria-label="Your puppies, toys and treats">
       <ul className="pup-row">
         {PUPS.map((pup) => (
           <li key={pup.table}>
-            <PuppyArt table={pup.table} stage={pupStage(progress, pup.table)} size={64} />
+            <PuppyArt table={pup.table} stage={pupStage(progress, pup.table)} size={64} fresh={grew.has(String(pup.table))} freshOrder={grewOrder.indexOf(pup)} />
           </li>
         ))}
       </ul>
       {home === 0 && <p className="pup-home-note">Twelve puppy beds are ready. Start training to bring your first puppy home!</p>}
       {toys.length > 0 && (
-        <div className="sticker-shelf pup-toys" aria-label="Your toys and treats">
+        <div className="sticker-shelf pup-toys" aria-label="Your toys and treats" data-tap-each="">
           {toys.map((id) => (
-            <PuppyReward key={id} id={id} size={58} />
+            <PuppyReward key={id} id={id} size={58} className={newToys.has(id) ? 'fresh' : ''} />
           ))}
         </div>
       )}
