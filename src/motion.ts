@@ -3,8 +3,9 @@
 //
 // Two hooks for that CSS:
 // - Tap: mark art with `data-tap`, or a container with `data-tap-each` to make each of its children
-//   tappable. A tap adds the class `tapped` (restarting the animation if it's mid-way) and the class
-//   comes off when that animation ends. Style `.tapped`. The tap still does whatever else it did.
+//   tappable. Both get a pointer cursor, which iPadOS also needs before it sends the tap. A tap adds
+//   the class `tapped` (restarting the animation if it's mid-way), and the class comes off when that
+//   animation ends. Style `.tapped`. The tap still does whatever else it did.
 // - Fresh: put `data-fresh` on something that grew since the screen was last shown (see
 //   useNewSince), or the class `fresh` on a Reward, which only takes a className. Style it with a
 //   one-time animation; the attribute or class comes off when that ends, so a re-render or a later
@@ -14,7 +15,8 @@ import { type CSSProperties, useEffect, useState } from 'react'
 import type { Progress } from './engine/types'
 
 export function installTapMotion(): void {
-  document.addEventListener('pointerdown', (e) => {
+  // A click, not a pointerdown, so a finger that starts a scroll on some art doesn't set it off.
+  document.addEventListener('click', (e) => {
     const el = tapTarget(e.target)
     if (!el) return
     el.classList.remove('tapped')
