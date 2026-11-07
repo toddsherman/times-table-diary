@@ -873,7 +873,7 @@ function Face({ g, parts }: { g: Geo; parts: Parts }) {
       {parts.eyeDiscs &&
         [-1, 1].map((side) => <circle key={side} cx={cx + side * ex} cy={fy} r={er * 1.75} fill={parts.eyeDiscs} stroke={OUT} strokeWidth={1.6} />)}
       {[-1, 1].map((side) => (
-        <g key={side}>
+        <g key={side} className="creature-eye">
           <ellipse cx={f(cx + side * ex)} cy={f(fy)} rx={er} ry={f(ery)} fill={OUT} />
           <circle cx={f(cx + side * ex - er * 0.32)} cy={f(fy - ery * 0.38)} r={f(er * 0.42)} fill="#fff" />
           <circle cx={f(cx + side * ex + er * 0.35)} cy={f(fy + ery * 0.35)} r={f(er * 0.2)} fill="#fff" />
@@ -1078,6 +1078,7 @@ export function CreatureArt({
   size,
   fit = false,
   className = '',
+  tap = false,
 }: {
   table: number
   stage: number
@@ -1085,6 +1086,8 @@ export function CreatureArt({
   /** Frame the picture tight, so a baby fills it as well as a grown creature does. */
   fit?: boolean
   className?: string
+  /** Jumps (or, as an egg, jiggles) when tapped. */
+  tap?: boolean
 }) {
   const line = LINES[table - 1]
   const s = Math.max(0, Math.min(4, stage))
@@ -1097,6 +1100,7 @@ export function CreatureArt({
       height={size}
       role="img"
       aria-label={creatureName(line, s)}
+      data-tap={tap ? '' : undefined}
     >
       {s === 0 ? <EggBody line={line} /> : <CreatureBody line={line} stage={s as 1 | 2 | 3 | 4} />}
     </svg>

@@ -665,3 +665,214 @@
     animation: none;
   }
 }
+
+/* Motion: taps, a hop for creatures that grew since the last look, blinking, and stamps pressed
+   onto the page. See motion.ts. */
+@media (prefers-reduced-motion: no-preference) {
+  /* A creature that grew since the last look hops once, with a sparkle. */
+  :root[data-theme='creatures'] .team-row li {
+    position: relative;
+  }
+
+  :root[data-theme='creatures'] [data-fresh] > .creature {
+    transform-origin: 50% 100%;
+    animation: creatures-hop 900ms ease-in-out calc(300ms + min(var(--fresh-i, 0), 11) * 160ms) both;
+  }
+
+  :root[data-theme='creatures'] .team-row li[data-fresh]::after,
+  :root[data-theme='creatures'] .creature-card[data-fresh]::after {
+    content: '';
+    position: absolute;
+    inset: -14px;
+    pointer-events: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='%23ffd23f' stroke='%232a3140' stroke-width='1.6' stroke-linejoin='round'%3E%3Cpath d='M16 19Q18.42 27.58 27 30Q18.42 32.42 16 41Q13.58 32.42 5 30Q13.58 27.58 16 19Z'/%3E%3Cpath d='M84 13Q85.98 20.02 93 22Q85.98 23.98 84 31Q82.02 23.98 75 22Q82.02 20.02 84 13Z'/%3E%3Cpath d='M88 58Q89.32 62.68 94 64Q89.32 65.32 88 70Q86.68 65.32 82 64Q86.68 62.68 88 58Z'/%3E%3C/g%3E%3C/svg%3E")
+      center / contain no-repeat;
+    /* Runs a little longer than the hop: its end clears the fresh mark. */
+    animation: creatures-sparkle 1100ms ease-out calc(300ms + min(var(--fresh-i, 0), 11) * 160ms) both;
+  }
+
+  :root[data-theme='creatures'] .creature-card[data-fresh]::after {
+    inset: -8px 0 auto;
+    height: 124px;
+  }
+
+  /* The table number stays on top of a hopping creature and its sparkle. */
+  :root[data-theme='creatures'] .creature-num {
+    z-index: 1;
+  }
+
+  /* Grown creatures blink now and then, each on its own clock. */
+  :root[data-theme='creatures'] :is(.team-row, .creature-card) .creature-eye {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: creatures-blink 7.3s linear infinite;
+  }
+
+  :root[data-theme='creatures'] :is(.team-row li, .creature-card):nth-child(3n + 1) .creature-eye {
+    animation-duration: 8.9s;
+    animation-delay: -2.2s;
+  }
+
+  :root[data-theme='creatures'] :is(.team-row li, .creature-card):nth-child(3n + 2) .creature-eye {
+    animation-duration: 7.9s;
+    animation-delay: -5.1s;
+  }
+
+  :root[data-theme='creatures'] :is(.team-row li, .creature-card):nth-child(4n) .creature-eye {
+    animation-delay: -3.6s;
+  }
+
+  :root[data-theme='creatures'] :is(.team-row li, .creature-card):nth-child(5n) .creature-eye {
+    animation-delay: -0.7s;
+  }
+
+  /* The day's new stamp thunks down like a rubber stamp, on the end page and then on home. */
+  :root[data-theme='creatures'] .new-sticker .stamp-art.pop,
+  :root[data-theme='creatures'] .stamp-row > .fresh {
+    animation: creatures-stamp 700ms 250ms both;
+  }
+
+  /* Tap a creature and it jumps; tap an egg and it jiggles. */
+  :root[data-theme='creatures'] .creature.tapped {
+    transform-origin: 50% 100%;
+    animation: creatures-jump 650ms ease-in-out;
+  }
+
+  /* Specific enough to beat the wobble's staggered delays too. */
+  :root[data-theme='creatures'] :is(.team-row li, .creature-card) .creature.is-egg.tapped {
+    transform-origin: 50% 90%;
+    animation: creatures-jiggle 650ms ease-in-out;
+  }
+
+  /* Tap a stamp and it lifts, then presses back down. */
+  :root[data-theme='creatures'] .stamp-row > .tapped {
+    transform-origin: 50% 60%;
+    animation: creatures-press 550ms ease-in-out;
+  }
+}
+
+@keyframes creatures-hop {
+  0%,
+  100% {
+    transform: none;
+  }
+  15% {
+    transform: scale(1.1, 0.88);
+  }
+  40% {
+    transform: translateY(-16px) scale(0.92, 1.1);
+  }
+  58% {
+    transform: translateY(-18px) scale(1);
+  }
+  78% {
+    transform: scale(1.08, 0.92);
+  }
+  90% {
+    transform: scale(0.98, 1.02);
+  }
+}
+
+@keyframes creatures-sparkle {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.15) rotate(8deg);
+  }
+}
+
+@keyframes creatures-blink {
+  0%,
+  94%,
+  100% {
+    transform: none;
+  }
+  96% {
+    transform: scaleY(0.12);
+  }
+}
+
+@keyframes creatures-stamp {
+  0% {
+    opacity: 0;
+    transform: scale(1.6) rotate(-16deg);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(0.92) rotate(-3deg);
+    animation-timing-function: ease-out;
+  }
+  68% {
+    opacity: 1;
+    transform: scale(1.04) rotate(1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes creatures-jump {
+  0%,
+  100% {
+    transform: none;
+  }
+  18% {
+    transform: scale(1.08, 0.9);
+  }
+  45% {
+    transform: translateY(-12px) scale(0.94, 1.08);
+  }
+  75% {
+    transform: scale(1.06, 0.94);
+  }
+}
+
+@keyframes creatures-jiggle {
+  0%,
+  100% {
+    transform: none;
+  }
+  12% {
+    transform: rotate(-14deg);
+  }
+  28% {
+    transform: rotate(12deg);
+  }
+  44% {
+    transform: rotate(-9deg);
+  }
+  60% {
+    transform: rotate(6deg);
+  }
+  78% {
+    transform: rotate(-3deg);
+  }
+}
+
+@keyframes creatures-press {
+  0%,
+  100% {
+    transform: none;
+  }
+  35% {
+    transform: translateY(-6px) rotate(-4deg) scale(1.06);
+  }
+  65% {
+    transform: translateY(1px) scale(0.95);
+  }
+  82% {
+    transform: scale(1.02);
+  }
+}

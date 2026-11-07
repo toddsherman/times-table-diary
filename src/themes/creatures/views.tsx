@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 import { dateFromDay } from '../../engine/dates'
 import { factId, FACTORS } from '../../engine/facts'
 import type { Progress } from '../../engine/types'
+import { useNewSince } from '../../motion'
 import { STICKER_IDS, type StickerId } from '../../stickers'
 import { tableColoredIn } from '../tables'
 import type { PageProps } from '../types'
@@ -29,18 +30,34 @@ function nextStep(p: Progress, line: CreatureLine, stage: number): { text: strin
 
 const tint = (line: CreatureLine) => ({ '--c': line.colors.main, '--c-dark': line.colors.dark, '--c-light': line.colors.light }) as CSSProperties
 
+/**
+ * Each table's creature stage, and props for its list item: the tint, plus a one-time hop with a
+ * sparkle for a creature that grew since `what` was last on screen (several go one after another).
+ */
+function useTeam(progress: Progress, what: string) {
+  const stages = LINES.map((line) => creatureStage(progress, line.table))
+  const grown = useNewSince(progress, what, Object.fromEntries(LINES.map((line, i) => [line.table, stages[i]])))
+  const order = LINES.filter((line) => grown.has(String(line.table)))
+  const itemProps = (line: CreatureLine) =>
+    grown.has(String(line.table))
+      ? { 'data-fresh': '', style: { ...tint(line), '--fresh-i': order.indexOf(line) } as CSSProperties }
+      : { style: tint(line) }
+  return { stages, itemProps }
+}
+
 /** The grid page's top: a card for each table's creature. */
 export function Collection({ progress }: { progress: Progress }) {
+  const { stages, itemProps } = useTeam(progress, 'cards')
   return (
     <section className="creature-cards" aria-label="Your creatures">
       <ol>
-        {LINES.map((line) => {
-          const stage = creatureStage(progress, line.table)
+        {LINES.map((line, i) => {
+          const stage = stages[i]
           const next = nextStep(progress, line, stage)
           return (
-            <li key={line.table} className={`creature-card stage-${stage}`} style={tint(line)}>
+            <li key={line.table} className={`creature-card stage-${stage}`} {...itemProps(line)}>
               <span className="creature-num">×{line.table}</span>
-              <CreatureArt table={line.table} stage={stage} size={92} />
+              <CreatureArt table={line.table} stage={stage} size={92} tap />
               <span className="creature-name">{creatureName(line, stage)}</span>
               <span className="creature-stage">
                 {STAGE_LABELS[stage]} · {line.kind}
@@ -59,23 +76,23 @@ export function Collection({ progress }: { progress: Progress }) {
 
 /** The home screen's shelf: the whole team (eggs too), then the place stamps collected so far. */
 export function HomeShelf({ progress }: { progress: Progress }) {
+  const { stages, itemProps } = useTeam(progress, 'team')
   const stamps = STICKER_IDS.filter((id) => progress.stickers.includes(id))
+  // A stamp that's new since home was last shown gets pressed onto the page.
+  const freshStamps = useNewSince(progress, 'stamps', Object.fromEntries(stamps.map((id) => [id, 1])))
   return (
     <section className="creature-team" aria-label="Your creatures">
       <ul className="team-row">
-        {LINES.map((line) => {
-          const stage = creatureStage(progress, line.table)
-          return (
-            <li key={line.table} style={tint(line)}>
-              <CreatureArt table={line.table} stage={stage} size={60} fit />
-            </li>
-          )
-        })}
+        {LINES.map((line, i) => (
+          <li key={line.table} {...itemProps(line)}>
+            <CreatureArt table={line.table} stage={stages[i]} size={60} fit tap />
+          </li>
+        ))}
       </ul>
       {stamps.length > 0 && (
-        <div className="sticker-shelf stamp-row" aria-label="Your place stamps">
+        <div className="sticker-shelf stamp-row" aria-label="Your place stamps" data-tap-each="">
           {stamps.map((id) => (
-            <Stamp key={id} id={id} size={56} />
+            <Stamp key={id} id={id} size={56} className={freshStamps.has(id) ? 'fresh' : ''} />
           ))}
         </div>
       )}
