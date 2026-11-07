@@ -1047,11 +1047,178 @@
   :root[data-theme='construction'] .pencil-fill {
     animation: construction-roll 900ms linear infinite;
   }
+
+  /* The crane's hook sways on its cable, on home and on the tower page. */
+  :root[data-theme='construction'] .crane-hook,
+  :root[data-theme='construction'] .crane-cable {
+    transform-box: fill-box;
+    transform-origin: 50% 0;
+  }
+
+  :root[data-theme='construction'] .yard-tower .crane-hook,
+  :root[data-theme='construction'] .tower-crane .crane-hook {
+    animation: construction-sway 7s ease-in-out infinite alternate;
+  }
+
+  /* The swinging window may drop a little past the crane's drawing. */
+  :root[data-theme='construction'] .tower-crane {
+    position: relative;
+    z-index: 1;
+    overflow: visible;
+  }
+
+  /* Tap the crane: the hook lets out a little cable and reels it back in. */
+  :root[data-theme='construction'] .tapped .crane-cable {
+    animation: construction-cable 700ms ease-in-out;
+  }
+
+  :root[data-theme='construction'] .tapped .crane-load {
+    animation: construction-dip 700ms ease-in-out;
+  }
+
+  :root[data-theme='construction'] .yard-tower.tapped .crane-cable {
+    animation-name: construction-cable-short;
+  }
+
+  :root[data-theme='construction'] .yard-tower.tapped .crane-load {
+    animation-name: construction-dip-short;
+  }
+
+  /* Windows that went up a level since the last look switch on, from the ground up. */
+  :root[data-theme='construction'] .win[data-fresh] {
+    animation: construction-lights-on 800ms linear calc(350ms + min(var(--fresh-i, 0), 40) * 90ms) both;
+  }
+
+  /* A floor reached mid-practice: its windows light up left to right, then the frame shows. */
+  :root[data-theme='construction'] .milestone-art .mini-floor-picked rect {
+    animation: construction-lights-on 500ms linear calc(250ms + var(--i, 0) * 55ms) both;
+  }
+
+  :root[data-theme='construction'] .milestone-art .mini-floor-frame {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: construction-frame 450ms cubic-bezier(0.2, 1.5, 0.4, 1) 950ms both;
+  }
+
+  /* A machine new since the last look drives into the yard; the end of a shift drives one in too. */
+  :root[data-theme='construction'] .yard-machines > .fresh,
+  :root[data-theme='construction'] .new-sticker .sticker.pop {
+    transform-origin: 50% 92%;
+    animation: construction-drive-in 1200ms both;
+  }
+
+  :root[data-theme='construction'] .yard-machines > .fresh {
+    animation-delay: 300ms;
+  }
+
+  /* Tap a machine: it rolls forward, rocks on its springs and backs into its spot. */
+  :root[data-theme='construction'] .yard-machines > .tapped {
+    transform-origin: 50% 92%;
+    animation: construction-nudge 650ms ease-in-out;
+  }
 }
 
 @keyframes construction-roll {
   to {
     background-position: 28.28px 0;
+  }
+}
+
+@keyframes construction-sway {
+  from {
+    transform: rotate(-2.5deg);
+  }
+  to {
+    transform: rotate(2.5deg);
+  }
+}
+
+@keyframes construction-cable {
+  45% {
+    transform: scaleY(1.35);
+  }
+}
+
+@keyframes construction-dip {
+  45% {
+    transform: translateY(9px);
+  }
+}
+
+@keyframes construction-cable-short {
+  45% {
+    transform: scaleY(1.4);
+  }
+}
+
+@keyframes construction-dip-short {
+  45% {
+    transform: translateY(4px);
+  }
+}
+
+@keyframes construction-lights-on {
+  0% {
+    opacity: 0.35;
+  }
+  25% {
+    opacity: 1;
+  }
+  35% {
+    opacity: 0.5;
+  }
+  50%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes construction-frame {
+  from {
+    opacity: 0;
+    transform: scale(1.12);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes construction-drive-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-64px);
+    animation-timing-function: cubic-bezier(0.25, 0.6, 0.4, 1);
+  }
+  22% {
+    opacity: 1;
+  }
+  65% {
+    transform: none;
+    animation-timing-function: ease-out;
+  }
+  77% {
+    transform: rotate(3.5deg);
+    animation-timing-function: ease-in-out;
+  }
+  89% {
+    transform: rotate(-1.5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes construction-nudge {
+  35% {
+    transform: translateX(7px) rotate(-2deg);
+  }
+  55% {
+    transform: translateX(7px) rotate(2.5deg);
+  }
+  75% {
+    transform: translateX(2px) rotate(-1deg);
   }
 }
 

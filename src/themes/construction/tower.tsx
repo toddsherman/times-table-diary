@@ -1,5 +1,7 @@
+import type { CSSProperties } from 'react'
 import { ALL_FACT_IDS, factId, FACTORS } from '../../engine/facts'
 import type { Progress } from '../../engine/types'
+import { freshProps, useNewSince } from '../../motion'
 import { STICKER_IDS } from '../../stickers'
 import { tableStage } from '../tables'
 import { cementMixer, dumpTruck, excavator } from './fleet'
@@ -18,7 +20,7 @@ const floorsAt = (p: Progress, stage: number) => FACTORS.filter((n) => tableStag
 /** The crane on the roof, lowering a new window into place. */
 function Crane() {
   return (
-    <svg className="tower-crane" viewBox="0 0 400 84" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+    <svg className="tower-crane" viewBox="0 0 400 84" preserveAspectRatio="xMidYMax meet" aria-hidden="true" data-tap="">
       <path d="M338 3 40 15M338 3 394 15" stroke={C.ink} strokeWidth={2} />
       <path d="M330 15 338 3 346 15" fill="none" {...line} />
       <rect x={30} y={14} width={366} height={10} fill={C.yellow} {...line} />
@@ -35,11 +37,15 @@ function Crane() {
       <rect x={310} y={24} width={20} height={15} rx={2} fill={C.yellow} {...line} />
       <rect x={314} y={27} width={12} height={7} fill={C.glass} stroke={C.ink} strokeWidth={1.5} />
       <rect x={112} y={24} width={16} height={5} fill={C.dark} stroke={C.ink} strokeWidth={1.5} />
-      <path d="M120 29v26" stroke={C.ink} strokeWidth={1.8} />
-      <path d="M120 55v3q0 4-4 4" fill="none" stroke={C.ink} strokeWidth={2.2} strokeLinecap="round" />
-      <path d="M120 58 106 66M120 58 134 66" stroke={C.ink} strokeWidth={1.6} />
-      <rect x={104} y={66} width={32} height={16} rx={2} fill={C.glass} {...line} strokeWidth={2.5} />
-      <path d="M109 78l8-8M118 79l9-9" stroke="#fff" strokeWidth={2} strokeLinecap="round" />
+      <g className="crane-hook">
+        <path className="crane-cable" d="M120 29v26" stroke={C.ink} strokeWidth={1.8} />
+        <g className="crane-load">
+          <path d="M120 55v3q0 4-4 4" fill="none" stroke={C.ink} strokeWidth={2.2} strokeLinecap="round" />
+          <path d="M120 58 106 66M120 58 134 66" stroke={C.ink} strokeWidth={1.6} />
+          <rect x={104} y={66} width={32} height={16} rx={2} fill={C.glass} {...line} strokeWidth={2.5} />
+          <path d="M109 78l8-8M118 79l9-9" stroke="#fff" strokeWidth={2} strokeLinecap="round" />
+        </g>
+      </g>
     </svg>
   )
 }
@@ -65,8 +71,22 @@ function Ground() {
   )
 }
 
-/** The grid page's tower: a floor per table, a window per fact. Tapping a window shows the fact. */
-export function Tower({ progress, selected, onSelect }: { progress: Progress; selected: string | null; onSelect: (id: string) => void }) {
+/**
+ * The grid page's tower: a floor per table, a window per fact. Tapping a window shows the fact.
+ * Windows that went up a level since the last look switch on one by one, from the ground up.
+ */
+export function Tower({
+  progress,
+  selected,
+  onSelect,
+  fresh,
+}: {
+  progress: Progress
+  selected: string | null
+  onSelect: (id: string) => void
+  fresh: ReadonlySet<string>
+}) {
+  const freshOrder = ALL_FACT_IDS.filter((id) => fresh.has(id))
   return (
     <div className="tower">
       <Crane />
@@ -86,6 +106,7 @@ export function Tower({ progress, selected, onSelect }: { progress: Progress; se
                   className={`dcell win l${level} ${selected === id ? 'selected' : ''}`}
                   aria-label={`${a} times ${b}: ${levels[level].name}`}
                   onClick={() => onSelect(id)}
+                  {...freshProps(fresh.has(id), freshOrder.indexOf(id))}
                 >
                   {level > 0 ? a * b : ''}
                   {level === 5 && (
@@ -120,18 +141,22 @@ export function MiniTower({ progress, highlight, className = '' }: { progress: P
       <path d="M148 4 28 9M148 4 166 9" stroke={C.ink} strokeWidth={1.2} />
       <rect x={20} y={8} width={148} height={6} fill={C.yellow} stroke={C.ink} strokeWidth={2} />
       <rect x={142} y={14} width={8} height={24} fill={C.yellow} stroke={C.ink} strokeWidth={2} />
-      <path d="M60 14v10" stroke={C.ink} strokeWidth={1.2} />
-      <rect x={53} y={24} width={14} height={8} rx={1} fill={C.glass} stroke={C.ink} strokeWidth={1.5} />
+      <g className="crane-hook">
+        <path className="crane-cable" d="M60 14v10" stroke={C.ink} strokeWidth={1.2} />
+        <rect className="crane-load" x={53} y={24} width={14} height={8} rx={1} fill={C.glass} stroke={C.ink} strokeWidth={1.5} />
+      </g>
       <rect x={14} y={38} width={142} height={156} fill={C.concrete} stroke={C.ink} strokeWidth={3} />
       {TOP_DOWN.map((a, row) => {
         const y = 42 + row * 12.6
+        const lit = a === highlight
         return (
-          <g key={a}>
+          <g key={a} className={lit ? 'mini-floor-picked' : undefined}>
             {FACTORS.map((b) => {
               const level = progress.facts[factId(a, b)].level
               return (
                 <rect
                   key={b}
+                  style={lit ? ({ '--i': b } as CSSProperties) : undefined}
                   x={19 + (b - 1) * 11.3}
                   y={y}
                   width={9}
@@ -147,7 +172,7 @@ export function MiniTower({ progress, highlight, className = '' }: { progress: P
         )
       })}
       {highlight !== undefined && (
-        <g>
+        <g className="mini-floor-frame">
           <rect x={10} y={42 + (12 - highlight) * 12.6 - 3} width={150} height={15} rx={3} fill="none" stroke={C.orange} strokeWidth={3.5} />
           <path d={`M0 ${42 + (12 - highlight) * 12.6 + 4.5}h7`} stroke={C.orange} strokeWidth={3.5} strokeLinecap="round" />
         </g>
@@ -182,18 +207,20 @@ export function SiteSign({ progress }: { progress: Progress }) {
 /** The home screen's yard: the tower so far, with every machine earned parked beside it. */
 export function Yard({ progress }: { progress: Progress }) {
   const collected = STICKER_IDS.filter((id) => progress.stickers.includes(id))
+  // A machine earned since home was last shown drives into the yard.
+  const fresh = useNewSince(progress, 'yard', Object.fromEntries(collected.map((id) => [id, 1])))
   return (
     <section className="site-yard" aria-label="Your tower and machines">
-      <figure className="yard-tower">
+      <figure className="yard-tower" data-tap="">
         <MiniTower progress={progress} />
         <figcaption>{floorsAt(progress, 3)} of 12 floors built</figcaption>
       </figure>
       <div className="yard-lot">
         <p className="yard-title">Machine yard</p>
         {collected.length > 0 ? (
-          <div className="yard-machines">
+          <div className="yard-machines" data-tap-each="">
             {collected.map((id) => (
-              <Machine key={id} id={id} size={64} />
+              <Machine key={id} id={id} size={64} className={fresh.has(id) ? 'fresh' : ''} />
             ))}
           </div>
         ) : (
