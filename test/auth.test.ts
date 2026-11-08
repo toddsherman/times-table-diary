@@ -153,6 +153,17 @@ describe.each(databases)('linking an iPad (%s)', (_name, database) => {
     expect(days).toBeGreaterThan(360)
   }, 15_000)
 
+  it("never touches a grown-up's cookie when a request carries an iPad's token", async () => {
+    const { call, asGrownUp } = await setup()
+    // A token that has ended, sent from the browser where a grown-up is signed in.
+    const res = await call('get-session', { headers: asGrownUp({ authorization: 'Bearer token-that-has-ended' }) })
+    expect(res.status).toBe(200)
+    expect(res.headers.getSetCookie()).toEqual([])
+    // The grown-up's own requests still get their cookies as usual.
+    const out = await call('sign-out', { method: 'POST', headers: asGrownUp(), json: {} })
+    expect(out.headers.getSetCookie().some((c) => c.includes('session_token='))).toBe(true)
+  })
+
   it('refuses a code request from any other client', async () => {
     const { call } = await setup()
     const res = await call('device/code', { method: 'POST', json: { client_id: 'someone-else' } })

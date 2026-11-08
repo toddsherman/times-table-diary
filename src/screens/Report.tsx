@@ -14,8 +14,16 @@ import { useTheme } from '../themes'
 
 const percent = (part: number, whole: number) => `${Math.round((part / whole) * 100)}%`
 
-export function Report({ progress, link, onBack }: { progress: Progress; link: CloudLink | null; onBack: () => void }) {
-  const [answers, setAnswers] = useState<AnswerRecord[]>(loadQueue)
+interface Props {
+  progress: Progress
+  link: CloudLink | null
+  onBack: () => void
+  /** Include answers waiting on this device to be saved online. Off on the grown-up page, where they'd be another diary's. */
+  withQueued?: boolean
+}
+
+export function Report({ progress, link, onBack, withQueued = true }: Props) {
+  const [answers, setAnswers] = useState<AnswerRecord[]>(() => (withQueued ? loadQueue() : []))
   const [status, setStatus] = useState<'loading' | 'ready' | 'offline'>(link ? 'loading' : 'ready')
   const { words, levels: LEVELS } = useTheme()
   const { she, her } = words.pronouns ?? { she: progress.name, her: `${progress.name}'s` }
@@ -27,14 +35,14 @@ export function Report({ progress, link, onBack }: { progress: Progress; link: C
     fetchAnswers(link)
       .then((remote) => {
         if (!current) return
-        setAnswers([...remote, ...loadQueue()])
+        setAnswers([...remote, ...(withQueued ? loadQueue() : [])])
         setStatus('ready')
       })
       .catch(() => current && setStatus('offline'))
     return () => {
       current = false
     }
-  }, [link])
+  }, [link, withQueued])
 
   const today = dayNumber()
   const r = buildReport(progress, answers, today)
@@ -49,7 +57,8 @@ export function Report({ progress, link, onBack }: { progress: Progress; link: C
       <p className="report-sub">
         {progress.name}'s times tables
         {status === 'loading' && ' · updating…'}
-        {status === 'offline' && " · offline, so retention only counts answers from this device"}
+        {status === 'offline' &&
+          (withQueued ? ' · offline, so retention only counts answers from this device' : " · couldn't load the answers, so retention is missing")}
         {!link && ` · this ${words.thing} isn’t saved online, so retention only counts answers from this device`}
       </p>
 

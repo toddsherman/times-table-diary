@@ -1,6 +1,6 @@
 # Grown-up sign-in: plan
 
-Written 2026-11-07. Step 1 is built; the rest isn't.
+Written 2026-11-07. Steps 1 to 3 are built; the rest isn't.
 
 ## What changes, for whom
 
@@ -128,6 +128,12 @@ As before: make the change in a scratch clone of todd.sh, check what production 
    - approve a code;
    - add an existing diary;
    - linked iPads, each with a Remove button.
+
+   **Built and pushed on 2026-11-08.** It's all on `?grownups` (`src/screens/GrownUps.tsx`, with its calls in `src/family.ts`).
+   - **Your kids:** each with their progress report and a Delete button. The report is the kids' own Report screen, in that kid's look's words, leaving out answers queued on the grown-up's phone.
+   - **Linking:** a code that arrives in the address is checked straight away and put first. It's taken out of the address once it's been handled.
+   - **"Test: link this browser"** still plays the iPad's part until step 4.
+   - **A fix in the sign-in API:** replies to requests carrying an iPad's token never set cookies. Before this, checking an ended token from the grown-up's own browser signed them out.
 4. **The kid's side:**
    - the link code on the welcome screen, styled in each of the eight looks;
    - "Link this iPad" on the Grown-ups screen;

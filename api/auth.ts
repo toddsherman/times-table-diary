@@ -19,7 +19,14 @@ export function createAuthHandler(getAuth: () => Promise<Auth | null>, env: Auth
       const req = await publicRequest(request, env)
       // A kid's iPad can check and end its own session, and nothing else.
       if (await deviceOverreach(auth, req)) return json({ error: 'grown_up_only' }, 403)
-      return await auth.handler(req)
+      const response = await auth.handler(req)
+      if (!req.headers.has('authorization')) return response
+      // A request with an iPad's token never changes the browser's cookies. Otherwise checking a
+      // token that had ended would sign out a grown-up using the same browser, and a live one could
+      // replace their cookie with the iPad's.
+      const headers = new Headers(response.headers)
+      headers.delete('set-cookie')
+      return new Response(response.body, { status: response.status, statusText: response.statusText, headers })
     } catch (err) {
       console.error(err)
       return json({ error: 'server' }, 500)

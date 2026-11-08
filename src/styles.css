@@ -483,6 +483,54 @@ figure {
   word-break: break-all;
 }
 
+.grown-up-page .family-list {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.grown-up-page .family-list li {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.grown-up-page .family-list li + li {
+  padding-top: 0.9rem;
+  border-top: 2px dashed rgb(0 0 0 / 0.15);
+}
+
+.grown-up-page .family-name {
+  font-family: var(--bubble);
+  font-size: 1.35rem;
+}
+
+.grown-up-page .family-add {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.grown-up-page .family-list + .family-add {
+  padding-top: 0.9rem;
+  border-top: 2px dashed rgb(0 0 0 / 0.15);
+}
+
+.grown-up-page .segmented.wrap {
+  flex-wrap: wrap;
+}
+
+/* Grown-ups mostly use this page on a phone: keep the title on one line. */
+@media (max-width: 480px) {
+  .grown-up-page .top-bar::after {
+    width: 0;
+  }
+
+  .grown-up-page .top-bar .bubble-title {
+    white-space: nowrap;
+  }
+}
+
 /* Practice */
 .practice {
   display: grid;
