@@ -1,5 +1,6 @@
-import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
+import { createHash, createHmac } from 'node:crypto'
 import { neon } from '@neondatabase/serverless'
+import { clientIp } from '../server/client-ip.js'
 
 /**
  * Diary storage API.
@@ -93,21 +94,6 @@ async function readJson(request: Request): Promise<Json | null> {
   } catch {
     return null
   }
-}
-
-function sameSecret(given: string | null, expected: string): boolean {
-  const digest = (value: string) => createHash('sha256').update(value).digest()
-  return given !== null && timingSafeEqual(digest(given), digest(expected))
-}
-
-/**
- * Who's asking, for the login rate limits. Requests from www.todd.sh arrive from todd.sh's route
- * handler, so it passes the visitor's address along, and it's believed only with the proxy key.
- */
-function clientIp(request: Request, proxyKey: string | undefined): string {
-  const visitor = request.headers.get('x-diary-client-ip')
-  if (visitor && proxyKey && sameSecret(request.headers.get('x-diary-proxy-key'), proxyKey)) return visitor
-  return request.headers.get('x-real-ip') ?? request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
 }
 
 export function createHandler(

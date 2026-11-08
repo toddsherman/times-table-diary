@@ -472,6 +472,17 @@ figure {
   transition: transform 1.2s linear;
 }
 
+/* The grown-up page (?grownups) */
+.grown-up-page .link-code {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 1.4rem;
+  letter-spacing: 0.15em;
+}
+
+.grown-up-page a {
+  word-break: break-all;
+}
+
 /* Practice */
 .practice {
   display: grid;

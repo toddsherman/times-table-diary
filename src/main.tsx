@@ -14,10 +14,11 @@ import '@fontsource/nunito/latin-800.css'
 import '@fontsource/shojumaru/latin-400.css'
 import '@fontsource/titan-one/latin-400.css'
 import './styles.css'
-import { StrictMode } from 'react'
+import { StrictMode, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
 import App from './App'
+import { GrownUpsLazy } from './screens/GrownUpsLazy'
 import { installTapMotion } from './motion'
 import { unlockAudio } from './sound'
 
@@ -28,8 +29,16 @@ document.addEventListener('touchstart', () => {}, { passive: true })
 document.addEventListener('pointerdown', unlockAudio)
 installTapMotion()
 
+const grownUps = new URLSearchParams(location.search).has('grownups')
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    {grownUps ? (
+      <Suspense fallback={null}>
+        <GrownUpsLazy />
+      </Suspense>
+    ) : (
+      <App />
+    )}
   </StrictMode>,
 )
