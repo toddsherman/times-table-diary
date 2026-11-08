@@ -95,6 +95,32 @@ As before: make the change in a scratch clone of todd.sh, check what production 
 
    **Built and pushed on 2026-11-07,** with the todd.sh forwarder. Better Auth runs inside the app's API (`api/auth.ts`, `server/auth.ts`), with tables named `auth_user`, `auth_session`, `auth_account`, `auth_verification` and `auth_device_code`. The page is `?grownups`. Until `BETTER_AUTH_SECRET` is set, the sign-in API answers "not ready". Trying Google and Apple sign-in waits on their keys.
 2. **Accounts and access on the server:** the `diary_access` table, the rules above, the new calls, and tests in `test/api.test.ts` against the fake store.
+
+   **Built and pushed on 2026-11-08.**
+   - **Calls:** all are `api/diary` with an `op`, listed at the top of `api/diary.ts`: `kids`, `attach`, `link`, `devices` and `mine`.
+   - **Which session is which:** an iPad's session is marked as one when it's made from a link code, and it carries the one diary it may open (`linkedDevice` and `diaryId` on `auth_session`). Any other session is a grown-up's own sign-in.
+   - **What an iPad can't do:**
+     - delete a diary;
+     - add a kid;
+     - list or unlink iPads;
+     - approve a code;
+     - use sign-in for anything beyond checking or ending its own session. Without that last rule, it could link someone's Google account to the grown-up.
+   - **Deleting a diary** ends its iPads' sessions.
+   - **Changes made with a cookie** must come from the app's own pages.
+   - **Tests:** they run on the in-memory stores, and also on the real Postgres store when `TEST_DATABASE_URL` is set.
+
+   **For steps 3 and 4:**
+   - **Offering a diary:** an iPad offers the diary it already has by asking for its code with `scope: 'diary:<id>'`. The grown-up's page then sees that diary's name in `GET ?op=link&code=`.
+   - **Approving:** the grown-up's page approves with `POST ?op=link`, not Better Auth's own `/device/approve`. An iPad approved that way gets no kid's diary.
+   - **Once linked, an iPad:**
+     - sends `Authorization: Bearer <token>` on every diary call;
+     - asks `GET ?op=mine` which diary it has.
+   - **A different diary:** if the linked diary isn't the one the iPad already had, the iPad must switch to it, not merge the two.
+   - **New errors the app has to explain:**
+     - `link_needed`: no session, or it ended;
+     - `not_yours`;
+     - `grown_up_only`;
+     - `has_grown_up`: a name and PIN for a diary that now has a grown-up.
 3. **The grown-up page:**
    - sign in and out;
    - your kids with their reports (the existing Report screen);

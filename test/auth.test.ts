@@ -1,4 +1,4 @@
-import { memoryAdapter } from 'better-auth/adapters/memory'
+import { memoryAuthDb } from './memory-auth'
 import { getMigrations } from 'better-auth/db/migration'
 import { testUtils } from 'better-auth/plugins'
 import { exportPKCS8, exportSPKI, generateKeyPair, importSPKI, jwtVerify } from 'jose'
@@ -48,7 +48,7 @@ it("makes Apple's client secret from the .p8 key", async () => {
   const pem = (await exportPKCS8(privateKey)).replace(/\n/g, '\\n') // as pasted into one line
   const auth = createAuth(
     { ...env, APPLE_CLIENT_ID: 'sh.todd.diary.web', APPLE_TEAM_ID: 'TEAM123456', APPLE_KEY_ID: 'KEY1234567', APPLE_PRIVATE_KEY: pem },
-    memoryAdapter({}),
+    memoryAuthDb(),
   )
   const provider = (await auth.$context).socialProviders.find((p) => p.id === 'apple')
   expect(provider).toBeDefined()
@@ -87,7 +87,7 @@ describe.runIf(pgUrl)('AUTH_SCHEMA (needs TEST_DATABASE_URL)', () => {
   })
 })
 
-const databases: Array<[string, () => Promise<Parameters<typeof createAuth>[1]>]> = [['memory', async () => memoryAdapter({})]]
+const databases: Array<[string, () => Promise<Parameters<typeof createAuth>[1]>]> = [['memory', async () => memoryAuthDb()]]
 if (pgUrl) databases.push(['postgres', freshPool])
 
 describe.each(databases)('linking an iPad (%s)', (_name, database) => {

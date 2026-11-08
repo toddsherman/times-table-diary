@@ -19,6 +19,27 @@ export const AUTH_PATH = `${APP_PATH}/api/auth`
 export const DEVICE_CLIENT_ID = 'times-table-diary'
 /** Set by the API to the visitor's address, for Better Auth's rate limits. Never taken from the request. */
 export const CLIENT_IP_HEADER = 'x-ttd-client-ip'
+/**
+ * Where approving a link code leaves the diary chosen for that iPad, until the iPad picks up its
+ * session (a Better Auth verification value, keyed by the iPad's secret device code).
+ */
+export const linkChoice = (deviceCode: string) => `diary-link:${deviceCode}`
+/** What an iPad offers when it asks for a link code: the diary it already has, as the code's scope. */
+export const OFFER_PREFIX = 'diary:'
+/**
+ * All a linked iPad may do with sign-in itself: check its session, leave, and ask for a new code.
+ * Everything else (approving codes, adding a Google or Apple account, ending other sessions) needs
+ * a grown-up's own sign-in.
+ */
+export const DEVICE_ROUTES = new Set(['get-session', 'sign-out', 'device/code', 'device/token', 'ok', 'error'])
+
+/** The two fields this app adds to every session. */
+export interface SessionKind {
+  /** True for an iPad's session from a link code; false for a grown-up's own sign-in. */
+  linkedDevice?: boolean | null
+  /** For a linked iPad, the one diary it may open. */
+  diaryId?: string | null
+}
 
 export interface AuthEnv {
   BETTER_AUTH_SECRET?: string
@@ -58,7 +79,16 @@ export function authOptions(env: AuthEnv, database: BetterAuthOptions['database'
     account: { modelName: 'auth_account', accountLinking: { enabled: true, trustedProviders: ['google', 'apple'] } },
     verification: { modelName: 'auth_verification' },
     // A kid's iPad should stay linked: a year, renewed whenever it's used.
-    session: { modelName: 'auth_session', expiresIn: 365 * DAY, updateAge: DAY },
+    session: {
+      modelName: 'auth_session',
+      expiresIn: 365 * DAY,
+      updateAge: DAY,
+      // Set only by the hook below; nobody can set them through the API.
+      additionalFields: {
+        linkedDevice: { type: 'boolean', required: false, defaultValue: false, input: false },
+        diaryId: { type: 'string', required: false, input: false },
+      },
+    },
     plugins: [
       deviceAuthorization({
         expiresIn: '15m',
@@ -76,6 +106,18 @@ export function authOptions(env: AuthEnv, database: BetterAuthOptions['database'
         create: { before: async (account) => ({ data: withoutTokens(account) }) },
         update: { before: async (account) => ({ data: withoutTokens(account) }) },
       },
+      session: {
+        create: {
+          // A session made by redeeming a link code is an iPad's, tied to the diary chosen when
+          // the code was approved. Every other session is a grown-up's own sign-in.
+          before: async (session, ctx) => {
+            if (ctx?.path !== '/device/token') return { data: { ...session, linkedDevice: false, diaryId: null } }
+            const deviceCode = (ctx.body as { device_code?: unknown } | undefined)?.device_code
+            const choice = typeof deviceCode === 'string' ? await ctx.context.internalAdapter.consumeVerificationValue(linkChoice(deviceCode)) : null
+            return { data: { ...session, linkedDevice: true, diaryId: choice?.value ?? null } }
+          },
+        },
+      },
     },
     advanced: {
       cookiePrefix: 'ttd',
@@ -92,6 +134,17 @@ export function authOptions(env: AuthEnv, database: BetterAuthOptions['database'
 
 export function createAuth(env: AuthEnv, database: BetterAuthOptions['database'], extraPlugins: BetterAuthPlugin[] = []) {
   return betterAuth(authOptions(env, database, extraPlugins))
+}
+
+export type Auth = ReturnType<typeof createAuth>
+
+/** True when a linked iPad asks sign-in for something outside DEVICE_ROUTES (see publicRequest). */
+export async function deviceOverreach(auth: Auth, request: Request): Promise<boolean> {
+  const route = new URL(request.url).pathname.slice(AUTH_PATH.length + 1)
+  if (DEVICE_ROUTES.has(route)) return false
+  if (!request.headers.has('cookie') && !request.headers.has('authorization')) return false
+  const found = await auth.api.getSession({ headers: request.headers, query: { disableRefresh: true } })
+  return (found?.session as SessionKind | undefined)?.linkedDevice === true
 }
 
 function withoutTokens<T extends object>(account: T): T {
