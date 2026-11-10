@@ -31,6 +31,8 @@ Optional: Settings → Accessibility → Guided Access locks the iPad to the app
 
 ## Diaries online: name + family PIN
 
+Name and PIN is how diaries work today. Grown-up sign-in is replacing it, step by step: see [Grown-up sign-in](#grown-up-sign-in) below.
+
 - **Starting:** the first page asks for her name and a family PIN (4–8 digits; easy ones like 1234, repeats, and years are refused).
 - **Another device:** tap "Already have a diary? Open it" and enter the same name and PIN. Capitals, accents, and extra spaces in the name don't matter.
 - **Privacy:** the server turns name + PIN into the diary's ID with an HMAC keyed by `DIARY_SECRET`. The name and PIN are never stored, and IDs can't be guessed or reversed. Two kids with the same name get separate diaries unless they also pick the same PIN.
@@ -68,19 +70,33 @@ Press and hold "Grown-ups: hold" on the home screen for about a second. It has:
 
 ## Server
 
-- **API:** one Vercel Function, `api/diary.ts`: create/open, get/save progress, the answer log, delete. Its logic is tested against an in-memory store in `test/api.test.ts`.
-- **Database:** Neon Postgres (free plan, from the Vercel Marketplace). Three tables (`diaries`, `answers`, `attempts`) are created automatically on first use.
+- **API:** two Vercel Functions.
+  - `api/diary.ts`: create/open, get/save progress, the answer log, delete, and the grown-up calls (kids, linking iPads). Every call is listed at the top of the file.
+  - `api/auth.ts`: grown-up sign-in, with [Better Auth](https://better-auth.com). Its setup is in `server/`.
+- **Tests:** `test/api.test.ts` and `test/auth.test.ts` run the API against in-memory stores, and against real Postgres too when `TEST_DATABASE_URL` is set. `npm test` runs before every Vercel build, so a failing test stops the deploy.
+- **Database:** Neon Postgres (free plan, from the Vercel Marketplace). The diary tables (`diaries`, `answers`, `attempts`, `diary_access`) and the sign-in tables (`auth_*`) are created on first use; after that a cold start checks for them with one query.
+- **The answer log** keeps each answer once (by its moment and fact), so a batch that's sent twice adds nothing. Each diary keeps its newest 200,000 answers.
 - **Environment variables:**
   - `DATABASE_URL`: set by the Neon integration.
   - `DIARY_SECRET`: a random 32-byte hex string; secret in production and preview.
   - `DIARY_PROXY_KEY`: another random 32-byte hex string, set on both this project and todd.sh (production and preview). See the next section.
+  - `BETTER_AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and Apple's four (`APPLE_CLIENT_ID`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY`): for grown-up sign-in. Until `BETTER_AUTH_SECRET` is set, sign-in answers "not ready" and diaries work by name and PIN as before.
+
+## Grown-up sign-in
+
+Being built in steps; the plan and what's done so far are in [docs/sign-in-plan.md](docs/sign-in-plan.md).
+
+- **Grown-ups** sign in with Google or Apple at `/timesTableDiary/App?grownups`, on their own phone or computer. There they see their kids' diaries and reports, add a kid, and link or unlink iPads.
+- **A kid's iPad** never signs in. It shows a short code, a signed-in grown-up approves it, and the iPad gets its own long-lived session for that one kid's diary.
+- **Once a diary has a grown-up,** only their sign-in and the iPads they linked can open it. Its name and PIN stop working, and so does its bare ID.
+- **Guessing:** link-code lookups are limited to 30 per 15 minutes per grown-up.
 
 ## Served from todd.sh
 
 The app's address is www.todd.sh/timesTableDiary/App, one level below its write-up. todd.sh ([toddsherman/todd.sh](https://github.com/toddsherman/todd.sh)) is a separate Next.js site that fronts this Vercel project:
 
 - **The app** comes through a rewrite in todd.sh's `next.config.ts` that keeps the path unchanged. Vite builds with `/timesTableDiary/App/` as its base into `dist/timesTableDiary/App/`, so this deployment serves the app from that same path.
-- **The API** goes through a todd.sh route handler instead (`app/timesTableDiary/App/api/diary/route.ts`). Behind a plain rewrite, every request would seem to come from todd.sh, but the PIN rate limits need each visitor's IP address. The handler sends it in `x-diary-client-ip`, which the API believes only alongside `DIARY_PROXY_KEY`.
+- **The API** goes through a todd.sh route handler instead (`app/timesTableDiary/App/api/[...path]/route.ts`), which also passes sign-in's cookies and redirects through. Behind a plain rewrite, every request would seem to come from todd.sh, but the rate limits need each visitor's IP address. The handler sends it in `x-diary-client-ip`, which the API believes only alongside `DIARY_PROXY_KEY`.
 - **No trailing slash.** todd.sh removes trailing slashes, so the page is `/timesTableDiary/App`. A service worker at `/timesTableDiary/App/sw.js` wouldn't cover that page by default, so it registers with scope `/timesTableDiary/App`. The `Service-Worker-Allowed` header in `vercel.json` permits that.
 - **The old address.** Everything else on times-table-diary.vercel.app redirects to the new one, except `/sw.js`. That file is `old-address/sw.js`, which replaces the service worker that used to cache the app there; without it, returning visitors would keep opening the cached old app and never reach the redirect.
 

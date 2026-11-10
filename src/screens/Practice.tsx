@@ -243,7 +243,11 @@ export function Practice({ progress, onBreak, onPageDone }: Props) {
     const ms = Math.min(performance.now() - shownAt.current, 30_000)
     const before = p.facts[q.id].level
     const outcome = recordAnswer(p, s, q, Number(value) === q.answer, ms)
-    if (outcome !== 'wrong') held.current.push(...newMilestones())
+    if (outcome !== 'wrong') {
+      held.current.push(...newMilestones())
+      // Answered and done with: if the app closes during the cheer, reopening asks the next one.
+      showQuestion(plan, null)
+    }
     save()
     log(q, Number(value), ms, outcome, before)
     if (outcome === 'wrong') {

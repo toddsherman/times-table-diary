@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { MasteryChart, PracticeCalendar, TableMeters } from '../components/Charts'
 import { TopBar } from '../components/TopBar'
-import { fetchAnswers } from '../cloud'
+import { fetchAnswers, uniqueAnswers } from '../cloud'
 import { dayNumber } from '../engine/dates'
 import { LIGHTNING_LAP } from '../engine/day'
 import { factId, FACTORS, showFact } from '../engine/facts'
@@ -35,7 +35,8 @@ export function Report({ progress, link, onBack, withQueued = true }: Props) {
     fetchAnswers(link)
       .then((remote) => {
         if (!current) return
-        setAnswers([...remote, ...(withQueued ? loadQueue() : [])])
+        // An answer can be on the server and still queued here, if the reply to its upload never arrived.
+        setAnswers(uniqueAnswers([...remote, ...(withQueued ? loadQueue() : [])]))
         setStatus('ready')
       })
       .catch(() => current && setStatus('offline'))

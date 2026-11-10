@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
   "installCommand": "npm install",
-  "buildCommand": "npm run build",
+  "buildCommand": "npm test && npm run build",
   "devCommand": "vite --port $PORT",
   "outputDirectory": "dist",
   "redirects": [

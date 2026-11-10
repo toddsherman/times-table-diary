@@ -1,6 +1,6 @@
 import { mergeProgress, sameProgress } from './engine/sync'
 import type { AnswerRecord, Progress } from './engine/types'
-import { dropQueued, loadQueue, parseProgress, type CloudLink } from './storage'
+import { dropSent, loadQueue, parseProgress, type CloudLink } from './storage'
 
 const MESSAGES: Record<string, string> = {
   bad_name: 'Write your name first!',
@@ -10,6 +10,7 @@ const MESSAGES: Record<string, string> = {
   taken: 'That name and PIN are already taken. Pick a different PIN.',
   too_many: 'Too many tries. Wait a few minutes, then try again.',
   offline: "Can't reach the internet right now.",
+  too_big: 'This diary has grown too big to save online.',
   server: 'Something went wrong saving online. Try again in a bit.',
 }
 
@@ -53,6 +54,12 @@ export async function openDiary(name: string, pin: string): Promise<{ progress: 
   return { progress: parseProgress(JSON.stringify(body.progress)), link: linkFrom(body.id, body.version) }
 }
 
+/** The server's copy of a diary this device is linked to. */
+export async function fetchDiary(link: CloudLink): Promise<{ progress: Progress; link: CloudLink }> {
+  const remote = await call(diaryUrl(link))
+  return { progress: parseProgress(JSON.stringify(remote.progress)), link: linkFrom(link.id, remote.version) }
+}
+
 /** Merges this device's diary with the server's copy and uploads the result if anything is new. */
 export async function syncDiary(local: Progress, link: CloudLink): Promise<{ progress: Progress; link: CloudLink }> {
   const remote = await call(diaryUrl(link))
@@ -74,32 +81,62 @@ export async function syncDiary(local: Progress, link: CloudLink): Promise<{ pro
   throw new CloudError('server')
 }
 
-/** Uploads answers logged on this device. With `closing`, sends one small batch that survives the page closing. */
-export async function flushAnswers(link: CloudLink, closing = false): Promise<void> {
-  for (;;) {
-    const batch = loadQueue().slice(0, closing ? 150 : 500)
-    if (batch.length === 0) return
-    await call(diaryUrl(link, 'answers'), { method: 'POST', body: JSON.stringify({ answers: batch }), keepalive: closing })
-    dropQueued(batch.length)
-    if (closing) return
-  }
+let flushing: Promise<void> | null = null
+
+/**
+ * Uploads answers logged on this device. With `closing`, sends one small batch that survives the
+ * page closing. Only one upload runs at a time: a second call waits on the first, so the same
+ * answers are never on their way twice. (The server also skips answers it already has.)
+ */
+export function flushAnswers(link: CloudLink, closing = false): Promise<void> {
+  flushing ??= (async () => {
+    for (;;) {
+      const batch = loadQueue().slice(0, closing ? EXIT_BATCH : 500)
+      if (batch.length === 0) return
+      await call(diaryUrl(link, 'answers'), { method: 'POST', body: JSON.stringify({ answers: batch }), keepalive: closing })
+      dropSent(batch)
+      if (closing) return
+    }
+  })().finally(() => {
+    flushing = null
+  })
+  return flushing
 }
 
+/** The diary's answer log. Answers saved twice before the server learned to skip repeats are counted once. */
 export async function fetchAnswers(link: CloudLink): Promise<AnswerRecord[]> {
   const body = await call(diaryUrl(link, 'answers'))
-  return Array.isArray(body.answers) ? (body.answers as AnswerRecord[]) : []
+  return uniqueAnswers(Array.isArray(body.answers) ? (body.answers as AnswerRecord[]) : [])
 }
+
+/** Each answer once, by its moment and fact, keeping the first copy. */
+export function uniqueAnswers(answers: AnswerRecord[]): AnswerRecord[] {
+  const seen = new Set<string>()
+  return answers.filter((a) => {
+    const key = `${a.at} ${a.fact}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
+/** Answers sent in the one batch that goes out as the app closes. */
+const EXIT_BATCH = 150
+/**
+ * Browsers let requests that outlive the page carry about 64 KB between them. The answers go
+ * first; the diary itself goes along only while it still fits.
+ */
+const EXIT_BUDGET = 60_000
 
 /** Best-effort save while the app is being closed or switched away from. */
 export function saveOnExit(progress: Progress, link: CloudLink): void {
+  const answers = JSON.stringify({ answers: loadQueue().slice(0, EXIT_BATCH) })
   flushAnswers(link, true).catch(() => {})
+  const body = JSON.stringify({ version: link.version, progress })
+  // A diary too big for this is on the device all the same, and the next sync uploads it.
+  if (new Blob([answers, body]).size > EXIT_BUDGET) return
   // A stale version just gets a 409; the next full sync merges properly.
-  fetch(diaryUrl(link), {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ version: link.version, progress }),
-    keepalive: true,
-  }).catch(() => {})
+  fetch(diaryUrl(link), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body, keepalive: true }).catch(() => {})
 }
 
 export async function deleteDiary(link: CloudLink): Promise<void> {

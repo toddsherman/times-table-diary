@@ -5,7 +5,7 @@ import { exportPKCS8, exportSPKI, generateKeyPair, importSPKI, jwtVerify } from 
 import { Pool } from 'pg'
 import { afterAll, describe, expect, it } from 'vitest'
 import { createAuthHandler } from '../api/auth'
-import { AUTH_SCHEMA } from '../server/auth-schema'
+import { AUTH_SCHEMA, AUTH_SCHEMA_READY } from '../server/auth-schema'
 import { authOptions, CLIENT_IP_HEADER, createAuth, DEVICE_CLIENT_ID, publicRequest, type AuthEnv } from '../server/auth'
 
 const SECRET = 'test-secret-that-is-long-enough-for-better-auth'
@@ -84,6 +84,17 @@ describe.runIf(pgUrl)('AUTH_SCHEMA (needs TEST_DATABASE_URL)', () => {
     expect(plan.toBeCreated).toEqual([])
     expect(plan.toBeAdded).toEqual([])
     expect(plan.toBeAddedIndexes).toEqual([])
+  })
+
+  it('knows whether the tables are all there yet', async () => {
+    const pool = await freshPool()
+    const ready = async () => (await pool.query<{ ready: boolean }>(AUTH_SCHEMA_READY)).rows[0].ready
+    expect(await ready()).toBe(true)
+    // As the first tables went out: before linked iPads had their columns.
+    await pool.query('ALTER TABLE "auth_session" DROP COLUMN "diaryId"')
+    expect(await ready()).toBe(false)
+    await pool.query('DROP TABLE "auth_device_code"')
+    expect(await ready()).toBe(false)
   })
 })
 

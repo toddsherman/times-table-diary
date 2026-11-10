@@ -1,6 +1,6 @@
 import { Pool } from 'pg'
 import { accountsFrom, type Accounts } from './accounts.js'
-import { AUTH_SCHEMA } from './auth-schema.js'
+import { AUTH_SCHEMA, AUTH_SCHEMA_READY } from './auth-schema.js'
 import { createAuth, type Auth, type AuthEnv } from './auth.js'
 
 let ready: Promise<Auth> | undefined
@@ -16,7 +16,8 @@ export function productionAuth(): Promise<Auth | null> {
     const url = process.env.DATABASE_URL ?? process.env.POSTGRES_URL
     if (!url) throw new Error('DATABASE_URL is not set')
     const pool = new Pool({ connectionString: url, max: 3, idleTimeoutMillis: 5_000 })
-    for (const statement of AUTH_SCHEMA) await pool.query(statement)
+    const { rows } = await pool.query<{ ready: boolean }>(AUTH_SCHEMA_READY)
+    if (!rows[0]?.ready) for (const statement of AUTH_SCHEMA) await pool.query(statement)
     return createAuth(env, pool)
   })().catch((err: unknown) => {
     ready = undefined

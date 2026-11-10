@@ -133,6 +133,7 @@ export function GrownUps() {
           ) : (
             <>
               <p>Sign in to look after your kids' diaries and link their iPads.</p>
+              <p className="note">Pick one and use it every time. Google and Apple can each make a separate account, with its own kids.</p>
               <div className="row">
                 <button type="button" className="btn small teal" onClick={() => signIn('google')}>
                   Sign in with Google

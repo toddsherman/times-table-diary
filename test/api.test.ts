@@ -49,7 +49,15 @@ function memoryStore(): Store {
         .map(([id]) => ({ id, name: JSON.parse(diaries.get(id)!.progress).name as string, updatedAt: diaries.get(id)!.updatedAt }))
     },
     async appendAnswers(id, answers) {
-      logs.set(id, [...(logs.get(id) ?? []), ...answers])
+      const log = [...(logs.get(id) ?? [])]
+      const key = (a: unknown) => `${(a as { at: number }).at} ${(a as { fact: string }).fact}`
+      const known = new Set(log.map(key))
+      for (const a of answers) {
+        if (known.has(key(a))) continue
+        known.add(key(a))
+        log.push(a)
+      }
+      logs.set(id, log)
     },
     async readAnswers(id) {
       return logs.get(id) ?? []
@@ -514,5 +522,29 @@ describe.each(DATABASES)('linked iPads (%s)', (db) => {
     const unassigned = await iPadSession(another)
     expect((await api('GET', `/api/diary?id=${ava}`, undefined, unassigned)).body.error).toBe('not_yours')
     expect((await api('GET', '/api/diary?op=mine', undefined, unassigned)).body.error).toBe('no_diary')
+  })
+
+  it('stores an answer once, however many times it is sent', async () => {
+    const { api } = await family(db)
+    const made = await api('POST', '/api/diary', { action: 'create', name: 'Ava', pin: '8305', progress })
+    const path = `/api/diary?id=${String(made.body.id)}&op=answers`
+    await api('POST', path, { answers: [answer(1), answer(2)] })
+    // The same batch again (its reply got lost), overlapping a newer one, with a repeat inside it.
+    await api('POST', path, { answers: [answer(1), answer(2)] })
+    await api('POST', path, { answers: [answer(2), answer(3), answer(3), { ...answer(3), fact: '6x7' }] })
+    const log = (await api('GET', path)).body.answers as Array<{ at: number; fact: string }>
+    expect(log.map((a) => `${a.at} ${a.fact}`)).toEqual(['1 7x8', '2 7x8', '3 7x8', '3 6x7'])
+  })
+
+  it('stops someone guessing link codes', async () => {
+    const { api, grownUp, iPadCode } = await family(db)
+    const guesser = await grownUp('guesser@example.com')
+    for (let i = 0; i < 30; i++) {
+      expect((await api('GET', `/api/diary?op=link&code=WRONG${i}`, undefined, guesser)).body.error).toBe('bad_code')
+    }
+    // Out of tries: even a real code is refused now, to look at or to approve.
+    const code = await iPadCode()
+    expect(only(await api('GET', `/api/diary?op=link&code=${code.user_code}`, undefined, guesser))).toEqual({ status: 429, body: { error: 'too_many' } })
+    expect((await api('POST', '/api/diary?op=link', { code: code.user_code, diaryId: 'a'.repeat(64) }, guesser)).status).toBe(429)
   })
 })

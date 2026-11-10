@@ -10,11 +10,9 @@ import { timeAgo } from '../format'
 import { parseProgress, shareBackup, type CloudLink } from '../storage'
 import { useTheme } from '../themes'
 
-export interface SyncStatus {
-  state: 'off' | 'syncing' | 'saved' | 'error'
-  at?: number
-  message?: string
-}
+import type { SyncStatus } from '../syncer'
+
+export type { SyncStatus }
 
 interface Props {
   progress: Progress

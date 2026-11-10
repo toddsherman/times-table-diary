@@ -18,6 +18,7 @@ import { StrictMode, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
 import App from './App'
+import { ErrorScreen } from './components/ErrorScreen'
 import { GrownUpsLazy } from './screens/GrownUpsLazy'
 import { installTapMotion } from './motion'
 import { unlockAudio } from './sound'
@@ -33,12 +34,14 @@ const grownUps = new URLSearchParams(location.search).has('grownups')
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {grownUps ? (
-      <Suspense fallback={null}>
-        <GrownUpsLazy />
-      </Suspense>
-    ) : (
-      <App />
-    )}
+    <ErrorScreen>
+      {grownUps ? (
+        <Suspense fallback={null}>
+          <GrownUpsLazy />
+        </Suspense>
+      ) : (
+        <App />
+      )}
+    </ErrorScreen>
   </StrictMode>,
 )

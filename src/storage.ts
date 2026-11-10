@@ -122,9 +122,11 @@ export function queueAnswer(answer: AnswerRecord): void {
   write(QUEUE_KEY, [...loadQueue(), answer].slice(-MAX_QUEUE))
 }
 
-/** Drops the oldest `count` answers once the server has them. */
-export function dropQueued(count: number): void {
-  write(QUEUE_KEY, loadQueue().slice(count))
+/** Drops answers the server now has, and only those: ones logged since they were sent stay. */
+export function dropSent(sent: AnswerRecord[]): void {
+  const key = (a: AnswerRecord) => `${a.at} ${a.fact}`
+  const gone = new Set(sent.map(key))
+  write(QUEUE_KEY, loadQueue().filter((a) => !gone.has(key(a))))
 }
 
 /** Asks the browser not to clear this site's storage when space runs low. */

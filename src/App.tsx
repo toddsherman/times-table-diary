@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { createDiary, deleteDiary, flushAnswers, openDiary, saveOnExit, syncDiary } from './cloud'
+import { createDiary, deleteDiary, fetchDiary, flushAnswers, openDiary, saveOnExit, syncDiary } from './cloud'
 import { dayNumber } from './engine/dates'
 import { startNewLesson } from './engine/day'
 import { createProgress } from './engine/progress'
@@ -10,10 +10,11 @@ import { EntryDone } from './screens/EntryDone'
 import { Home } from './screens/Home'
 import { Practice } from './screens/Practice'
 import { Report } from './screens/Report'
-import { Settings, type SyncStatus } from './screens/Settings'
+import { Settings } from './screens/Settings'
 import { Welcome } from './screens/Welcome'
 import { setSoundOn } from './sound'
 import { eraseLocalDiary, loadLink, loadProgress, requestPersistence, saveLink, saveProgress, type CloudLink } from './storage'
+import { createSyncer, type SyncStatus } from './syncer'
 import { applyTheme, getTheme, ThemeContext, type ThemeId } from './themes'
 
 type Screen = 'home' | 'practice' | 'done' | 'doodles' | 'diary' | 'settings' | 'report'
@@ -25,8 +26,8 @@ export default function App() {
   const [entry, setEntry] = useState<DiaryEntry | null>(null)
   const [sync, setSync] = useState<SyncStatus>(() => ({ state: loadLink() ? 'saved' : 'off', at: loadLink()?.syncedAt }))
   const screenRef = useRef(screen)
-  const running = useRef(false)
-  const again = useRef(false)
+  // The link is here but the diary's saved copy can't be read: wait for the server's before offering a new one.
+  const [recovering, setRecovering] = useState(() => loadLink() !== null && loadProgress() === null)
   const soundOn = progress?.settings.sound ?? true
   // Before there's a diary, the welcome screen's picker sets the look.
   const [welcomeTheme, setWelcomeTheme] = useState<ThemeId>('diary')
@@ -49,39 +50,31 @@ export default function App() {
     window.scrollTo(0, 0)
   }, [screen, signedIn])
 
-  /** Uploads new answers, then merges this device's diary with the server's copy. */
-  const syncNow = useCallback(async () => {
-    if (running.current) {
-      again.current = true
-      return
-    }
-    running.current = true
-    do {
-      again.current = false
-      const current = loadLink()
-      const local = loadProgress()
-      if (!current || !local) break
-      setSync((s) => ({ ...s, state: 'syncing' }))
-      try {
-        await flushAnswers(current)
-        const result = await syncDiary(local, current)
-        saveLink(result.link)
-        setLink(result.link)
-        // Mid-session, the practice screen owns the diary; the merge is applied on the next sync.
-        if (screenRef.current !== 'practice') {
-          saveProgress(result.progress, { touch: false })
-          setProgress(result.progress)
-        }
-        setSync({ state: 'saved', at: result.link.syncedAt })
-      } catch (err) {
-        setSync((s) => ({ ...s, state: 'error', message: err instanceof Error ? err.message : String(err) }))
-      }
-    } while (again.current)
-    running.current = false
+  /** Uploads new answers, then merges this device's diary with the server's copy (see createSyncer). */
+  const syncer = useRef<(() => Promise<void>) | null>(null)
+  const syncNow = useCallback(() => {
+    syncer.current ??= createSyncer({
+      loadLink,
+      loadProgress,
+      flushAnswers,
+      syncDiary,
+      fetchDiary,
+      saveLink: (l) => {
+        saveLink(l)
+        setLink(l)
+      },
+      applyProgress: (p) => {
+        saveProgress(p, { touch: false })
+        setProgress(p)
+      },
+      holdsDiary: () => screenRef.current === 'practice',
+      onStatus: setSync,
+    })
+    return syncer.current()
   }, [])
 
   useEffect(() => {
-    const first = window.setTimeout(() => void syncNow(), 0)
+    const first = window.setTimeout(() => void syncNow().finally(() => setRecovering(false)), 0)
     const onOnline = () => void syncNow()
     const onVisibility = () => {
       if (document.visibilityState === 'visible') return void syncNow()
@@ -117,6 +110,7 @@ export default function App() {
   return <ThemeContext.Provider value={theme}>{renderScreen()}</ThemeContext.Provider>
 
   function renderScreen() {
+    if (!progress && recovering) return null
     if (!progress) {
       return (
         <Welcome

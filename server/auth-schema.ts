@@ -18,3 +18,12 @@ export const AUTH_SCHEMA = [
   `CREATE UNIQUE INDEX IF NOT EXISTS "auth_device_code_deviceCode_uidx" on "auth_device_code" ("deviceCode")`,
   `CREATE UNIQUE INDEX IF NOT EXISTS "auth_device_code_userCode_uidx" on "auth_device_code" ("userCode")`,
 ]
+
+/**
+ * True once everything in AUTH_SCHEMA is in place: the columns added after the first tables went
+ * out, and the last index. One query on a cold start instead of running every statement. When
+ * AUTH_SCHEMA grows, check for the new piece here too.
+ */
+export const AUTH_SCHEMA_READY = `SELECT to_regclass('"auth_device_code_userCode_uidx"') IS NOT NULL AND (
+  SELECT count(*) FROM information_schema.columns
+  WHERE table_schema = current_schema() AND table_name = 'auth_session' AND column_name IN ('linkedDevice', 'diaryId')) = 2 AS ready`

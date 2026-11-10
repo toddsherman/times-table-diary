@@ -59,6 +59,7 @@ export interface Store {
   /** Saves if the stored version is still `base`; returns the new version, or null if another device saved first. */
   save(id: string, progress: string, base: number, now: number): Promise<number | null>
   remove(id: string): Promise<void>
+  /** Adds answers to the log, skipping any it already has (same moment and fact), so a batch can be sent again safely. */
   appendAnswers(id: string, answers: unknown[]): Promise<void>
   readAnswers(id: string): Promise<unknown[]>
   /** Counts an attempt against `key`; false once more than `limit` happen within the window. */
@@ -72,8 +73,12 @@ export interface Store {
 const DIARY_ID = /^[0-9a-f]{64}$/
 const MAX_NAME = 40
 const FACT_ID = /^\d{1,2}x\d{1,2}$/
-const MAX_BODY = 512 * 1024
+/** Vercel's own limit is 4.5 MB. A diary with a page a day for ten years is about 2 MB. */
+const MAX_BODY = 3 * 1024 * 1024
+/** Answers a progress report reads: the newest ones. */
 const MAX_ANSWERS = 50_000
+/** Answers kept per diary, far more than years of daily practice makes. Older ones are dropped. */
+export const KEPT_ANSWERS = 200_000
 
 // Popular PINs that aren't simple patterns (patterns and years are caught in pinProblem).
 const EASY_PINS = new Set(['1004', '0007', '1122', '1221', '1313', '1357', '2468', '2580', '0852', '4545', '5683', '6969', '8520'])
@@ -116,9 +121,12 @@ function isAnswer(value: unknown): boolean {
   return typeof a === 'object' && a !== null && typeof a.at === 'number' && typeof a.fact === 'string' && FACT_ID.test(a.fact)
 }
 
+/** Thrown for a request body over MAX_BODY, so it gets its own answer rather than "bad request". */
+class TooBig extends Error {}
+
 async function readJson(request: Request): Promise<Json | null> {
   const text = await request.text()
-  if (text.length > MAX_BODY) return null
+  if (text.length > MAX_BODY) throw new TooBig()
   try {
     const value: unknown = JSON.parse(text)
     return typeof value === 'object' && value !== null ? (value as Json) : null
@@ -139,6 +147,11 @@ export function createHandler(
   async function underPinLimits(store: Store, request: Request, name: string): Promise<boolean> {
     const nameKey = createHash('sha256').update(name).digest('hex').slice(0, 24)
     return (await store.hit(`limit:ip:${clientIp(request, getProxyKey())}`, 20, 15 * 60)) && (await store.hit(`limit:name:${nameKey}`, 40, 60 * 60))
+  }
+
+  /** Slows down guessing link codes: plenty for linking a houseful of iPads, far too few to find someone else's code. */
+  async function underLinkLimits(store: Store, request: Request, userId: string): Promise<boolean> {
+    return (await store.hit(`limit:link:${userId}`, 30, 15 * 60)) && (await store.hit(`limit:link-ip:${clientIp(request, getProxyKey())}`, 60, 15 * 60))
   }
 
   function readNameAndPin(body: Json | null): { name: string; pin: string; problem: ReturnType<typeof pinProblem> } | Response {
@@ -299,6 +312,7 @@ export function createHandler(
       }
 
       case 'GET link': {
+        if (!(await underLinkLimits(store, request, me))) return fail(429, 'too_many')
         const code = await accounts.linkCode(url.searchParams.get('code') ?? '', me)
         if (!code) return fail(404, 'bad_code')
         const offered = code.offeredDiaryId ? await store.get(code.offeredDiaryId) : null
@@ -310,6 +324,7 @@ export function createHandler(
       case 'POST link': {
         const body = await readJson(request)
         const userCode = typeof body?.code === 'string' ? body.code : ''
+        if (!(await underLinkLimits(store, request, me))) return fail(429, 'too_many')
         const code = await accounts.linkCode(userCode, me)
         if (!code) return fail(404, 'bad_code')
         // Without a diaryId, it's the diary that iPad already has, added to this grown-up's if it has none.
@@ -351,8 +366,11 @@ export function createHandler(
       else if (op) response = await accountRoute(request, url, op, ask)
       else response = request.method === 'POST' ? await login(request) : fail(400, 'bad_request')
     } catch (err) {
-      console.error(err)
-      response = fail(500, 'server')
+      if (err instanceof TooBig) response = fail(413, 'too_big')
+      else {
+        console.error(err)
+        response = fail(500, 'server')
+      }
     }
     // Better Auth renews a grown-up's cookie now and then; pass that along.
     for (const cookie of setCookies) response.headers.append('Set-Cookie', cookie)
@@ -363,7 +381,7 @@ export function createHandler(
 /** Runs a query written as a tagged template, like Neon's `sql`, and returns its rows. */
 export type Sql = (strings: TemplateStringsArray, ...values: unknown[]) => Promise<Record<string, unknown>[]>
 
-/** Postgres storage. Tables are created on first use. */
+/** Postgres storage. Tables are created on first use, and checked for with one query after that. */
 export function postgresStore(sql: Sql): Store {
 
   let ready: Promise<void> | undefined
@@ -387,9 +405,19 @@ export function postgresStore(sql: Sql): Store {
       added_at bigint NOT NULL,
       PRIMARY KEY (diary_id, user_id))`
     await sql`CREATE INDEX IF NOT EXISTS diary_access_by_user ON diary_access (user_id, added_at)`
+    // For spotting an answer the log already has (see appendAnswers).
+    // Keep this the last statement, and name whatever is added after it in `upToDate` instead.
+    await sql`CREATE INDEX IF NOT EXISTS answers_by_moment ON answers (diary_id, (answer->>'at'))`
+  }
+  /** One quick look on a cold start: if the newest piece is there, everything before it is too. */
+  const upToDate = async () => {
+    const [row] = await sql`SELECT to_regclass('answers_by_moment') IS NOT NULL AS ready`
+    return row?.ready === true
   }
   const db = async () => {
-    ready ??= schema().catch((err: unknown) => {
+    ready ??= (async () => {
+      if (!(await upToDate())) await schema()
+    })().catch((err: unknown) => {
       ready = undefined
       throw err
     })
@@ -431,9 +459,26 @@ export function postgresStore(sql: Sql): Store {
       await (await db())`DELETE FROM diaries WHERE id = ${id}`
     },
     async appendAnswers(id, answers) {
-      await (await db())`
+      const sql = await db()
+      // An answer is known by its moment and fact. A batch sent twice (a reply that got lost, say)
+      // adds nothing the second time.
+      await sql`
         INSERT INTO answers (diary_id, answer)
-        SELECT ${id}, value FROM jsonb_array_elements(${JSON.stringify(answers)}::jsonb)`
+        SELECT ${id}, fresh.value
+        FROM (
+          SELECT DISTINCT ON (value->>'at', value->>'fact') value, position
+          FROM jsonb_array_elements(${JSON.stringify(answers)}::jsonb) WITH ORDINALITY AS sent (value, position)
+          ORDER BY value->>'at', value->>'fact', position) fresh
+        WHERE NOT EXISTS (
+          SELECT 1 FROM answers a
+          WHERE a.diary_id = ${id} AND a.answer->>'at' = fresh.value->>'at' AND a.answer->>'fact' = fresh.value->>'fact')
+        ORDER BY fresh.position`
+      // Now and then, drop whatever is past the newest KEPT_ANSWERS, so one diary can't fill the database.
+      if (Math.random() < 0.02) {
+        await sql`
+          DELETE FROM answers WHERE diary_id = ${id} AND seq <= (
+            SELECT seq FROM answers WHERE diary_id = ${id} ORDER BY seq DESC OFFSET ${KEPT_ANSWERS} LIMIT 1)`
+      }
     },
     async readAnswers(id) {
       const rows = await (await db())`
